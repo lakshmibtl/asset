@@ -121,6 +121,24 @@ class AssetForm(forms.ModelForm):
         })
     )
 
+    processor = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-lg rounded-3 shadow-sm',
+            'placeholder': 'e.g. Intel Core i7-12700H',
+            'id': 'id_processor'
+        })
+    )
+
+    graphic_card = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-lg rounded-3 shadow-sm',
+            'placeholder': 'e.g. NVIDIA RTX 3060',
+            'id': 'id_graphic_card'
+        })
+    )
+
     warranty = forms.ChoiceField(
         choices=Asset.WARRANTY_CHOICES,
         required=False,
@@ -165,7 +183,7 @@ class AssetForm(forms.ModelForm):
 
     class Meta:
         model = Asset
-        fields = ['asset_type', 'model', 'series_number', 'vendor_name', 'company_name', 'status', 'ram', 'storage', 'purchase_date', 'cost', 'warranty', 'warranty_end_date', 'image']
+        fields = ['asset_type', 'model', 'series_number', 'vendor_name', 'company_name', 'status', 'ram', 'storage', 'processor', 'graphic_card', 'purchase_date', 'cost', 'warranty', 'warranty_end_date', 'image']
 
         widgets = {
             'model': forms.TextInput(attrs={
@@ -176,7 +194,6 @@ class AssetForm(forms.ModelForm):
             'series_number': forms.TextInput(attrs={
                 'class': 'form-control form-control-lg rounded-3 shadow-sm',
                 'placeholder': 'Enter Serial / Series Number',
-                'required': 'required'
             }),
             'vendor_name': forms.TextInput(attrs={
                 'class': 'form-control form-control-lg rounded-3 shadow-sm',
@@ -199,7 +216,6 @@ class AssetForm(forms.ModelForm):
 
         # ✅ DOUBLE SAFETY: server-side required
         self.fields['company_name'].required = True
-        self.fields['series_number'].required = True
         self.fields['model'].required = True
         self.fields['cost'].required = True
 

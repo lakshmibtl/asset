@@ -1,232 +1,362 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Login Page</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
 
-    <!-- Boxicons (optional) -->
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
-        *{ margin:0; padding:0; box-sizing:border-box; font-family:'Outfit',sans-serif; }
-        body{ background:#e9e9e9; min-height:100vh; display:flex; justify-content:center; align-items:center; }
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
 
-        .container{ width:850px; height:450px; background:#fff; display:flex; border-radius:12px; overflow:hidden; box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+    body {
+      background-color: #f0f2f5;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        /* Left Login Box */
-        .login-box{ width:50%; padding:50px; }
-        .login-box h2{ font-size:32px; font-weight:600; margin-bottom:25px; color:#07518A; text-align:left; }
+    .login-container {
+      display: flex;
+      width: 1150px;
+      max-width: 95%;
+      height: 550px;
+      background-color: #ffffff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
 
-        .input-box{ position:relative; margin-bottom:22px; }
-        .input-box input{ width:100%; padding:12px 45px 12px 12px; border:none; border-bottom:2px solid #07518A; outline:none; font-size:16px; background:transparent; }
-        .input-box label{ position:absolute; top:50%; left:12px; transform:translateY(-50%); font-size:16px; color:#555; transition:0.18s; pointer-events:none; }
-        .input-box input:focus ~ label, .input-box input:not(:placeholder-shown) ~ label{ top:-6px; font-size:12px; color:#07518A; }
-        .input-box i{ position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:20px; color:#07518A; }
+    /* LEFT SIDE */
+    .login-left {
+      flex: 1.4;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding: 50px;
+      justify-content: center;
+      align-items: center;
+      background-image: url("{% static 'asset_app/images/Pasted image.png' %}");
+      background-size: cover;
+      background-position: left center;
+      background-repeat: no-repeat;
+      overflow: hidden;
+    }
+    
+    .login-left-content {
+      position: absolute;
+      top: 50px;
+      left: 50px;
+      z-index: 2;
+    }
 
-        .btn{ width:100%; background:#07518A; color:#fff; border:none; padding:12px; border-radius:25px; font-size:18px; cursor:pointer; transition:0.3s; }
-        .btn:hover{ background:#053C66; letter-spacing:1px; }
+    .login-left h1 {
+      font-size: 38px;
+      font-weight: 700;
+      color: #1a2a40;
+      line-height: 1.2;
+    }
 
-        .signup-text{ margin-top:15px; text-align:center; font-size:14px; }
-        .signup-text a{ color:#07518A; text-decoration:none; }
+    .login-left h1 span {
+      color: #0d5cff;
+    }
 
-        /* Centered Right Panel */
-        .right-box{ width:50%; background:#07518A; color:#fff; padding:0 40px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%); }
-        .right-box h1{ font-size:42px; line-height:1.3; margin-bottom:20px; }
-        .right-box p{ color:#eee; font-size:15px; width:70%; }
+    .login-left .features {
+      margin-top: 15px;
+      font-size: 15px;
+      color: #6c757d;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
-        /* messages */
-        .messages { margin-bottom:12px; }
-        .alert { background: #f8d7da; color:#842029; padding:10px 12px; border-radius:6px; margin-bottom:8px; }
-        .success { background:#d1e7dd; color:#0f5132; padding:10px 12px; border-radius:6px; margin-bottom:8px; }
+    .features span.dot {
+      width: 5px;
+      height: 5px;
+      background-color: #0d5cff;
+      border-radius: 50%;
+    }
 
-        /* Forgot Password Modal */
-        .modal-overlay{
-            display:none;
-            position:fixed;
-            top:0; left:0;
-            width:100%; height:100%;
-            background:rgba(0,0,0,0.6);
-            justify-content:center;
-            align-items:center;
-            z-index:9999;
-        }
-        .modal-box{
-            background:#fff;
-            padding:26px 28px;
-            width:380px;
-            border-radius:12px;
-            text-align:center;
-            position:relative;
-            box-shadow:0 8px 30px rgba(0,0,0,0.25);
-        }
-        .modal-box h3{ margin-bottom:10px; color:#07518A; }
-        .modal-box p{ font-size:14px; color:#333; }
-        .modal-box input{ width:100%; padding:10px; margin:15px 0; border:1px solid #ccc; border-radius:6px; }
-        .modal-box button{ width:100%; background:#07518A; color:#fff; border:none; padding:10px; border-radius:20px; cursor:pointer; }
-        .close-btn{ position:absolute; top:10px; right:15px; font-size:22px; cursor:pointer; }
+    /* RIGHT SIDE */
+    .login-right {
+      flex: 1;
+      background-color: #ffffff;
+      padding: 50px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-        .modal-message { margin:10px 0; font-size:14px; }
-        .modal-message .error { color:#842029; background:#f8d7da; padding:10px; border-radius:6px; }
-        .modal-message .success { color:#0f5132; background:#d1e7dd; padding:10px; border-radius:6px; }
+    .login-right-inner {
+      max-width: 400px;
+      width: 100%;
+      margin: 0 auto;
+    }
 
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column-reverse;
-                width: 90%;
-                height: auto;
-                margin: 20px 0;
-            }
-            .login-box, .right-box {
-                width: 100%;
-                padding: 30px;
-            }
-            .right-box {
-                clip-path: none;
-                border-radius: 12px 12px 0 0;
-            }
-            .login-box {
-                border-radius: 0 0 12px 12px;
-            }
-            .right-box p {
-                width: 100%;
-            }
-        }
-    </style>
+    .login-right h2 {
+      color: #0f172a;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .login-right .subtitle {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+      position: relative;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper i.input-icon {
+      position: absolute;
+      left: 15px;
+      color: #94a3b8;
+      font-size: 16px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 40px 12px 45px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      font-size: 14px;
+      color: #0f172a;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      border-color: #0d5cff;
+      box-shadow: 0 0 0 3px rgba(13, 92, 255, 0.1);
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 15px;
+      font-size: 16px;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+      color: #0d5cff;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      margin-top: 10px;
+    }
+
+    .checkbox-group input {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #0d5cff;
+    }
+
+    .checkbox-group label {
+      font-size: 14px;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .checkbox-group a {
+      color: #0d5cff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-btn {
+      width: 100%;
+      background: #0d5cff;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 15px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 14px rgba(13, 92, 255, 0.2);
+    }
+
+    .login-btn:hover {
+      background: #0046d6;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(13, 92, 255, 0.25);
+    }
+
+    .bottom-text {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .bottom-text a {
+      color: #0d5cff;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 5px;
+    }
+    
+    .alert {
+      background: #f8d7da;
+      color: #842029;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 992px) {
+      .login-container {
+        flex-direction: column;
+      }
+      .login-left {
+        flex: none;
+        height: 300px;
+        background-size: cover;
+      }
+      .login-left-content {
+        top: 30px;
+        left: 30px;
+      }
+      .login-right {
+        padding: 40px 30px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Left Form -->
-        <div class="login-box">
-            <h2>Login</h2>
 
-            <form method="post" action="{% url 'login' %}" novalidate>
-                {% csrf_token %}
-                {% if next %}
-                    <input type="hidden" name="next" value="{{ next }}">
-                {% endif %}
-
-                <!-- Form-level errors (e.g. invalid username/password) -->
-                {% if form.non_field_errors %}
-                    <div class="alert" role="alert" style="background: #f8d7da; color:#842029; padding:10px; border-radius:6px; margin-bottom:15px; font-size: 14px;">
-                        {{ form.non_field_errors|striptags }}
-                    </div>
-                {% endif %}
-
-                <div class="input-box">
-                    <input type="text" name="username" placeholder=" " value="{{ request.POST.username }}" required autocomplete="username" />
-                    <label>Username / Emp ID</label>
-                    <i class='bx bxs-user'></i>
-
-                    {% if form.username.errors %}
-                        <div class="alert" role="alert">{{ form.username.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-
-                <div class="input-box">
-                    <input type="password" id="passwordInput" name="password" placeholder=" " required autocomplete="current-password" />
-                    <label>Password</label>
-                    <i class='bx bx-hide' id="togglePassword" style="cursor: pointer;" title="Toggle Password Visibility"></i>
-
-                    {% if form.password.errors %}
-                        <div class="alert" role="alert">{{ form.password.errors|striptags }}</div>
-                    {% endif %}
-                </div>
-
-                <button type="submit" class="btn">Login</button>
-
-               <!-- place this under your Login button -->
-                 <div class="signup-text" style="margin-top:12px; text-align:left;">
-                   <a href="{% url 'password_reset' %}">Forgot Password?</a>
-               </div>
-
-            </form>
-        </div>
-
-        <!-- Centered Right Panel -->
-        <div class="right-box">
-            <h1>WELCOME<br>BACK!</h1>
-            <p>Sign in to continue to the dashboard.</p>
-        </div>
+  <div class="login-container">
+    <!-- LEFT SIDE -->
+    <div class="login-left">
     </div>
 
-    <!-- Forgot Password Modal -->
-    <!--✅ FORGOT PASSWORD MODAL (KEEP THIS)--> 
-  <!--<div id="forgotModal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
-      <span class="close-btn" onclick="closeForgotModal()">×</span>
+    <!-- RIGHT SIDE -->
+    <div class="login-right">
+      <div class="login-right-inner">
+        <h2>Login</h2>
+        <p class="subtitle">Welcome to IT Asset Management System.<br>Login to get started.</p>
 
-      <h3 id="forgotTitle">Forgot Password</h3>
-      <p>
-        Enter the email address associated with your account.
-        We’ll send you a link to reset your password.
-      </p>
+        <form method="post" action="{% url 'login' %}" novalidate>
+          {% csrf_token %}
+          {% if next %}
+              <input type="hidden" name="next" value="{{ next }}">
+          {% endif %}
 
-      <!-- ✅ ERROR / SUCCESS MESSAGE INSIDE POPUP -->
-      <!--<div class="modal-message" id="modalMessages">
-        {% if messages %}
-          {% for message in messages %}
-            <div class="{{ message.tags }}">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
+          {% if form.non_field_errors %}
+              <div class="alert" role="alert">
+                  {{ form.non_field_errors|striptags }}
+              </div>
+          {% endif %}
+
+          <div class="form-group">
+            <label>Username / Emp ID</label>
+            <div class="input-wrapper">
+              <i class="fa-regular fa-envelope input-icon"></i>
+              <input type="text" name="username" placeholder="Enter your username" value="{{ request.POST.username }}" required autocomplete="username">
+            </div>
+            {% if form.username.errors %}
+                <div class="alert" role="alert" style="margin-top:5px; margin-bottom:0;">{{ form.username.errors|striptags }}</div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="password" name="password" placeholder="••••••••••••" required autocomplete="current-password">
+              <i class="fa-regular fa-eye password-toggle" id="togglePassword"></i>
+            </div>
+            {% if form.password.errors %}
+                <div class="alert" role="alert" style="margin-top:5px; margin-bottom:0;">{{ form.password.errors|striptags }}</div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="login-btn" id="loginBtn">
+            <span id="btnText">Login</span>
+            <i id="btnLoader" class="fa-solid fa-spinner fa-spin" style="display: none;"></i>
+          </button>
+        </form>
+        
+        <div class="bottom-text">
+          <a href="{% url 'password_reset' %}">Forgot Password?</a>
+        </div>
       </div>
-
-      <form method="post" action="{% url 'password_reset' %}">
-        {% csrf_token %}
-        <input type="email" name="email" placeholder="Email address" required>
-        <button type="submit">Send Reset Link</button>
-      </form>
     </div>
-  </div>-->
+  </div>
 
-    <script>
-        function openForgotModal(){
-            const m = document.getElementById("forgotModal");
-            m.style.display = "flex";
-            m.setAttribute('aria-hidden','false');
-            const input = m.querySelector('input[name="email"]');
-            if(input) input.focus();
+  <script>
+    const togglePassword = document.getElementById("togglePassword");
+    const password = document.getElementById("password");
+
+    if(togglePassword && password) {
+      togglePassword.addEventListener("click", function () {
+        const type = password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+        this.classList.toggle("fa-eye-slash");
+      });
+    }
+
+    const loginForm = document.querySelector('form');
+    const loginBtn = document.getElementById('loginBtn');
+    const btnText = document.getElementById('btnText');
+    const btnLoader = document.getElementById('btnLoader');
+
+    if(loginForm) {
+      loginForm.addEventListener('submit', function() {
+        if (loginBtn && btnText && btnLoader) {
+          loginBtn.disabled = true;
+          loginBtn.style.opacity = '0.8';
+          loginBtn.style.cursor = 'not-allowed';
+          btnText.style.display = 'none';
+          btnLoader.style.display = 'inline-block';
         }
+      });
+    }
+  </script>
 
-        function closeForgotModal(){
-            const m = document.getElementById("forgotModal");
-            m.style.display = "none";
-            m.setAttribute('aria-hidden','true');
-        }
-
-        // Auto-open modal when there are messages (useful for showing password-reset messages)
-        window.addEventListener('DOMContentLoaded', () => {
-            const modalMsg = document.getElementById('modalMessages');
-            if (modalMsg && modalMsg.innerText.trim().length > 0) {
-                openForgotModal();
-            }
-
-            // close modal when clicking overlay outside the box
-            document.getElementById('forgotModal').addEventListener('click', function(e){
-                if (e.target === this) closeForgotModal();
-            });
-
-            // close on Esc
-            document.addEventListener('keydown', function(e){
-                if (e.key === 'Escape') closeForgotModal();
-            });
-        });
-
-        // Toggle Password Visibility
-        const togglePassword = document.querySelector('#togglePassword');
-        const passwordInput = document.querySelector('#passwordInput');
-
-        if(togglePassword && passwordInput) {
-            togglePassword.addEventListener('click', function (e) {
-                // toggle the type attribute
-                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordInput.setAttribute('type', type);
-                // toggle the eye / eye slash icon
-                this.classList.toggle('bx-show');
-                this.classList.toggle('bx-hide');
-            });
-        }
-    </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,209 +6,246 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Page</title>
 
-  <!-- Font Awesome for eye icon -->
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
     }
 
     body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background-color: #f5f7fb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background-color: #ffffff;
       height: 100vh;
+      display: flex;
     }
 
     .login-container {
       display: flex;
-      width: 850px;
-      background: #fff;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      height: 100%;
     }
 
-    /* LEFT SIDE — your old blue curved WELCOME design */
+    /* LEFT SIDE */
     .login-left {
-      flex: 1;
-      background: linear-gradient(135deg, #0044cc, #0073e6);
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-      border-top-right-radius: 80px;
-      border-bottom-right-radius: 80px;
-      overflow: hidden;
-    }
-
-    .welcome-shape {
-      position: relative;
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(circle at 30% 30%, #0066ff, #0033cc);
-      border-radius: 50%;
-      overflow: hidden;
-      clip-path: circle(75% at 50% 50%);
-      box-shadow: inset -15px -15px 25px rgba(255, 255, 255, 0.1),
-                  10px 10px 25px rgba(0, 0, 0, 0.3);
+      flex: 1.2;
+      background-color: #f8f9fa;
       display: flex;
       flex-direction: column;
+      position: relative;
+      padding: 60px;
       justify-content: center;
       align-items: center;
+      background-image: url("{% static 'images/it_assets_isometric.png' %}");
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
     }
-
-    .welcome-shape h1 {
-      font-size: 30px;
-      margin: 0;
-      color: #fff;
-      text-shadow: 0 3px 8px rgba(0,0,0,0.3);
-      letter-spacing: 1px;
-    }
-
-    .circle1, .circle2, .circle3 {
+    
+    .login-left-content {
       position: absolute;
+      top: 60px;
+      left: 60px;
+      z-index: 2;
+    }
+
+    .login-left h1 {
+      font-size: 42px;
+      font-weight: 700;
+      color: #1a2a40;
+      line-height: 1.2;
+    }
+
+    .login-left h1 span {
+      color: #0d5cff;
+    }
+
+    .login-left .features {
+      margin-top: 15px;
+      font-size: 16px;
+      color: #6c757d;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .features span.dot {
+      width: 5px;
+      height: 5px;
+      background-color: #0d5cff;
       border-radius: 50%;
-      box-shadow: inset 8px 8px 20px rgba(255,255,255,0.1),
-                  0 10px 25px rgba(0,0,0,0.2);
     }
 
-    .circle1 {
-      width: 160px;
-      height: 160px;
-      bottom: 30px;
-      left: 40px;
-      background: radial-gradient(circle at 30% 30%, #004de6, #002699);
-    }
-
-    .circle2 {
-      width: 120px;
-      height: 120px;
-      top: 50px;
-      right: 60px;
-      background: radial-gradient(circle at 20% 20%, #005ce6, #0033cc);
-    }
-
-    .circle3 {
-      width: 80px;
-      height: 80px;
-      bottom: 60px;
-      right: 100px;
-      background: radial-gradient(circle at 20% 20%, #007bff, #0048b8);
-    }
-
-    /* RIGHT SIDE — modern clean form */
+    /* RIGHT SIDE */
     .login-right {
       flex: 1;
-      padding: 60px 50px;
+      background-color: #ffffff;
+      padding: 60px 80px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+    }
+
+    .login-right-inner {
+      max-width: 450px;
+      width: 100%;
+      margin: 0 auto;
     }
 
     .login-right h2 {
-      color: #0b2258;
-      margin-bottom: 30px;
-      font-size: 28px;
+      color: #0f172a;
+      font-size: 36px;
       font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .login-right .subtitle {
+      color: #64748b;
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 35px;
     }
 
     .form-group {
-      position: relative;
       margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .form-group label {
+      display: block;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrapper i.input-icon {
+      position: absolute;
+      left: 15px;
+      color: #94a3b8;
+      font-size: 16px;
     }
 
     .form-group input {
       width: 100%;
-      padding: 14px 45px 14px 15px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
+      padding: 14px 40px 14px 45px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
       font-size: 15px;
+      color: #0f172a;
       outline: none;
       transition: all 0.3s;
     }
 
     .form-group input:focus {
-      border-color: #0044ff;
-      box-shadow: 0 0 5px rgba(0, 68, 255, 0.3);
+      border-color: #0d5cff;
+      box-shadow: 0 0 0 3px rgba(13, 92, 255, 0.1);
     }
 
-    /* Custom password eye icon */
     .password-toggle {
       position: absolute;
-      top: 50%;
       right: 15px;
-      transform: translateY(-50%);
-      font-size: 18px;
-      color: #888;
+      font-size: 16px;
+      color: #94a3b8;
       cursor: pointer;
       transition: color 0.3s ease;
     }
 
     .password-toggle:hover {
-      color: #0044ff;
+      color: #0d5cff;
     }
 
-    /* Hide default browser eye icon (important fix) */
-    input::-ms-reveal,
-    input::-ms-clear {
-      display: none;
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+      margin-top: 10px;
     }
 
-    input[type="password"]::-webkit-textfield-decoration-container,
-    input[type="password"]::-webkit-credentials-auto-fill-button {
-      visibility: hidden;
-      display: none !important;
-      pointer-events: none;
-      position: absolute;
-      right: 0;
+    .checkbox-group input {
+      margin-right: 10px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #0d5cff;
     }
 
-    .login-right button {
+    .checkbox-group label {
+      font-size: 14px;
+      color: #64748b;
+      cursor: pointer;
+    }
+
+    .checkbox-group a {
+      color: #0d5cff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-btn {
       width: 100%;
-      background: #0b2258;
+      background: #0d5cff;
       color: #fff;
       font-size: 16px;
+      font-weight: 600;
       border: none;
       border-radius: 8px;
-      padding: 13px;
-      margin-top: 10px;
+      padding: 15px;
       cursor: pointer;
       transition: background 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 14px rgba(13, 92, 255, 0.2);
     }
 
-    .login-right button:hover {
-      background: #051437;
-      transform: translateY(-2px);
+    .login-btn:hover {
+      background: #0046d6;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(13, 92, 255, 0.25);
     }
 
-    @media (max-width: 768px) {
+    .bottom-text {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    .bottom-text a {
+      color: #0d5cff;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 5px;
+    }
+
+    @media (max-width: 992px) {
       .login-container {
         flex-direction: column;
-        width: 90%;
       }
-
       .login-left {
-        border-radius: 0;
-        border-bottom-right-radius: 60px;
-        border-bottom-left-radius: 60px;
+        flex: none;
+        height: 300px;
+        background-size: cover;
       }
-
+      .login-left-content {
+        top: 30px;
+        left: 30px;
+      }
       .login-right {
         padding: 40px 30px;
-      }
-
-      .circle1, .circle2, .circle3 {
-        display: none;
-      }
-
-      .welcome-shape {
-        transform: scale(0.8);
       }
     }
   </style>
@@ -217,31 +255,51 @@
   <div class="login-container">
     <!-- LEFT SIDE -->
     <div class="login-left">
-      <div class="welcome-shape">
-        <h1>WELCOME</h1>
+      <div class="login-left-content">
+        <h1>IT Asset<br><span>Management</span></h1>
+        <div class="features">
+          Track <span class="dot"></span> Assign <span class="dot"></span> Manage <span class="dot"></span> Secure
+        </div>
       </div>
-      <div class="circle1"></div>
-      <div class="circle2"></div>
-      <div class="circle3"></div>
     </div>
 
     <!-- RIGHT SIDE -->
     <div class="login-right">
-      <h2>Login In</h2>
+      <div class="login-right-inner">
+        <h2>Sign in</h2>
+        <p class="subtitle">Welcome to IT Asset Management System.<br>Login to get started.</p>
 
-      <form action="/login/" method="POST">
-        {% csrf_token %}
-        <div class="form-group">
-          <input type="text" name="username" placeholder="User Name" required>
+        <form action="/login/" method="POST">
+          {% csrf_token %}
+          <div class="form-group">
+            <label>Username</label>
+            <div class="input-wrapper">
+              <i class="fa-regular fa-envelope input-icon"></i>
+              <input type="text" name="username" placeholder="Enter your username" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="password" name="password" placeholder="••••••••••••" required>
+              <i class="fa-regular fa-eye password-toggle" id="togglePassword"></i>
+            </div>
+          </div>
+
+          <div class="checkbox-group">
+            <input type="checkbox" id="terms" required>
+            <label for="terms">I agree to the <a href="#">terms of service</a></label>
+          </div>
+
+          <button type="submit" class="login-btn">Sign in</button>
+        </form>
+        
+        <div class="bottom-text">
+          Don't have an account? <a href="#">Contact Admin</a>
         </div>
-
-        <div class="form-group">
-          <input type="password" id="password" name="password" placeholder="Password" required>
-          <i class="fa-solid fa-eye password-toggle" id="togglePassword"></i>
-        </div>
-
-        <button type="submit">Login In</button>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -253,7 +311,6 @@
       const type = password.getAttribute("type") === "password" ? "text" : "password";
       password.setAttribute("type", type);
       this.classList.toggle("fa-eye-slash");
-      this.style.color = type === "text" ? "#0044ff" : "#888";
     });
   </script>
 

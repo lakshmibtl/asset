@@ -47,6 +47,14 @@
                     </select>
                 </div>
                 
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Active Status</label>
+                    <select name="is_active" class="form-select">
+                        <option value="True" {% if edit_user_obj.is_active %}selected{% endif %}>🟢 Active</option>
+                        <option value="False" {% if not edit_user_obj.is_active %}selected{% endif %}>🔴 Inactive</option>
+                    </select>
+                </div>
+                
                 <button type="submit" class="btn btn-primary w-100">Save Changes</button>
             </form>
         </div>

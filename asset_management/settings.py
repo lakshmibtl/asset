@@ -33,6 +33,7 @@ ALLOWED_HOSTS = [
     'host.docker.internal',
     'hrms.brihaspathi.in',
     "asset.brihaspathi.in",
+    "172.21.0.222",
 ]
 
 # Prevent "Forbidden (403)" on POSTs when behind a reverse proxy where

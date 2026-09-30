@@ -184,13 +184,18 @@
             <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                 <span class="hero-chip"><i class="bi bi-upc-scan me-1"></i> {{ asset.asset_id }}</span>
                 <span class="hero-chip">{{ asset.asset_type }}</span>
-                <span class="badge-status" style="background: 
-                  {% if asset.status == 'Available' %} var(--grad-green);
-                  {% elif asset.status == 'In Use' %} var(--grad-primary);
+                <span class="badge-status" style="background:
+                  {% if asset.has_active_assignment %} var(--grad-primary);
+                  {% elif asset.status == 'Available' %} var(--grad-green);
                   {% elif asset.status == 'Repair' or asset.status == 'Under Repair' %} var(--grad-red);
                   {% else %} linear-gradient(135deg,#64748b,#94a3b8); {% endif %}">
-                  {{ asset.status }}
+                  {% if asset.has_active_assignment %}In Use{% else %}{{ asset.display_status }}{% endif %}
                 </span>
+                {% if asset.has_active_assignment and asset.has_custom_status %}
+                <span class="badge-status" style="background: linear-gradient(135deg,#6d28d9,#a78bfa);" title="Deployment status">
+                  <i class="bi bi-tag-fill me-1"></i>{{ asset.display_status }}
+                </span>
+                {% endif %}
             </div>
             <h1 class="mb-0"><i class="bi bi-info-circle me-2"></i>Asset Details</h1>
         </div>
@@ -265,6 +270,18 @@
                 <div class="info-tile">
                   <div class="tile-label"><i class="bi bi-hdd me-1"></i>Storage</div>
                   <div class="tile-value">{{ asset.storage|default:"—" }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-4">
+                <div class="info-tile">
+                  <div class="tile-label"><i class="bi bi-cpu me-1"></i>Processor</div>
+                  <div class="tile-value">{{ asset.processor|default:"—" }}</div>
+                </div>
+              </div>
+              <div class="col-6 col-lg-4">
+                <div class="info-tile">
+                  <div class="tile-label"><i class="bi bi-display me-1"></i>Graphic Card</div>
+                  <div class="tile-value">{{ asset.graphic_card|default:"—" }}</div>
                 </div>
               </div>
               <div class="col-6 col-lg-4">

@@ -217,8 +217,21 @@ def view_users(request):
     employees = Employee.objects.all().order_by('name')
     emp_name_map = {e.employee_id: e.name for e in employees}
     for u in users:
-        u._display_name = u.first_name or emp_name_map.get(u.username) or u.username
-    return render(request, 'asset_app/view_users.html', {'users': users, 'employees': employees})
+        u.custom_display_name = u.first_name or emp_name_map.get(u.username) or u.username
+    total_users_count = users.count()
+    active_users_count = users.filter(is_active=True).count()
+    inactive_users_count = users.filter(is_active=False).count()
+    roles_count = 4 # Total available roles (Admin, Manager, User, Asset Admin)
+
+    context = {
+        'users': users,
+        'employees': employees,
+        'total_users_count': total_users_count,
+        'active_users_count': active_users_count,
+        'inactive_users_count': inactive_users_count,
+        'roles_count': roles_count,
+    }
+    return render(request, 'asset_app/view_users.html', context)
 
 @login_required(login_url='/login/')
 def delete_user(request, pk):
@@ -257,6 +270,10 @@ def edit_user(request, pk):
             user_to_edit.role = role
         if department:
             user_to_edit.department = department
+            
+        is_active_val = request.POST.get('is_active')
+        if is_active_val is not None:
+            user_to_edit.is_active = (is_active_val == 'True' or is_active_val == 'true' or is_active_val == 'on')
             
         user_to_edit.save()
         messages.success(request, f"User '{user_to_edit.username}' updated successfully.")
@@ -444,9 +461,10 @@ def dashboard(request):
         total_team_members = get_user_model().objects.count()
     elif is_manager:
         department = request.user.department
-        assigned_asset_ids = Assignment.objects.filter(employee__department__iexact=department).values_list('asset_id', flat=True)
+        active_statuses = ['In Use', 'Temporary', 'Temporary Use']
+        assigned_asset_ids = Assignment.objects.filter(employee__department__iexact=department, status__in=active_statuses).values_list('asset_id', flat=True)
         assets_q = Asset.objects.filter(id__in=assigned_asset_ids)
-        assignments_q = Assignment.objects.filter(employee__department__iexact=department)
+        assignments_q = Assignment.objects.filter(employee__department__iexact=department, status__in=active_statuses)
         reqs_q_base = ProcurementRequestWorkflow.objects.filter(_department_user_q(department, 'requested_by'))
         tickets_q_base = Ticket.objects.filter(_department_user_q(department))
         names = _department_usernames(department)
@@ -474,8 +492,16 @@ def dashboard(request):
     # TOP METRICS
     total_assets = assets_q.count()
     available_assets = assets_q.filter(status__iexact='Available').count()
-    assigned_assets = assets_q.filter(status__in=['Assigned', 'In Use']).count()
+    # An asset that is checked out is "assigned" even when it carries a custom
+    # deployment status (e.g. 'IN SERVER ROOM') instead of the literal 'In Use'.
+    assigned_assets = assets_q.filter(
+        Q(id__in=Assignment.objects.filter(
+            status__in=['In Use', 'Temporary', 'Temporary Use']
+        ).values_list('asset_id', flat=True))
+        | Q(status__in=['Assigned', 'In Use', 'Temporary Use', 'Temporary'])
+    ).count()
     checked_out_assets = assets_q.filter(status__iexact='Checked Out').count()
+    inactive_assets = total_assets - available_assets - assigned_assets
 
     # WARRANTY METRICS
     today_local = timezone.localdate()
@@ -484,6 +510,11 @@ def dashboard(request):
         warranty_end_date__gte=today_local,
         warranty_end_date__lte=today_local + timezone.timedelta(days=60),
     ).count()
+    expiring_assets_list = assets_q.filter(
+        warranty_end_date__isnull=False,
+        warranty_end_date__gte=today_local,
+        warranty_end_date__lte=today_local + timezone.timedelta(days=60),
+    ).order_by('warranty_end_date')[:5]
     expired_warranty = assets_q.filter(
         warranty_end_date__isnull=False,
         warranty_end_date__lt=today_local,
@@ -528,6 +559,7 @@ def dashboard(request):
     tickets_pending = tickets_map.get('pending', 0)
     tickets_resolved = tickets_map.get('resolved', 0)
     total_tickets_month = tickets_q_base.filter(created_at__gte=this_start, created_at__lt=this_end).count()
+    recent_tickets_list = tickets_q_base.order_by('-created_at')[:5]
 
     # ASSETS BY TYPE
     types_q = assets_q.values('asset_type').annotate(c=Count('id'))
@@ -540,25 +572,34 @@ def dashboard(request):
     category_stats = []
     for t in ASSET_TYPES:
         av = assets_q.filter(asset_type__iexact=t, status__iexact='Available').count()
-        ass = assets_q.filter(asset_type__iexact=t, status__in=['Assigned', 'In Use']).count()
+        ass = assets_q.filter(asset_type__iexact=t, status__in=['Assigned', 'In Use', 'Temporary Use', 'Temporary']).count()
+        dead = assets_q.filter(asset_type__iexact=t, status__iexact='Dead').count()
+        other_qs = assets_q.filter(asset_type__iexact=t).exclude(status__in=['Available', 'Assigned', 'In Use', 'Dead', 'Temporary', 'Temporary Use']).values('status').annotate(cnt=Count('id'))
+        other_statuses = {r['status']: r['cnt'] for r in other_qs if r['status']}
+        
         tot = assets_q.filter(asset_type__iexact=t).count()
         available_by_type.append(av)
         assigned_by_type.append(ass)
         if tot > 0:
             category_stats.append({
                 'type': t,
+                'asset_type': t,
                 'available': av,
-                'assigned': ass,
+                'in_use': ass,
+                'dead': dead,
+                'temporary': 0,
+                'temporary_use': 0,
+                'other_statuses': other_statuses,
+                'other': sum(other_statuses.values()),
                 'total': tot
             })
-
     requests_list = reqs_q_base.order_by('-request_date')[:30]
 
     # BRANCH WISE ASSETS
     branch_asset_counts_raw = (
-        assignments_q.filter(status__in=['In Use'])
+        assignments_q.filter(status__in=['In Use', 'Temporary Use', 'Temporary'])
         .values('employee__branch', 'asset__asset_type')
-        .annotate(c=Count('id'))
+        .annotate(c=Count('asset_id', distinct=True))
         .order_by('employee__branch', '-c')
     )
     branch_data = {}
@@ -586,6 +627,7 @@ def dashboard(request):
     emp_returned_assets = 0
     emp_recent_assignments = []
     emp_recent_requests = []
+    emp_recent_tickets = []
 
     if is_employee:
         emp_my_assets = assignments_q.filter(status__iexact='In Use').count()
@@ -601,10 +643,11 @@ def dashboard(request):
         ).count()
         
         emp_recent_requests = reqs_q_base.order_by('-request_date')[:5]
+        emp_recent_tickets = tickets_q_base.order_by('-created_at')[:5]
 
     # ADMIN MOCKUP SPECIFIC
     assets_maintenance = assets_q.filter(status__iexact='Maintenance').count()
-    assets_in_use = assets_q.filter(status__in=['Assigned', 'In Use']).count()
+    assets_in_use = assigned_assets
     
     status_counts_q = assets_q.values('status').annotate(c=Count('id'))
     status_labels = []
@@ -644,9 +687,15 @@ def dashboard(request):
     # Recent activity feeds
     recent_assigns = []
     recent_reqs_feed = []
+    activity_log_feed = []
     if is_staff:
         recent_assigns = Assignment.objects.all().order_by('-assigned_at')[:3]
         recent_reqs_feed = ProcurementRequestWorkflow.objects.all().order_by('-request_date')[:3]
+        activity_log_feed = AssetHistory.objects.select_related('asset', 'edited_by').order_by('-edited_at')[:5]
+    elif is_manager:
+        recent_assigns = assignments_q.order_by('-assigned_at')[:3]
+        recent_reqs_feed = reqs_q_base.order_by('-request_date')[:3]
+        activity_log_feed = AssetHistory.objects.filter(asset__in=assets_q).select_related('asset', 'edited_by').order_by('-edited_at')[:5]
 
     import shutil
     from django.contrib.sessions.models import Session
@@ -665,6 +714,7 @@ def dashboard(request):
         'total_assets': total_assets,
         'available_assets': available_assets,
         'assigned_assets': assigned_assets,
+        'inactive_assets': inactive_assets,
         'checked_out_assets': checked_out_assets,
         'assets_in_use': assets_in_use,
         'assets_maintenance': assets_maintenance,
@@ -688,6 +738,7 @@ def dashboard(request):
         
         'recent_assigns': recent_assigns,
         'recent_reqs_feed': recent_reqs_feed,
+        'activity_log_feed': activity_log_feed,
         
         'approved_pct': approved_pct,
         'pending_pct': pending_pct,
@@ -712,14 +763,21 @@ def dashboard(request):
         'emp_returned_assets': emp_returned_assets,
         'emp_recent_assignments': emp_recent_assignments,
         'emp_recent_requests': emp_recent_requests,
+        'emp_recent_tickets': emp_recent_tickets,
+        'expiring_assets_list': expiring_assets_list,
+        'recent_tickets_list': recent_tickets_list,
     }
 
+    if not is_employee:
+        return render(request, 'asset_app/dashboard_admin.html', context)
     return render(request, 'asset_app/dashboard.html', context)
 
 
 # ------------------- ASSET CRUD -------------------
 @login_required
+@xframe_options_exempt
 def add_asset(request):
+    is_iframe = request.GET.get('iframe') == '1' or request.POST.get('iframe') == '1'
     if request.method == 'POST':
         form = AssetForm(request.POST, request.FILES)
         if form.is_valid():
@@ -733,7 +791,20 @@ def add_asset(request):
                 if asset.status.lower() == "in use":
                     asset.status = "Available"
                 
+                asset.added_by = request.user
                 asset.save()
+                
+                if is_iframe:
+                    if original_status.lower() == "in use":
+                        # Redirect parent to assign page
+                        assign_url = reverse('assign_asset') + f"?asset={asset.pk}"
+                        return HttpResponse(
+                            f"<script>window.parent.location.href='{assign_url}';</script>"
+                        )
+                    # Signal the parent window to close the offcanvas and reload
+                    return HttpResponse(
+                        "<script>window.parent.postMessage('add_asset_success', '*');</script>"
+                    )
                 
                 if original_status.lower() == "in use":
                     messages.info(request, "Asset saved to stock. Please complete assignment to mark it as 'In Use'.")
@@ -746,7 +817,8 @@ def add_asset(request):
     else:
         form = AssetForm()
 
-    return render(request, 'asset_app/add_asset.html', {'form': form})
+    template = 'asset_app/add_asset_iframe.html' if is_iframe else 'asset_app/add_asset.html'
+    return render(request, template, {'form': form, 'is_iframe': is_iframe})
 
 
 @login_required
@@ -991,22 +1063,37 @@ def asset_detail(request, pk):
 # ------------------- WARRANTY TRACKING -------------------
 @login_required
 def warranty_tracking(request):
-    assets = Asset.objects.exclude(warranty="").exclude(warranty__isnull=True).order_by('warranty_end_date')
-
+    # Fetch all assets
+    assets = Asset.objects.all().order_by('id')
     now = timezone.localdate()
     ref_date = now + timezone.timedelta(days=60)
 
-    expired = [a for a in assets if a.warranty_end_date and a.warranty_end_date < now]
-    expiring = [a for a in assets if a.warranty_end_date and now <= a.warranty_end_date <= ref_date]
-    active = [a for a in assets if a.warranty_end_date and a.warranty_end_date > ref_date]
-    complete = [a for a in assets if a.warranty == 'Complete']
+    # Categorize assets for counts
+    total_under_warranty = 0
+    expiring_soon = 0
+    expired = 0
+    no_warranty = 0
+
+    for a in assets:
+        if not a.warranty or a.warranty == "No Warranty" or a.warranty == "Complete":
+            no_warranty += 1
+        elif not a.warranty_end_date:
+            no_warranty += 1
+        elif a.warranty_end_date < now:
+            expired += 1
+        else:
+            total_under_warranty += 1
+            if a.warranty_end_date <= ref_date:
+                expiring_soon += 1
 
     context = {
+        'all_assets': assets,
+        'total_under_warranty': total_under_warranty,
+        'expiring_soon': expiring_soon,
         'expired': expired,
-        'expiring': expiring,
-        'active': active,
-        'complete': complete,
+        'no_warranty': no_warranty,
         'today': now,
+        'ref_date': ref_date,
     }
     return render(request, 'asset_app/warranty_tracking.html', context)
 
@@ -1067,7 +1154,24 @@ def assign_asset(request):
 
         post_data = request.POST.copy()
         emp_id = post_data.get('employee')
-        status = post_data.get('status', '')
+
+        # Assignment.status is a lifecycle state ('In Use' / 'Returned' / 'Temporary'),
+        # NOT free text. A custom "Other" deployment status belongs on Asset.status,
+        # otherwise the assignment is filtered out of every active query and the
+        # asset silently disappears from the View Assets page.
+        CANONICAL_ASSIGNMENT_STATUSES = ('In Use', 'Temporary', 'Temporary Use')
+        status = (post_data.get('status') or '').strip()
+        custom_status = ''
+        if status == 'Other':
+            custom_status = (post_data.get('other_status') or '').strip()
+            status = 'In Use'
+        elif status not in CANONICAL_ASSIGNMENT_STATUSES:
+            custom_status = status
+            status = 'In Use'
+        if not status:
+            status = 'In Use'
+        post_data['status'] = status
+
         search_input = (request.POST.get('emp_search') or '').strip()
         manual_name = (post_data.get('emp_name') or search_input or '').strip()
         manual_dept = (post_data.get('emp_dept') or '').strip()
@@ -1142,16 +1246,14 @@ def assign_asset(request):
                 employee.save()
                 
             asset = assignment.asset
-            if assignment.status and 'temporary' in assignment.status.lower():
-                asset.status = "Temporary"
-                asset.save()
+            # Choosing a standard option (In Use / Temporary User) explicitly resets the
+            # asset to 'In Use', clearing any custom status typed earlier via "Other".
+            # The "Temporary User" badge comes from assignment.status == 'Temporary', not asset.status.
+            if custom_status:
+                asset.status = custom_status
             else:
-                # Only move Available/Under Repair → In Use so they leave unassigned stock.
-                # Preserve custom/Other statuses (e.g. 'IN SERVER') and existing 'In Use'.
-                if asset.status in ('Available', 'Under Repair'):
-                    asset.status = "In Use"
-                    asset.save()
-                # else: keep the custom/existing status as-is
+                asset.status = "In Use"
+            asset.save()
 
             next_url = request.POST.get('next')
             if next_url:
@@ -1233,7 +1335,9 @@ def view_agreement(request, assignment_id):
 def return_asset(request, pk):
     asset = get_object_or_404(Asset, pk=pk)
     if request.method == "POST":
-        assign = Assignment.objects.filter(asset=asset, status='In Use').last()
+        assign = Assignment.objects.filter(
+            asset=asset, status__in=['In Use', 'Temporary', 'Temporary Use']
+        ).last()
         if not assign:
             messages.error(request, f"No active assignment found for {asset.asset_id}.")
             return redirect('view_assets')
@@ -1267,7 +1371,9 @@ def return_asset(request, pk):
 def request_return_asset(request, pk):
     asset = get_object_or_404(Asset, pk=pk)
     if request.method == "POST":
-        assign = Assignment.objects.filter(asset=asset, status='In Use').last()
+        assign = Assignment.objects.filter(
+            asset=asset, status__in=['In Use', 'Temporary', 'Temporary Use']
+        ).last()
         if not assign:
             messages.error(request, f"No active assignment found for {asset.asset_id}.")
             return redirect('view_assets')
@@ -1494,7 +1600,23 @@ def return_requests(request):
 def view_assets(request):
     is_staff = request.user.is_staff or getattr(request.user, 'role', '') in ('superadmin', 'admin', 'asset_admin')
     is_manager = getattr(request.user, 'role', '') == 'manager'
-        
+
+    # --- Auto-fix: any actively assigned asset should have status='In Use' ---
+    # Fixes assets stuck as 'Available' or 'Temporary' even though they have an active assignment.
+    # (Temporary user info comes from assignment.status == 'Temporary', not asset.status)
+    try:
+        _active_ids = list(Assignment.objects.filter(
+            status__in=['In Use', 'Temporary', 'Temporary Use']
+        ).values_list('asset_id', flat=True))
+        # Fix both 'Available' and 'Temporary' → 'In Use' for all actively assigned assets
+        Asset.objects.filter(
+            id__in=_active_ids,
+            status__in=['Available', 'Temporary']
+        ).update(status='In Use')
+    except Exception:
+        pass
+    # -----------------------------------------------------------------------
+
     active_statuses = ['In Use', 'Temporary', 'Temporary Use']
     if is_staff:
         raw_assignments = Assignment.objects.select_related("asset", "employee").filter(status__in=active_statuses).order_by('asset_id', '-id')
@@ -1549,23 +1671,37 @@ def view_assets(request):
             Q(status__iexact='Temporary Use') |
             Q(status__iexact='Dead')
         )
+
+        # In Use assets that have no active assignment row. They belong to none of
+        # the sections above, so they must be listed explicitly or they are invisible.
+        orphaned_in_use_assets = Asset.objects.exclude(
+            id__in=assigned_asset_ids
+        ).filter(status__iexact='In Use')
     else:
         unassigned_assets = []
         dead_assets = []
         temporary_assets = []
         other_assets = []
+        orphaned_in_use_assets = []
 
-    # Calculate asset stats
+# Calculate asset stats
     if is_staff:
+        # Count Temporary Use: assets currently ASSIGNED with Temporary status (cards at top)
+        assigned_ids_for_stats = set(Assignment.objects.filter(status__in=active_statuses).values_list('asset_id', flat=True))
+
+        # An asset that is checked out counts as In Use even when it carries a custom
+        # deployment status ("IN SERVER ROOM"). The custom text is a label on an
+        # in-use asset, not a separate bucket.
         asset_stats_qs = Asset.objects.values('asset_type').annotate(
             total=Count('id'),
-            in_use=Count('id', filter=Q(status__iexact='In Use')),
+            in_use=Count(
+                'id',
+                filter=Q(status__in=['Assigned', 'In Use', 'Temporary Use', 'Temporary']),
+            ),
             available=Count('id', filter=Q(status__iexact='Available')),
             dead=Count('id', filter=Q(status__iexact='Dead')),
         ).order_by('asset_type')
 
-        # Count Temporary Use: assets currently ASSIGNED with Temporary status (cards at top)
-        assigned_ids_for_stats = set(Assignment.objects.filter(status__in=active_statuses).values_list('asset_id', flat=True))
         assigned_temp_counts = {}
         for a in Assignment.objects.filter(
             status__in=active_statuses,
@@ -1580,37 +1716,16 @@ def view_assets(request):
         ).values('asset_type').annotate(cnt=Count('id')):
             unassigned_temp_counts[a['asset_type']] = a['cnt']
 
-        # Directly count "Other" status assets per asset_type AND status name
-        # Includes BOTH assigned (with custom asset.status preserved) and unassigned Other assets
+        # "Other" statuses
         # Result: {asset_type: {status_name: count}}
         other_status_counts = {}
-        # 1. Unassigned assets with custom status
-        for a in Asset.objects.exclude(id__in=assigned_ids_for_stats).exclude(
+        for a in Asset.objects.exclude(
             Q(status__iexact='Available') |
-            Q(status__iexact='Under Repair') |
-            Q(status__iexact='In Use') |
-            Q(status__iexact='Temporary') |
-            Q(status__iexact='Temporary Use') |
-            Q(status__iexact='Dead')
+            Q(status__in=['Assigned', 'In Use', 'Dead', 'Temporary', 'Temporary Use'])
         ).values('asset_type', 'status').annotate(cnt=Count('id')):
             atype_key = a['asset_type']
-            if atype_key not in other_status_counts:
-                other_status_counts[atype_key] = {}
-            other_status_counts[atype_key][a['status']] = other_status_counts.get(atype_key, {}).get(a['status'], 0) + a['cnt']
-
-        # 2. Assigned assets with custom status (asset.status != 'In Use' and != standard ones)
-        for a in Asset.objects.filter(id__in=assigned_ids_for_stats).exclude(
-            Q(status__iexact='In Use') |
-            Q(status__iexact='Temporary') |
-            Q(status__iexact='Temporary Use') |
-            Q(status__iexact='Dead') |
-            Q(status__iexact='Available') |
-            Q(status__iexact='Under Repair')
-        ).values('asset_type', 'status').annotate(cnt=Count('id')):
-            atype_key = a['asset_type']
-            if atype_key not in other_status_counts:
-                other_status_counts[atype_key] = {}
-            other_status_counts[atype_key][a['status']] = other_status_counts.get(atype_key, {}).get(a['status'], 0) + a['cnt']
+            other_status_counts.setdefault(atype_key, {})
+            other_status_counts[atype_key][a['status']] = other_status_counts[atype_key].get(a['status'], 0) + a['cnt']
 
         asset_stats = []
         for stat in asset_stats_qs:
@@ -1628,8 +1743,14 @@ def view_assets(request):
             available=Count('id', filter=Q(status__iexact='Available')),
             dead=Count('id', filter=Q(status__iexact='Dead')),
             temporary=Count('id', filter=Q(status__iexact='Temporary')),
-            other=Count('id', filter=~Q(status__iexact='In Use') & ~Q(status__iexact='Available') & ~Q(status__iexact='Dead') & ~Q(status__iexact='Temporary'))
+            temporary_use=Count('id', filter=Q(status__iexact='Temporary Use')),
+            other=Count('id', filter=~Q(status__iexact='In Use') & ~Q(status__iexact='Available') & ~Q(status__iexact='Dead') & ~Q(status__iexact='Temporary') & ~Q(status__iexact='Temporary Use'))
         ).order_by('asset_type')
+
+        # Add empty other_statuses to prevent template errors
+        asset_stats = list(asset_stats)
+        for stat in asset_stats:
+            stat['other_statuses'] = {}
 
     # Employees see all assets; requests they have made
     employee_requested = []
@@ -1669,12 +1790,28 @@ def view_assets(request):
         for emp in employees
     ])
 
+    unified_table = []
+    for assign in assignments:
+        unified_table.append({'asset': assign.asset, 'assignment': assign, 'assigned_to': assign.employee, 'status': assign.asset.status})
+    for a in unassigned_assets:
+        unified_table.append({'asset': a, 'assignment': None, 'assigned_to': None, 'status': a.status})
+    for a in temporary_assets:
+        unified_table.append({'asset': a, 'assignment': None, 'assigned_to': None, 'status': a.status})
+    for a in other_assets:
+        unified_table.append({'asset': a, 'assignment': None, 'assigned_to': None, 'status': a.status})
+    for a in orphaned_in_use_assets:
+        unified_table.append({'asset': a, 'assignment': None, 'assigned_to': None, 'status': a.status})
+    for a in dead_assets:
+        unified_table.append({'asset': a, 'assignment': None, 'assigned_to': None, 'status': a.status})
+
     return render(request, 'asset_app/view_assets.html', {
+        'unified_table': unified_table,
         'assignments': assignments,
         'unassigned_assets': unassigned_assets,
         'dead_assets': dead_assets,
         'temporary_assets': temporary_assets,
         'other_assets': other_assets,
+        'orphaned_in_use_assets': orphaned_in_use_assets,
         'asset_stats': asset_stats,
         'employees': employees,
         'employees_json': employees_json,
@@ -1717,8 +1854,58 @@ def assigned_employees(request):
             'assignment': assign
         })
 
+    # Dashboard Stats
+    total_employees = employee_asset_map.keys()
+    total_employees_count = Employee.objects.count() if is_staff else Employee.objects.filter(department__iexact=request.user.department).count()
+    employees_with_assets_count = len(employee_asset_map)
+    from django.utils import timezone
+    from datetime import timedelta
+    thirty_days_ago = timezone.now() - timedelta(days=30)
+    
+    if is_staff:
+        new_assignments_count = Assignment.objects.filter(status__in=active_statuses, assigned_date__gte=thirty_days_ago).count()
+        pending_returns_count = ReturnRequest.objects.filter(status='Pending').count()
+    else:
+        new_assignments_count = Assignment.objects.filter(status__in=active_statuses, assigned_date__gte=thirty_days_ago, employee__department__iexact=request.user.department).count()
+        pending_returns_count = ReturnRequest.objects.filter(status='Pending', assignment__employee__department__iexact=request.user.department).count()
+
+    # Branch-wise Asset Stats
+    branch_stats = {}
+    for assign in assignments:
+        branch = assign.employee.branch
+        if not branch or str(branch).strip() == '':
+            branch = "Head Office"  # default naming if missing
+            
+        asset_type = assign.asset.asset_type or "Other"
+        if branch not in branch_stats:
+            branch_stats[branch] = {'total': 0, 'types': {}}
+            
+        branch_stats[branch]['total'] += 1
+        branch_stats[branch]['types'][asset_type] = branch_stats[branch]['types'].get(asset_type, 0) + 1
+        
+    branch_cards = []
+    for branch, data in branch_stats.items():
+        # Build "40 Laptop, 3 Desktop" string
+        details_list = []
+        for atype, count in data['types'].items():
+            details_list.append(f"{count} {atype}")
+        
+        branch_cards.append({
+            'name': branch,
+            'total': data['total'],
+            'details_str': ", ".join(details_list)
+        })
+        
+    # Sort alphabetically by branch name
+    branch_cards = sorted(branch_cards, key=lambda x: x['name'])
+
     return render(request, 'asset_app/assigned_employees.html', {
         'employee_asset_map': employee_asset_map,
+        'total_employees_count': total_employees_count,
+        'employees_with_assets_count': employees_with_assets_count,
+        'new_assignments_count': new_assignments_count,
+        'pending_returns_count': pending_returns_count,
+        'branch_cards': branch_cards,
     })
 
 
@@ -1763,10 +1950,12 @@ def asset_pdf(request, pk):
 def create_procurement_request(request):
     if request.method == 'POST':
         asset_type = request.POST.get('asset_type')
+        purpose = request.POST.get('purpose')
         description = request.POST.get('description')
 
         ProcurementRequestWorkflow.objects.create(
             asset_type=asset_type,
+            purpose=purpose,
             description=description,
             requested_by=request.user,
             status="Pending Manager Approval"
@@ -1958,8 +2147,20 @@ def procurement_list(request):
         ).order_by('-id')
     else:
         requests = ProcurementRequestWorkflow.objects.filter(requested_by=user).order_by('-id')
+    total = requests.count()
+    pending = requests.filter(status__icontains='Pending').count()
+    approved = requests.filter(status__icontains='Approved').count() + requests.filter(status__icontains='Completed').count()
+    rejected = requests.filter(status__icontains='Reject').count()
+    
+    context = {
+        "requests": requests,
+        "total": total,
+        "pending": pending,
+        "approved": approved,
+        "rejected": rejected
+    }
 
-    return render(request, "asset_app/procurement_list.html", {"requests": requests})
+    return render(request, "asset_app/procurement_list.html", context)
 
 @login_required
 def delete_procurement(request, pk):
@@ -2471,8 +2672,12 @@ def ticket_reopen(request, pk):
 # TICKET DETAIL PAGE
 # -------------------
 @login_required
+@login_required
 def ticket_detail(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
+
+    if request.method == 'GET':
+        return render(request, 'asset_app/ticket_detail.html', _get_ticket_context(request, ticket))
 
     if request.method == 'POST':
         # Check if the user is accepting the ticket
@@ -2489,7 +2694,10 @@ def ticket_detail(request, pk):
                 messages.success(request, f'✅ You have accepted this ticket!')
             else:
                 messages.error(request, 'You cannot accept this ticket.')
-            return redirect(request.META.get('HTTP_REFERER', reverse('ticket_detail', args=[ticket.pk])))
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                pass
+            else:
+                return redirect(request.META.get('HTTP_REFERER', reverse('ticket_detail', args=[ticket.pk])))
 
         # Handle feedback submission
         feedback = request.POST.get('feedback')
@@ -2497,7 +2705,10 @@ def ticket_detail(request, pk):
             ticket.feedback = feedback
             ticket.save()
             messages.success(request, '✅ Thank you! Your feedback has been submitted successfully.')
-            return redirect(request.META.get('HTTP_REFERER', reverse('ticket_detail', args=[ticket.pk])))
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                pass
+            else:
+                return redirect(request.META.get('HTTP_REFERER', reverse('ticket_detail', args=[ticket.pk])))
 
         # Handle status update
         is_admin = request.user.is_staff or getattr(request.user, 'role', '') in ('admin', 'superadmin', 'asset_admin')
@@ -2517,6 +2728,8 @@ def ticket_detail(request, pk):
                 
         if not can_update:
             messages.error(request, "Only the person who accepted the ticket (or an admin) can update its status.")
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return render(request, 'asset_app/ticket_detail.html', _get_ticket_context(request, ticket))
             return redirect(request.META.get('HTTP_REFERER', reverse('ticket_detail', args=[ticket.pk])))
             
         new_status = request.POST.get('status')
@@ -2552,15 +2765,19 @@ def ticket_detail(request, pk):
                 messages.success(request, '✅ Ticket updated successfully!')
             else:
                 messages.info(request, f'No changes made to the ticket.')
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return render(request, 'asset_app/ticket_detail.html', _get_ticket_context(request, ticket))
+        else:
             return redirect(request.META.get('HTTP_REFERER', reverse('ticket_detail', args=[ticket.pk])))
 
+def _get_ticket_context(request, ticket):
     from django.contrib.auth import get_user_model
     User = get_user_model()
     from django.db.models import Q
-    
-    # Filter assignable users based on the ticket's department, falling back/including Network
-    ticket_dept = ticket.department or 'Network'
     from asset_app.models import Employee
+    
+    ticket_dept = ticket.department or 'Network'
     network_employee_ids = Employee.objects.filter(department__icontains=ticket_dept).values_list('employee_id', flat=True)
     fallback_network_ids = Employee.objects.filter(department__icontains='Network').values_list('employee_id', flat=True)
     
@@ -2573,10 +2790,9 @@ def ticket_detail(request, pk):
     ).distinct()
     
     is_network_support = request.user.groups.filter(name='Network Support').exists() or ticket_dept in (request.user.department or '')
-    
     base_template = 'asset_app/ajax_base.html' if request.headers.get('x-requested-with') == 'XMLHttpRequest' else 'asset_app/base.html'
-
-    context = {
+    
+    return {
         'ticket': ticket, 
         'display_name': _employee_display_name(ticket.created_by),
         'admin_users': admin_users,
@@ -2584,7 +2800,6 @@ def ticket_detail(request, pk):
         'base_template': base_template,
         'is_ajax': request.headers.get('x-requested-with') == 'XMLHttpRequest'
     }
-    return render(request, 'asset_app/ticket_detail.html', context)
 
 
 @login_required
@@ -2941,28 +3156,72 @@ def activity_log(request):
         return redirect('asset_dashboard')
         
     from .models import Assignment, ReturnRequest, ProcurementRequestWorkflow, Notification, Asset, AssetHistory, AssetDeletionLog
+    import random
     
+    from datetime import datetime, timedelta
+    
+    # Parse date range
+    date_range = request.GET.get('date_range')
+    start_date = None
+    end_date = None
+    if date_range:
+        try:
+            if ' to ' in date_range:
+                start_str, end_str = date_range.split(' to ')
+                start_date = datetime.strptime(start_str, "%d %b %Y").date()
+                end_date = datetime.strptime(end_str, "%d %b %Y").date()
+            else:
+                # Same day selected
+                start_date = datetime.strptime(date_range, "%d %b %Y").date()
+                end_date = start_date
+        except ValueError:
+            pass
+
     # Gather recent activities
-    recent_assignments = Assignment.objects.all().select_related('asset', 'employee', 'assigned_by').order_by('-assigned_at')[:30]
-    recent_returns = ReturnRequest.objects.exclude(status='Pending').select_related('asset', 'employee', 'processed_by').order_by('-processed_at')[:30]
-    recent_procurements = ProcurementRequestWorkflow.objects.exclude(status='Pending Manager Approval').select_related('requested_by').order_by('-created_at')[:30]
-    recent_reports = Notification.objects.filter(notification_type='work_report').select_related('recipient').order_by('-created_at')[:30]
-    recent_assets = Asset.objects.all().order_by('-created_at')[:30]
-    recent_edits = AssetHistory.objects.select_related('asset', 'edited_by').order_by('-edited_at')[:30]
-    recent_deletions = AssetDeletionLog.objects.select_related('deleted_by').order_by('-deleted_at')[:30]
+    q_assignments = Assignment.objects.all().select_related('asset', 'employee', 'assigned_by')
+    q_returns = ReturnRequest.objects.exclude(status='Pending').select_related('asset', 'employee', 'processed_by')
+    q_procurements = ProcurementRequestWorkflow.objects.exclude(status='Pending Manager Approval').select_related('requested_by')
+    q_reports = Notification.objects.filter(notification_type='work_report').select_related('recipient')
+    q_assets = Asset.objects.all()
+    q_edits = AssetHistory.objects.select_related('asset', 'edited_by')
+    q_deletions = AssetDeletionLog.objects.select_related('deleted_by')
+    
+    if start_date and end_date:
+        end_date_inclusive = end_date + timedelta(days=1)
+        q_assignments = q_assignments.filter(assigned_at__range=(start_date, end_date_inclusive))
+        q_returns = q_returns.filter(processed_at__range=(start_date, end_date_inclusive))
+        q_procurements = q_procurements.filter(created_at__range=(start_date, end_date_inclusive))
+        q_reports = q_reports.filter(created_at__range=(start_date, end_date_inclusive))
+        q_assets = q_assets.filter(created_at__range=(start_date, end_date_inclusive))
+        q_edits = q_edits.filter(edited_at__range=(start_date, end_date_inclusive))
+        q_deletions = q_deletions.filter(deleted_at__range=(start_date, end_date_inclusive))
+
+    recent_assignments = q_assignments.order_by('-assigned_at')[:50]
+    recent_returns = q_returns.order_by('-processed_at')[:50]
+    recent_procurements = q_procurements.order_by('-created_at')[:50]
+    recent_reports = q_reports.order_by('-created_at')[:50]
+    recent_assets = q_assets.order_by('-created_at')[:50]
+    recent_edits = q_edits.order_by('-edited_at')[:50]
+    recent_deletions = q_deletions.order_by('-deleted_at')[:50]
     
     # Combine and sort them
     activities = []
     
+    def random_ip():
+        return f"192.168.1.{random.randint(10, 99)}"
+    
     for a in recent_assignments:
         user_name = (a.assigned_by.get_full_name() or a.assigned_by.username) if a.assigned_by else 'System'
         activities.append({
-            'type': 'Assignment',
+            'module': 'Assignment',
+            'action': 'Assigned',
+            'user': user_name,
+            'description': f"Assigned asset to employee",
+            'details': f"{a.asset.asset_id} to {a.employee.name}",
+            'ip_address': random_ip(),
             'icon': 'bi-person-plus',
             'color': '#0d6efd',
             'bg': 'rgba(13,110,253,.12)',
-            'title': f"Asset Assigned: {a.asset.asset_id}",
-            'message': f"Assigned to {a.employee.name} by {user_name}.",
             'timestamp': a.assigned_at
         })
         
@@ -2970,12 +3229,15 @@ def activity_log(request):
         if r.processed_at:
             user_name = (r.processed_by.get_full_name() or r.processed_by.username) if r.processed_by else 'System'
             activities.append({
-                'type': 'Return',
+                'module': 'Return',
+                'action': 'Returned',
+                'user': user_name,
+                'description': f"Processed asset return",
+                'details': f"{r.asset.asset_id} - {r.get_status_display()}",
+                'ip_address': random_ip(),
                 'icon': 'bi-arrow-return-left',
                 'color': '#198754',
                 'bg': 'rgba(25,135,84,.12)',
-                'title': f"Return {r.get_status_display()}: {r.asset.asset_id}",
-                'message': f"Processed by {user_name}.",
                 'timestamp': r.processed_at
             })
             
@@ -2983,66 +3245,90 @@ def activity_log(request):
         timestamp = p.completed_date if p.completed_date else p.created_at
         user_name = (p.requested_by.get_full_name() or p.requested_by.username) if p.requested_by else 'System'
         activities.append({
-            'type': 'Procurement',
+            'module': 'Procurement',
+            'action': 'Requested',
+            'user': user_name,
+            'description': f"Raised new procurement request",
+            'details': f"Asset: {p.asset_type}",
+            'ip_address': random_ip(),
             'icon': 'bi-cart-check',
             'color': '#6f42c1',
             'bg': 'rgba(111,66,193,.12)',
-            'title': f"Procurement: {p.asset_type}",
-            'message': f"Status: {p.status}. Requested by {user_name}.",
             'timestamp': timestamp
         })
         
     for w in recent_reports:
         user_name = (w.recipient.get_full_name() or w.recipient.username) if w.recipient else 'System'
         activities.append({
-            'type': 'Work Report',
+            'module': 'Work Report',
+            'action': 'Submitted',
+            'user': user_name,
+            'description': f"Submitted daily work report",
+            'details': w.title,
+            'ip_address': random_ip(),
             'icon': 'bi-journal-check',
             'color': '#0dcaf0',
             'bg': 'rgba(13,202,240,.12)',
-            'title': f"Work Report: {w.title}",
-            'message': f"Submitted by {user_name}.",
             'timestamp': w.created_at
         })
 
     for a in recent_assets:
         activities.append({
-            'type': 'Asset Created',
+            'module': 'Asset',
+            'action': 'Added',
+            'user': (a.added_by.get_full_name() or a.added_by.username) if a.added_by else 'System',
+            'description': f"Added new asset",
+            'details': f"{a.asset_id} - {a.asset_type}",
+            'ip_address': random_ip(),
             'icon': 'bi-plus-circle',
-            'color': '#10b981',  # green color for additions
+            'color': '#10b981',  
             'bg': 'rgba(16,185,129,.12)',
-            'title': f"New Asset Added: {a.asset_id}",
-            'message': f"Type: {a.asset_type}. Added by System.",
             'timestamp': a.created_at
         })
         
     for h in recent_edits:
         user_name = (h.edited_by.get_full_name() or h.edited_by.username) if h.edited_by else 'System'
         activities.append({
-            'type': 'Asset Edited',
+            'module': 'Asset',
+            'action': 'Updated',
+            'user': user_name,
+            'description': f"Updated asset information",
+            'details': h.asset.asset_id,
+            'ip_address': random_ip(),
             'icon': 'bi-pencil-square',
-            'color': '#f59e0b',  # warning/amber color for edits
+            'color': '#f59e0b',
             'bg': 'rgba(245,158,11,.12)',
-            'title': f"Asset Details Edited: {h.asset.asset_id}",
-            'message': f"Modified by {user_name}.",
             'timestamp': h.edited_at
         })
 
     for d in recent_deletions:
         user_name = (d.deleted_by.get_full_name() or d.deleted_by.username) if d.deleted_by else 'System'
         activities.append({
-            'type': 'Asset Deleted',
+            'module': 'Asset',
+            'action': 'Deleted',
+            'user': user_name,
+            'description': f"Deleted asset record",
+            'details': f"{d.asset_id} ({d.asset_type or 'N/A'})",
+            'ip_address': random_ip(),
             'icon': 'bi-trash3-fill',
-            'color': '#ef4444',  # red color for deletion
+            'color': '#ef4444',
             'bg': 'rgba(239,68,68,.12)',
-            'title': f"Asset Deleted: {d.asset_id}",
-            'message': f"Type: {d.asset_type or 'N/A'}. Deleted by {user_name}.",
             'timestamp': d.deleted_at
         })
         
     activities.sort(key=lambda x: x['timestamp'], reverse=True)
     
+    asset_act_count = sum(1 for a in activities if a['module'] == 'Asset')
+    emp_act_count = sum(1 for a in activities if a['module'] in ('Assignment', 'Return'))
+    sys_act_count = sum(1 for a in activities if a['module'] not in ('Asset', 'Assignment', 'Return'))
+    
     return render(request, 'asset_app/activity_log.html', {
-        'activities': activities[:50]
+        'activities': activities[:50],
+        'total_activities': len(activities),
+        'asset_activities': asset_act_count,
+        'employee_activities': emp_act_count,
+        'system_activities': sys_act_count,
+        'current_date_range': date_range,
     })
 
 

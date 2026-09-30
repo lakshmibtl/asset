@@ -3,6 +3,12 @@
 
 {% block content %}
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    
+    body {
+        font-family: 'DM Sans', sans-serif !important;
+    }
+
     :root {
         --primary: #07518A;
         --primary-2: #0d6efd;
@@ -18,7 +24,7 @@
     }
 
     body {
-        background-color: #f4f7fb;
+        /* Inheriting from base.html */
     }
 
     /* ============ HERO BANNER ============ */
@@ -90,26 +96,20 @@
 
     /* ============ GLASS PANEL ============ */
     .glass-panel {
-        background: var(--glass-bg);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1px solid rgba(255, 255, 255, 0.7);
+        background: #ffffff;
         border-radius: var(--radius);
-        box-shadow: var(--shadow-soft);
+        box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.03));
     }
 
     /* ============ STAT TILES ============ */
     .stat-tile {
         padding: 1.15rem 1.25rem;
         border-radius: var(--radius);
-        background: var(--glass-bg);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.7);
-        box-shadow: var(--shadow-soft);
+        background: #ffffff;
+        box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.03));
         cursor: pointer;
         transition: var(--transition);
         position: relative;
-        overflow: hidden;
     }
 
     .stat-tile::after {
@@ -189,12 +189,10 @@
 
     /* ============ ASSET CARDS ============ */
     .asset-card {
-        border: 1px solid rgba(255, 255, 255, 0.7);
+        background: #ffffff;
+        border: none;
         border-radius: var(--radius);
-        background: var(--glass-bg);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        box-shadow: var(--shadow-soft);
+        box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.03));
         overflow: hidden;
         transition: var(--transition);
     }
@@ -290,6 +288,10 @@
         background: linear-gradient(135deg, #475569 0%, #64748b 100%);
     }
 
+    .status-strip.custom {
+        background: linear-gradient(135deg, #6d28d9 0%, #a78bfa 100%);
+    }
+
     /* ============ BADGES ============ */
     .status-badge {
         font-weight: 700;
@@ -308,6 +310,12 @@
     .badge-avail {
         background: linear-gradient(135deg, rgba(22, 163, 74, 0.1), rgba(34, 197, 94, 0.18));
         color: #15803d;
+    }
+
+    .badge-custom {
+        background: linear-gradient(135deg, rgba(109, 40, 217, 0.12), rgba(167, 139, 250, 0.22));
+        color: #6d28d9;
+        border: 1px solid rgba(109, 40, 217, 0.25);
     }
 
     /* ============ TEXT HELPERS ============ */
@@ -465,17 +473,231 @@
         background: var(--glass-bg);
         backdrop-filter: blur(10px);
     }
+
+    /* NEW MODERN OVERRIDES */
+    :root {
+        --primary: #4361ee;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --surface: #ffffff;
+        --background: #f4f7fe;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --card-radius: 24px;
+        --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.03);
+        --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+    body {
+        background-color: var(--background) !important;
+    }
+    .glass-panel, .stat-tile, .asset-card {
+        background: var(--surface) !important;
+        border-radius: var(--card-radius) !important;
+        border: none !important;
+        box-shadow: var(--shadow-soft) !important;
+    }
+    .stat-tile:hover, .asset-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: var(--shadow-hover) !important;
+    }
+    .stat-icon {
+        background: #f8fafc !important;
+        color: var(--primary) !important;
+        border-radius: 18px !important;
+        box-shadow: none !important;
+    }
+    .stat-value {
+        color: var(--text-main) !important;
+    }
+    .avail-chip { background: #ecfdf5 !important; color: #059669 !important; border: none !important; }
+    .inuse-chip { background: #eff6ff !important; color: #2563eb !important; border: none !important; }
+    .dead-chip { background: #fef2f2 !important; color: #dc2626 !important; border: none !important; }
+    .temp-chip { background: #fff7ed !important; color: #ea580c !important; border: none !important; }
+    .assigned-pill {
+        background: #f8fafc !important;
+        border: 1px dashed #e2e8f0 !important;
+        border-radius: 16px !important;
+    }
+    .status-strip.in-use { background: var(--primary) !important; }
+    .status-strip.available { background: var(--success) !important; }
+    .status-strip.repair { background: var(--warning) !important; }
+    .status-strip.dead { background: var(--danger) !important; }
+    .status-strip.temporary { background: #8b5cf6 !important; }
+    .status-strip.custom { background: linear-gradient(135deg, #6d28d9 0%, #a78bfa 100%) !important; }
+    .status-badge {
+        border: none !important;
+    }
+    .badge-inuse { background: #eff6ff !important; color: #2563eb !important; }
+    .btn-action {
+        background: #f8fafc !important;
+        color: var(--text-muted) !important;
+        border: none !important;
+        border-radius: 12px !important;
+    }
+    .btn-action:hover {
+        background: #e2e8f0 !important;
+        color: var(--text-main) !important;
+    }
+    .btn-action.btn-outline-danger { background: #fef2f2 !important; color: #dc2626 !important; }
+    .btn-action.btn-outline-danger:hover { background: #fee2e2 !important; }
+    .btn-action.btn-success { background: #ecfdf5 !important; color: #059669 !important; }
+    .btn-action.btn-warning { background: #fff7ed !important; color: #ea580c !important; }
+    .btn-primary, .btn-assign-grad {
+        background: var(--primary) !important;
+        color: #ffffff !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3) !important;
+    }
+    .asset-thumb {
+        background: #f8fafc !important;
+        border: 1px solid #f1f5f9 !important;
+        border-radius: 16px !important;
+    }
+    .info-label { color: var(--text-muted) !important; }
+    .info-value { color: var(--text-main) !important; }
+    .filter-btn {
+        border: none !important;
+        background: #f8fafc !important;
+        color: var(--text-muted) !important;
+    }
+    .filter-btn.active {
+        background: var(--primary) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3) !important;
+    }
+    /* ============ LIST VIEW CSS ============ */
+    .list-view-active.asset-row {
+        display: table !important;
+        width: 100% !important;
+        background: #fff !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        overflow: hidden !important;
+        margin-bottom: 2rem !important;
+    }
+
+    .list-view-active .asset-item {
+        display: table-row !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        transition: background-color 0.2s ease !important;
+        width: auto !important;
+        max-width: none !important;
+        flex: none !important;
+        cursor: default !important;
+    }
+    
+    .list-view-active .asset-item:hover {
+        background-color: #f8fafc !important;
+    }
+    
+    .list-view-active .asset-card {
+        display: contents !important;
+    }
+    
+    .list-view-active .status-strip {
+        display: none !important;
+    }
+
+    .list-view-active .card-body {
+        display: contents !important;
+    }
+    
+    /* Make the 4 children of card-body act as table cells */
+    .list-view-active .card-body > div {
+        display: table-cell !important;
+        vertical-align: middle !important;
+        padding: 1rem 1.5rem !important;
+        margin: 0 !important;
+        border: none !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+    
+    .list-view-active .card-body > div.d-flex {
+        display: table-cell !important;
+    }
+    
+    /* Cell 1: Status and ID */
+    .list-view-active .card-body > div:nth-child(1) {
+        width: 20% !important;
+    }
+    
+    /* Cell 2: Image and Name */
+    .list-view-active .card-body > div:nth-child(2) {
+        width: 35% !important;
+    }
+    .list-view-active .card-body > div:nth-child(2) .d-flex {
+        display: flex !important;
+        align-items: center !important;
+    }
+
+    /* Cell 3: Assignment / Specs */
+    .list-view-active .card-body > div:nth-child(3) {
+        width: 20% !important;
+        background: transparent !important;
+        border: none !important;
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+    
+    /* Cell 4: Actions */
+    .list-view-active .card-body > div:nth-child(4) {
+        width: 25% !important;
+        text-align: right !important;
+    }
+    
+    .list-view-active .card-body > div:nth-child(4) > * {
+        display: inline-block !important;
+        margin: 0.2rem !important;
+    }
+
+    .list-view-active .asset-thumb {
+        width: 48px !important;
+        height: 48px !important;
+        margin-right: 1.5rem !important;
+        flex-shrink: 0 !important;
+        border-radius: 8px !important;
+        background: #f8fafc !important;
+    }
+    
+    .list-view-active .info-label {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.2rem !important;
+        display: block !important;
+    }
+    
+    .list-view-active .info-value {
+        font-size: 0.95rem !important;
+        display: block !important;
+    }
+    
+    .list-view-active .spec-box {
+        padding: 0 !important;
+        background: transparent !important;
+    }
+    
+    .list-view-active .spec-box div {
+        display: block !important;
+        margin-right: 0 !important;
+        margin-bottom: 0.3rem !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .list-view-active .badge {
+        font-size: 0.75rem !important;
+        padding: 0.4em 0.8em !important;
+    }
 </style>
 
-<div class="container py-4">
+<div class="container-fluid py-4 px-4">
 
     <!-- ================= STANDARD HEADER ================= -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 animate-in"
         style="--delay: 0.05s;">
         <div>
-            <a href="{% url 'asset_dashboard' %}" class="text-decoration-none text-muted small fw-bold mb-2 d-inline-block transition hover-lift">
-                <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
-            </a>
+
             <h3 class="fw-bolder text-dark mb-1">
                 <i class="bi bi-box-seam-fill text-primary me-2"></i>Asset Inventory
             </h3>
@@ -483,16 +705,18 @@
         </div>
         {% if request.user.is_staff %}
         <div class="mt-2 mt-md-0">
-            <a href="{% url 'add_asset' %}" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm">
+            <button type="button" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm"
+                    id="openAddAssetOffcanvasBtn"
+                    data-bs-toggle="offcanvas" data-bs-target="#addAssetOffcanvas" aria-controls="addAssetOffcanvas">
                 <i class="bi bi-plus-lg me-1"></i> Add New Asset
-            </a>
+            </button>
         </div>
         {% endif %}
     </div>
 
     <!-- ASSET STATS -->
     {% if asset_stats and request.user.is_staff or asset_stats and request.user.role == 'manager' or asset_stats and request.user.role == 'superadmin' %}
-    <div class="row g-3 mb-4 animate-in" style="--delay: 0.1s">
+    <div class="row g-3 mb-4 animate-in" style="--delay: 0.1s; position: relative; z-index: 10;">
         {% for stat in asset_stats %}
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
             <div class="stat-tile stat-card-btn" data-filter="{{ stat.asset_type|lower }}">
@@ -507,21 +731,16 @@
                 </div>
                 <div class="d-flex flex-wrap gap-2">
                     {% if request.user.role != 'manager' %}
-                    <span class="avail-chip small fw-bold px-3 py-1 rounded-pill" title="Available">
+                    <span class="avail-chip small fw-bold px-3 py-1 rounded-pill" title="Available" style="cursor: pointer;" onclick="filterByBadge(event, '{{ stat.asset_type|lower|escapejs }}', 'available')">
                         <i class="bi bi-check-circle-fill me-1"></i>{{ stat.available }}
                     </span>
                     {% endif %}
-                    <span class="inuse-chip small fw-bold px-3 py-1 rounded-pill" title="In Use">
-                        <i class="bi bi-person-check-fill me-1"></i>{{ stat.in_use }}
+                    <span class="inuse-chip small fw-bold px-3 py-1 rounded-pill" title="In Use (including Temporary Users)" style="cursor: pointer;" onclick="filterByBadge(event, '{{ stat.asset_type|lower|escapejs }}', 'in use')">
+                        <i class="bi bi-person-check-fill me-1"></i>{{ stat.in_use|add:stat.temporary_use }}
                     </span>
                     {% if stat.dead > 0 %}
-                    <span class="dead-chip small fw-bold px-3 py-1 rounded-pill" style="background: rgba(239, 68, 68, 0.12); color: #dc2626;" title="Dead">
+                    <span class="dead-chip small fw-bold px-3 py-1 rounded-pill" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; cursor: pointer;" title="Dead" onclick="filterByBadge(event, '{{ stat.asset_type|lower|escapejs }}', 'dead')">
                         <i class="bi bi-x-octagon-fill me-1"></i>{{ stat.dead }}
-                    </span>
-                    {% endif %}
-                    {% if stat.temporary_use > 0 %}
-                    <span class="temp-chip small fw-bold px-3 py-1 rounded-pill" style="background: rgba(245, 158, 11, 0.13); color: #b45309;" title="Temporary Use (Assigned)">
-                        <i class="bi bi-clock-history me-1"></i>{{ stat.temporary_use }}
                     </span>
                     {% endif %}
                     {% if stat.temporary > 0 %}
@@ -529,11 +748,21 @@
                         <i class="bi bi-hourglass-split me-1"></i>{{ stat.temporary }}
                     </span>
                     {% endif %}
-                    {% for status_name, status_count in stat.other_statuses.items %}
-                    <span class="small fw-bold px-3 py-1 rounded-pill" style="background: rgba(109, 40, 217, 0.12); color: #6d28d9;" title="{{ status_name }}">
-                        <i class="bi bi-tools me-1"></i>{{ status_name }} {{ status_count }}
-                    </span>
-                    {% endfor %}
+                    {% if stat.other_statuses %}
+                    <div class="dropdown d-inline-block" onclick="event.stopPropagation();">
+                        <button type="button" class="btn btn-sm rounded-pill border-0" style="background: rgba(109, 40, 217, 0.12); color: #6d28d9; font-size: 0.875em; font-weight: bold; padding: 0.25rem 0.75rem;" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-tags-fill me-1"></i>Other {{ stat.other }} <i class="bi bi-chevron-down ms-1" style="font-size: 0.7rem;"></i>
+                        </button>
+                        <ul class="dropdown-menu shadow border-0" style="font-size: 0.85rem; border-radius: 12px; z-index: 1050; min-width: 150px;">
+                            {% for k, v in stat.other_statuses.items %}
+                            <li class="dropdown-item py-1 d-flex justify-content-between align-items-center" style="cursor: pointer;" onclick="filterByBadge(event, '{{ stat.asset_type|lower|escapejs }}', '{{ k|lower|escapejs }}')">
+                                <span>{{ k }}</span>
+                                <span class="badge" style="background: #e2e8f0; color: #475569;">{{ v }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -542,7 +771,7 @@
     {% endif %}
 
     <!-- FILTER BAR -->
-    <div class="row mb-4 animate-in" style="--delay: 0.15s">
+    <div class="row mb-4 animate-in" style="--delay: 0.15s; position: relative; z-index: 5;">
         <div class="col-12">
             <div class="glass-panel p-3 d-flex flex-column flex-md-row gap-3 align-items-md-center filter-bar">
                 <!-- CATEGORY FILTER -->
@@ -588,6 +817,12 @@
                             placeholder="Search by Asset ID / SN / Type...">
                         {% endif %}
                     </div>
+                </div>
+
+                <!-- VIEW TOGGLE -->
+                <div class="ms-md-2 mt-2 mt-md-0 d-flex gap-2">
+                    <button class="btn btn-outline-primary active view-toggle-btn" style="border-radius: 999px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" id="btnGrid" title="Grid View"><i class="bi bi-grid-fill"></i></button>
+                    <button class="btn btn-outline-secondary view-toggle-btn" style="border-radius: 999px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" id="btnList" title="List View"><i class="bi bi-list-ul"></i></button>
                 </div>
             </div>
         </div>
@@ -664,39 +899,167 @@
     </div>
     {% endif %}
 
-    <!-- ASSIGNED ASSETS -->
-    <div class="row g-4" id="assignedAssets">
+    <!-- UNIFIED ASSETS TABLE -->
+    <div id="tableViewContainer">
+    <div class="card border-0 shadow-sm mt-4" style="border-radius: 12px; overflow: visible;">
+        <div class="table-responsive" style="overflow: visible;">
+            <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem; min-width: 1200px; color: #334155;">
+                <thead style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                    <tr>
+
+                        <th class="border-bottom-0 fw-semibold text-muted">Asset ID</th>
+                        <th class="border-bottom-0 fw-semibold text-muted">Asset Name</th>
+                        <th class="border-bottom-0 fw-semibold text-muted">Image</th>
+                        <th class="border-bottom-0 fw-semibold text-muted">Serial Number</th>
+                        <th class="border-bottom-0 fw-semibold text-muted">Type</th>
+                        <th class="border-bottom-0 fw-semibold text-muted">Category</th>
+                        <th class="border-bottom-0 fw-semibold text-muted">Status</th>
+                        <th class="border-bottom-0 fw-semibold text-muted">Assigned To</th>
+                        <th class="border-bottom-0 fw-semibold text-muted">Purchase Date</th>
+                        <th class="border-bottom-0 fw-semibold text-muted">Warranty Expiry</th>
+                        <th class="border-bottom-0 fw-semibold text-muted text-center" style="padding-right: 1.5rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="border-top-0 asset-table-body">
+                    {% for row in unified_table %}
+                    <tr class="asset-item" 
+                        data-type="{{ row.asset.asset_type|lower }}" 
+                        data-status="{{ row.asset.status|lower }}"
+                        data-name="{{ row.asset.name|lower }}"
+                        data-model="{{ row.asset.model|lower }}" 
+                        data-empname="{{ row.assigned_to.name|lower|default:'' }}" 
+                        data-empid="{{ row.assigned_to.employee_id|default:'' }}"
+                        data-assetid="{{ row.asset.asset_id|lower }}" 
+                        data-sn="{{ row.asset.series_number|lower|default:'' }}">
+                        
+
+                        <td class="fw-bold text-dark">{{ row.asset.asset_id }}</td>
+                        <td class="text-muted fw-medium">{{ row.asset.name|default:"-" }}</td>
+                        <td>
+                            {% if row.asset.image %}
+                            <img src="{{ row.asset.image.url }}" class="rounded shadow-sm" style="width:36px;height:36px;object-fit:cover;">
+                            {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted" style="width:36px;height:36px;">
+                                <i class="bi bi-display"></i>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ row.asset.series_number|default:"-" }}</td>
+                        <td><span class="badge bg-light text-secondary border px-2 py-1">{{ row.asset.asset_type }}</span></td>
+                        <td class="text-muted">Company</td>
+                        <td>
+                            {% if row.assignment or row.status == 'In Use' or row.status == 'Assigned' %}
+                            <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1"><i class="bi bi-person-check-fill me-1"></i> Assigned</span>
+                            {% elif 'Temporary' in row.status %}
+                            <span class="badge bg-warning bg-opacity-10 text-warning px-2 py-1"><i class="bi bi-clock-history me-1"></i> Temporary</span>
+                            {% elif row.status == 'Available' %}
+                            <span class="badge bg-success bg-opacity-10 text-success px-2 py-1"><i class="bi bi-check-circle-fill me-1"></i> Available</span>
+                            {% elif row.status == 'Dead' %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger px-2 py-1"><i class="bi bi-x-octagon-fill me-1"></i> Dead</span>
+                            {% elif row.asset.has_custom_status %}
+                            <span class="badge badge-custom px-2 py-1" title="Deployment status: {{ row.asset.display_status }}"><i class="bi bi-tag-fill me-1"></i> {{ row.asset.display_status }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary px-2 py-1">{{ row.status }}</span>
+                            {% endif %}
+                            {% if row.assignment and row.asset.has_custom_status %}
+                            <div class="mt-1">
+                                <span class="badge badge-custom px-2 py-1" title="Deployment status: {{ row.asset.display_status }}">
+                                    <i class="bi bi-tag-fill me-1"></i> {{ row.asset.display_status }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td class="text-dark fw-medium">
+                            {% if row.assigned_to %}{{ row.assigned_to.name }}{% else %}
+                            <span class="text-warning-emphasis small"><i class="bi bi-exclamation-triangle me-1"></i>No Active Assignment</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ row.asset.created_at|date:"d M Y"|default:"-" }}</td>
+                        <td class="text-muted">
+                            {% if row.asset.warranty_end_date %}
+                            <div class="text-dark">{{ row.asset.warranty_end_date|date:"d M Y" }}</div>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td class="text-center" style="padding-right: 1.5rem;">
+                            <div class="dropdown">
+                                <button class="btn btn-link text-muted p-0 shadow-none" type="button" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                    <li><a class="dropdown-item" href="{% url 'asset_detail' row.asset.pk %}"><i class="bi bi-eye me-2 text-muted"></i> View Detail</a></li>
+                                    {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'asset_admin' %}
+                                    <li><a class="dropdown-item edit-asset-trigger" href="{% url 'edit_asset' row.asset.pk %}"><i class="bi bi-pencil me-2 text-primary"></i> Edit Asset</a></li>
+                                    <li><button type="button" class="dropdown-item assign-trigger" data-asset-id="{{ row.asset.pk }}" data-bs-toggle="offcanvas" data-bs-target="#assignAssetOffcanvas"><i class="bi bi-person-plus me-2 text-success"></i> Assign</button></li>
+                                    <li>
+                                        <form method="POST" action="{% url 'delete_asset' row.asset.pk %}" class="delete-asset-form mb-0">
+                                            {% csrf_token %}
+                                            <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteAssetModal">
+                                                <i class="bi bi-trash me-2"></i> Delete
+                                            </button>
+                                        </form>
+                                    </li>
+                                    {% endif %}
+                                    {% if request.user.is_staff or request.user.role == 'manager' or request.user.role == 'admin' %}
+                                        {% if row.assignment %}
+                                        <li><button type="button" class="dropdown-item transfer-trigger" data-asset-id="{{ row.asset.pk }}" data-asset-name="{{ row.asset.asset_id }}" data-transfer-url="{% url 'transfer_asset' row.asset.pk %}" data-bs-toggle="offcanvas" data-bs-target="#transferAssetOffcanvas"><i class="bi bi-arrow-left-right me-2 text-info"></i> Transfer</button></li>
+                                        <li><button type="button" class="dropdown-item return-trigger" data-return-url="{% url 'return_asset' row.asset.pk %}" data-asset-name="{{ row.asset.asset_id }}"><i class="bi bi-arrow-return-left me-2 text-warning"></i> Return</button></li>
+                                        {% endif %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="12" class="text-center py-5">
+                            <div class="text-muted"><i class="bi bi-inbox fs-1 d-block mb-3 text-secondary"></i>No Assets Found</div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div> <!-- end tableViewContainer -->
+
+    <div id="gridViewContainer" class="d-none">
+    <!-- ASSIGNED / IN USE ASSETS -->
+    <div class="row g-4 asset-row" id="assignedAssets">
         {% for assign in assignments %}
         <div class="col-12 col-md-6 col-lg-4 animate-in asset-item" role="button" tabindex="0"
-            data-type="{{ assign.asset.asset_type|lower }}" data-name="{{ assign.asset.name|lower }}"
+            data-type="{{ assign.asset.asset_type|lower }}" data-status="{{ assign.asset.status|lower }}" data-name="{{ assign.asset.name|lower }}"
             data-model="{{ assign.asset.model|lower }}" data-empname="{{ assign.employee.name|lower }}"
             data-empid="{{ assign.employee.employee_id }}" data-assetid="{{ assign.asset.asset_id|lower }}"
             data-sn="{{ assign.asset.series_number|lower|default:'' }}"
             data-href="{% url 'asset_detail' assign.asset.pk %}" style="--delay: 0.{{ forloop.counter }}s">
             <div class="card h-100 asset-card">
-                {% if 'temporary' in assign.status|lower or 'temporary' in assign.asset.status|lower %}
-                <div class="status-strip temporary w-100"></div>
-                {% elif assign.asset.status != 'In Use' and assign.asset.status != 'Available' and assign.asset.status != 'Dead' %}
-                <div class="status-strip w-100" style="background: linear-gradient(135deg, #6d28d9 0%, #a78bfa 100%);"></div>
-                {% else %}
+                {% if assign.asset.has_custom_status %}
+                <div class="status-strip custom w-100"></div>
+                {% elif assign.asset.status != 'Available' and assign.asset.status != 'Dead' %}
                 <div class="status-strip in-use w-100"></div>
+                {% elif assign.asset.status == 'Dead' %}
+                <div class="status-strip dead w-100"></div>
+                {% else %}
+                <div class="status-strip available w-100"></div>
                 {% endif %}
                 <div class="card-body p-4 d-flex flex-column">
 
                     <div class="d-flex justify-content-between align-items-start mb-3">
-                        {% if 'temporary' in assign.status|lower or 'temporary' in assign.asset.status|lower %}
-                        <span class="badge status-badge" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 191, 36, 0.25)); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3);">
-                            <i class="bi bi-clock-history me-1"></i> Temporary Use
-                        </span>
-                        {% elif assign.asset.status != 'In Use' and assign.asset.status != 'Available' %}
-                        <span class="badge status-badge" style="background: linear-gradient(135deg, rgba(109, 40, 217, 0.12), rgba(167, 139, 250, 0.22)); color: #6d28d9; border: 1px solid rgba(109, 40, 217, 0.25);">
-                            <i class="bi bi-tools me-1"></i> {{ assign.asset.status }}
-                        </span>
-                        {% else %}
-                        <span class="badge badge-inuse status-badge">
-                            <i class="bi bi-person-check-fill me-1"></i> In Use
-                        </span>
-                        {% endif %}
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge status-badge badge-inuse">
+                                <i class="bi bi-person-check-fill me-1"></i> In Use
+                            </span>
+                            {% if assign.asset.has_custom_status %}
+                            <span class="badge status-badge badge-custom" title="Deployment status: {{ assign.asset.display_status }}">
+                                <i class="bi bi-tag-fill me-1"></i> {{ assign.asset.display_status }}
+                            </span>
+                            {% endif %}
+                            {% if 'temporary' in assign.status|lower or 'temporary' in assign.asset.status|lower or 'TEMP-' in assign.employee.employee_id %}
+                            <span class="badge status-badge" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 191, 36, 0.25)); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3);">
+                                <i class="bi bi-clock-history me-1"></i> Temporary User
+                            </span>
+                            {% endif %}
+                        </div>
                         <div class="text-muted small fw-semibold">ID: {{ assign.asset.asset_id }}</div>
                     </div>
 
@@ -735,12 +1098,15 @@
                                     class="fw-normal fs-6" style="color: #4b5563;">({{ assign.employee.employee_id }})</span>{% endif %}
                             </p>
                             {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'superadmin' or request.user.role == 'asset_admin' %}
-                            <button type="button" class="btn btn-sm text-muted p-0 edit-manual-emp border-0 shadow-none hover-lift" 
-                                data-empid="{{ assign.employee.id }}" 
+                            <button type="button" class="btn btn-sm text-muted p-0 assign-trigger border-0 shadow-none hover-lift" 
+                                data-asset-id="{{ assign.asset.pk }}" 
+                                data-empid="{{ assign.employee.employee_id }}" 
                                 data-empname="{{ assign.employee.name }}"
                                 data-empdept="{{ assign.employee.department|default:'' }}"
                                 data-empbranch="{{ assign.employee.branch|default:'' }}"
-                                title="Edit Manual Employee">
+                                data-bs-toggle="offcanvas" 
+                                data-bs-target="#assignAssetOffcanvas"
+                                title="Edit Assignment">
                                 <i class="bi bi-pencil-square" style="font-size: 1.2rem; color: #2F4F4F; opacity: 0.8;"></i>
                             </button>
                             {% endif %}
@@ -751,10 +1117,25 @@
                         <p class="info-label text-uppercase small fw-bold mb-2">
                             <i class="bi bi-person-circle me-1"></i> Assigned To
                         </p>
-                        <p class="info-value fs-5 mb-0 text-wrap text-break" style="color: var(--primary);">
-                            {{ assign.employee.name }} {% if assign.employee.employee_id %}<span
-                                class="text-muted fw-normal fs-6">({{ assign.employee.employee_id }})</span>{% endif %}
-                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="info-value fs-5 mb-0 text-wrap text-break" style="color: var(--primary);">
+                                {{ assign.employee.name }} {% if assign.employee.employee_id %}<span
+                                    class="text-muted fw-normal fs-6">({{ assign.employee.employee_id }})</span>{% endif %}
+                            </p>
+                            {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'superadmin' or request.user.role == 'asset_admin' %}
+                            <button type="button" class="btn btn-sm text-muted p-0 assign-trigger border-0 shadow-none hover-lift" 
+                                data-asset-id="{{ assign.asset.pk }}" 
+                                data-empid="{{ assign.employee.employee_id }}" 
+                                data-empname="{{ assign.employee.name }}"
+                                data-empdept="{{ assign.employee.department|default:'' }}"
+                                data-empbranch="{{ assign.employee.branch|default:'' }}"
+                                data-bs-toggle="offcanvas" 
+                                data-bs-target="#assignAssetOffcanvas"
+                                title="Edit Assignment">
+                                <i class="bi bi-pencil-square" style="font-size: 1.2rem; color: var(--primary); opacity: 0.8;"></i>
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
                     {% endif %}
 
@@ -861,18 +1242,27 @@
              Assigned section count always equals the "In Use" tally -->
         {% for a in orphaned_in_use_assets %}
         <div class="col-12 col-md-6 col-lg-4 animate-in asset-item" role="button" tabindex="0"
-            data-type="{{ a.asset_type|lower }}" data-name="{{ a.name|lower }}"
+            data-type="{{ a.asset_type|lower }}" data-status="{{ a.status|lower }}" data-name="{{ a.name|lower }}"
             data-model="{{ a.model|lower }}" data-empname="" data-empid=""
             data-assetid="{{ a.asset_id|lower }}" data-sn="{{ a.series_number|lower|default:'' }}"
             data-href="{% url 'asset_detail' a.pk %}" style="--delay: 0.{{ forloop.counter }}s">
             <div class="card h-100 asset-card">
+                {% if a.has_custom_status %}
+                <div class="status-strip custom w-100"></div>
+                {% else %}
                 <div class="status-strip in-use w-100"></div>
+                {% endif %}
                 <div class="card-body p-4 d-flex flex-column">
 
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <span class="badge badge-inuse status-badge">
                             <i class="bi bi-person-check-fill me-1"></i> In Use
                         </span>
+                        {% if a.has_custom_status %}
+                        <span class="badge badge-custom status-badge" title="Deployment status: {{ a.display_status }}">
+                            <i class="bi bi-tag-fill me-1"></i> {{ a.display_status }}
+                        </span>
+                        {% endif %}
                         <div class="text-muted small fw-semibold">ID: {{ a.asset_id }}</div>
                     </div>
 
@@ -948,10 +1338,10 @@
                 <p class="text-muted small mb-0">Warehouse stock ready to be assigned.</p>
             </div>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="availableAssets">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 asset-row" id="availableAssets">
             {% for a in unassigned_assets %}
             <div class="col animate-in asset-item" role="button" tabindex="0" data-type="{{ a.asset_type|lower }}"
-                data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
+                data-status="{{ a.status|lower }}" data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
                 data-assetid="{{ a.asset_id|lower }}" data-sn="{{ a.series_number|lower|default:'' }}" data-href="" style="--delay: 0.{{ forloop.counter }}s">
                 <div class="card h-100 asset-card">
                     <div class="status-strip available w-100"></div>
@@ -1080,10 +1470,10 @@
                 <p class="text-muted small mb-0">Assets marked or assigned for temporary usage.</p>
             </div>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="temporaryAssets">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 asset-row" id="temporaryAssets">
             {% for a in temporary_assets %}
             <div class="col animate-in asset-item" role="button" tabindex="0" data-type="{{ a.asset_type|lower }}"
-                data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
+                data-status="{{ a.status|lower }}" data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
                 data-assetid="{{ a.asset_id|lower }}" data-sn="{{ a.series_number|lower|default:'' }}" data-href="{% url 'asset_detail' a.pk %}"
                 style="--delay: 0.{{ forloop.counter }}s">
                 <div class="card h-100 asset-card">
@@ -1186,10 +1576,10 @@
                 <p class="text-muted small mb-0">Assets with a custom or non-standard status (e.g. Under Repair, Maintenance).</p>
             </div>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="otherAssets">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 asset-row" id="otherAssets">
             {% for a in other_assets %}
             <div class="col animate-in asset-item" role="button" tabindex="0" data-type="{{ a.asset_type|lower }}"
-                data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
+                data-status="{{ a.status|lower }}" data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
                 data-assetid="{{ a.asset_id|lower }}" data-sn="{{ a.series_number|lower|default:'' }}" data-href="{% url 'asset_detail' a.pk %}"
                 style="--delay: 0.{{ forloop.counter }}s">
                 <div class="card h-100 asset-card">
@@ -1293,10 +1683,10 @@
                 <p class="text-muted small mb-0">Assets marked as dead, faulty, or scrapped stock.</p>
             </div>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="deadAssets">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 asset-row" id="deadAssets">
             {% for a in dead_assets %}
             <div class="col animate-in asset-item" role="button" tabindex="0" data-type="{{ a.asset_type|lower }}"
-                data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
+                data-status="{{ a.status|lower }}" data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
                 data-assetid="{{ a.asset_id|lower }}" data-sn="{{ a.series_number|lower|default:'' }}" data-href="{% url 'asset_detail' a.pk %}"
                 style="--delay: 0.{{ forloop.counter }}s">
                 <div class="card h-100 asset-card">
@@ -1380,6 +1770,7 @@
         </div>
     </div>
     {% endif %}
+    </div> <!-- end gridViewContainer -->
 
 </div>
 
@@ -1458,6 +1849,13 @@
                     {% endfor %}
                     </optgroup>
                     {% endif %}
+                    {% if assignments %}
+                    <optgroup label="── Currently Assigned ──">
+                    {% for a in assignments %}
+                    <option value="{{ a.asset.id }}">{{ a.asset.asset_id }} — {{ a.asset.asset_type }} ({{ a.asset.name|default:a.asset.asset_type }}) [Assigned to {{ a.employee.name }}]</option>
+                    {% endfor %}
+                    </optgroup>
+                    {% endif %}
                 </select>
             </div>
 
@@ -1474,8 +1872,10 @@
                     STATUS</label>
                 <select name="status" id="deploymentStatusSelect" class="form-select">
                     <option value="In Use">In Use</option>
-                    <option value="Temporary">Temporary Use</option>
+                    <option value="Temporary">Temporary User</option>
+                    <option value="Other">Others</option>
                 </select>
+                <input type="text" name="other_status" id="offcanvasOtherStatusInput" class="form-control mt-2" placeholder="Specify custom status..." style="display: none;">
             </div>
 
             <button type="submit" class="btn btn-assign-grad w-100 btn-action py-3 fw-bold">
@@ -1647,6 +2047,35 @@
 
 <!-- FILTER + SEARCH SCRIPT -->
 <script>
+    function filterByBadge(e, assetType, statusKeyword) {
+        e.stopPropagation();
+        const targetBtn = document.querySelector(`.filter-btn[data-filter="${assetType}"]`);
+        if (targetBtn) {
+            targetBtn.click();
+        } else {
+            const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+            if (allBtn) allBtn.click();
+        }
+        
+        const searchInput = document.getElementById("assetSearch");
+        if (searchInput) {
+            searchInput.value = statusKeyword;
+            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        
+        const sectionId = statusKeyword === 'dead' ? 'deadAssets' :
+                          statusKeyword === 'available' ? 'availableAssets' :
+                          statusKeyword === 'temporary' ? 'temporaryAssets' :
+                          statusKeyword === 'in use' ? 'assignedAssets' : 'otherAssets';
+        const section = document.getElementById(sectionId);
+        const gridContainer = document.getElementById('gridViewContainer');
+        if (section && gridContainer && !gridContainer.classList.contains('d-none')) {
+            setTimeout(() => {
+                section.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }, 100);
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
         const filterButtons = document.querySelectorAll(".filter-btn");
         const searchInput = document.getElementById("assetSearch");
@@ -1671,6 +2100,7 @@
                 const empId = (item.dataset.empid || "").toLowerCase();
                 const assetId = (item.dataset.assetid || "").toLowerCase();
                 const sn = (item.dataset.sn || "").toLowerCase();
+                const status = (item.dataset.status || "").toLowerCase();
 
                 const matchesFilter = (filterValue === "all") || (types.indexOf(filterValue) !== -1) || (names.indexOf(filterValue) !== -1);
                 const matchesQuery =
@@ -1681,7 +2111,8 @@
                     sn.indexOf(query) !== -1 ||
                     types.indexOf(query) !== -1 ||
                     names.indexOf(query) !== -1 ||
-                    models.indexOf(query) !== -1;
+                    models.indexOf(query) !== -1 ||
+                    status.indexOf(query) !== -1;
 
                 if (matchesFilter && matchesQuery) {
                     item.style.display = "";
@@ -1715,6 +2146,44 @@
             });
         });
 
+        // View Toggle Logic
+        const btnGrid = document.getElementById('btnGrid');
+        const btnList = document.getElementById('btnList');
+        const gridViewContainer = document.getElementById('gridViewContainer');
+        const tableViewContainer = document.getElementById('tableViewContainer');
+        
+        if (btnGrid && btnList) {
+            btnGrid.addEventListener('click', () => {
+                btnGrid.classList.add('active', 'btn-outline-primary');
+                btnGrid.classList.remove('btn-outline-secondary');
+                btnList.classList.remove('active', 'btn-outline-primary');
+                btnList.classList.add('btn-outline-secondary');
+                
+                if (gridViewContainer) gridViewContainer.classList.remove('d-none');
+                if (tableViewContainer) tableViewContainer.classList.add('d-none');
+                
+                localStorage.setItem('assetViewPref', 'grid');
+            });
+            btnList.addEventListener('click', () => {
+                btnList.classList.add('active', 'btn-outline-primary');
+                btnList.classList.remove('btn-outline-secondary');
+                btnGrid.classList.remove('active', 'btn-outline-primary');
+                btnGrid.classList.add('btn-outline-secondary');
+                
+                if (gridViewContainer) gridViewContainer.classList.add('d-none');
+                if (tableViewContainer) tableViewContainer.classList.remove('d-none');
+                
+                localStorage.setItem('assetViewPref', 'list');
+            });
+            
+            // Restore preference, default to list
+            if (localStorage.getItem('assetViewPref') === 'grid') {
+                btnGrid.click();
+            } else {
+                btnList.click();
+            }
+        }
+
         // Search input — live
         searchInput.addEventListener("input", function () {
             applyFilters();
@@ -1722,7 +2191,12 @@
 
         // Make stat cards clickable
         document.querySelectorAll('.stat-card-btn').forEach(card => {
-            card.addEventListener('click', function () {
+            card.addEventListener('click', function (e) {
+                // Ignore clicks on buttons or dropdowns inside the card
+                if (e.target.closest('.dropdown') || e.target.closest('button')) {
+                    return;
+                }
+                
                 const filterVal = this.dataset.filter;
                 const targetBtn = document.querySelector(`.filter-btn[data-filter="${filterVal}"]`);
 
@@ -1790,8 +2264,40 @@
         document.querySelectorAll('.assign-trigger').forEach(btn => {
             btn.addEventListener('click', function (e) {
                 const assetId = this.dataset.assetId;
+                const empId = this.dataset.empid;
+                const empName = this.dataset.empname;
+                const empDept = this.dataset.empdept;
+                const empBranch = this.dataset.empbranch;
+
                 if (assetId) {
                     $('#assetSelect').val(assetId).trigger('change');
+                }
+
+                if (empName) {
+                    document.getElementById('empName').value = empName;
+                    document.getElementById('empDept').value = empDept || '';
+                    document.getElementById('empBranch').value = empBranch || '';
+                    document.getElementById('empHiddenId').value = empId || '';
+                    
+                    if (empId && (empId.includes('EMP-') || empId.includes('TEMP-'))) {
+                        document.getElementById('empName').removeAttribute('readonly');
+                        document.getElementById('empDept').removeAttribute('readonly');
+                        document.getElementById('empBranch').removeAttribute('readonly');
+                        document.getElementById('empSearchInput').value = '';
+                        document.getElementById('toggleManualEntryBtn').innerHTML = '<i class="bi bi-person-badge me-1"></i>Search User';
+                    } else {
+                        document.getElementById('empSearchInput').value = empName + (empId ? ' (' + empId + ')' : '');
+                        document.getElementById('empName').setAttribute('readonly', true);
+                        document.getElementById('empDept').setAttribute('readonly', true);
+                        document.getElementById('empBranch').setAttribute('readonly', true);
+                        document.getElementById('toggleManualEntryBtn').innerHTML = '<i class="bi bi-pencil-square me-1"></i>Manual Entry';
+                    }
+                } else {
+                    document.getElementById('empName').value = '';
+                    document.getElementById('empDept').value = '';
+                    document.getElementById('empBranch').value = '';
+                    document.getElementById('empHiddenId').value = '';
+                    document.getElementById('empSearchInput').value = '';
                 }
             });
         });
@@ -1807,6 +2313,22 @@
                 }
             });
         });
+
+        // Toggle 'Other' status input in Assign offcanvas
+        const offcanvasStatusSelect = document.getElementById('deploymentStatusSelect');
+        const offcanvasOtherStatusInput = document.getElementById('offcanvasOtherStatusInput');
+        if (offcanvasStatusSelect && offcanvasOtherStatusInput) {
+            offcanvasStatusSelect.addEventListener('change', function() {
+                if (this.value === 'Other') {
+                    offcanvasOtherStatusInput.style.display = 'block';
+                    offcanvasOtherStatusInput.required = true;
+                } else {
+                    offcanvasOtherStatusInput.style.display = 'none';
+                    offcanvasOtherStatusInput.required = false;
+                    offcanvasOtherStatusInput.value = '';
+                }
+            });
+        }
 
         // Return Asset Modal Handler (employee + staff + manager)
         document.querySelectorAll('.return-trigger').forEach(btn => {
@@ -2083,7 +2605,7 @@
 </script>
 
 <!-- Edit Manual Employee Offcanvas -->
-<div class="offcanvas offcanvas-end tk-offcanvas tk-form" tabindex="-1" id="editManualEmpOffcanvas" aria-labelledby="editManualEmpOffcanvasLabel" style="width: 450px; z-index: 1060; top: 65px; height: calc(100vh - 65px);" data-bs-backdrop="false">
+<div class="offcanvas offcanvas-end tk-offcanvas tk-form" tabindex="-1" id="editManualEmpOffcanvas" aria-labelledby="editManualEmpOffcanvasLabel" style="width: 450px; z-index: 1060; top: 65px; height: calc(100vh - 65px);" data-bs-backdrop="false" data-bs-scroll="true">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title fw-bold" id="editManualEmpOffcanvasLabel">
             <i class="bi bi-pencil-square me-2 text-primary"></i>Edit Employee Details
@@ -2137,29 +2659,146 @@
 </div>
 
 <!-- Edit Asset Offcanvas -->
-<div class="offcanvas offcanvas-end tk-offcanvas shadow-lg" tabindex="-1" id="editAssetOffcanvas" aria-labelledby="editAssetOffcanvasLabel" style="width: 520px; max-width: 85vw; z-index: 1060; top: 65px; height: calc(100vh - 65px); border-top-left-radius: 16px; border-bottom-left-radius: 16px;" data-bs-backdrop="false">
-    <div class="offcanvas-header border-bottom py-3 px-4">
-        <h5 class="offcanvas-title m-0 fw-bold" id="editAssetOffcanvasLabel">
-            <i class="bi bi-pencil-square me-2" style="color:var(--brand);"></i>Edit Asset
+<!-- ============ ADD ASSET OFFCANVAS ============ -->
+{% if request.user.is_staff %}
+<div class="offcanvas offcanvas-end tk-offcanvas shadow-lg" tabindex="-1" id="addAssetOffcanvas" aria-labelledby="addAssetOffcanvasLabel"
+     style="width: 800px; max-width: 96vw; z-index: 1060;"
+     data-bs-backdrop="false" data-bs-scroll="true">
+    <div class="offcanvas-header border-bottom py-3 px-4 flex-shrink-0" style="background: var(--grad-primary, linear-gradient(135deg,#07518A,#0d6efd));">
+        <h5 class="offcanvas-title m-0 fw-bold text-white" id="addAssetOffcanvasLabel">
+            <i class="bi bi-plus-circle-fill me-2"></i>Add New Asset
         </h5>
         <div class="d-flex align-items-center ms-auto gap-2">
-            <a id="editAssetFullPageBtn" href="#" class="btn btn-sm btn-outline-brand fw-semibold d-none">
-                <i class="bi bi-box-arrow-up-right me-1"></i>Full Page
-            </a>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
     </div>
-    <div class="offcanvas-body p-0" id="editAssetBody" style="background-color: #f8fafc; overflow: hidden; display: flex; flex-direction: column;">
+    <div class="offcanvas-body p-0" id="addAssetBody" style="background-color: #f4f7fe; overflow: hidden; position: relative;">
+        <div class="text-center py-5 mt-5" id="addAssetLoading">
+            <div class="spinner-border" role="status" style="color: #0d6efd; width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-3 text-muted fw-semibold">Loading add asset form...</div>
+        </div>
+        <iframe id="addAssetIframe" name="addAssetIframe" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; display: none;"></iframe>
+    </div>
+</div>
+{% endif %}
+
+<div class="offcanvas offcanvas-end tk-offcanvas shadow-lg" tabindex="-1" id="editAssetOffcanvas" aria-labelledby="editAssetOffcanvasLabel" style="width: 750px; max-width: 95vw; z-index: 1060;" data-bs-backdrop="false" data-bs-scroll="true">
+    <div class="offcanvas-header border-bottom py-3 px-4 flex-shrink-0" style="min-height: 58px; background: var(--grad-primary, linear-gradient(135deg,#07518A,#0d6efd));">
+        <h5 class="offcanvas-title m-0 fw-bold text-white" id="editAssetOffcanvasLabel">
+            <i class="bi bi-pencil-square me-2"></i>Edit Asset
+        </h5>
+        <div class="d-flex align-items-center ms-auto gap-2">
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+    </div>
+    <div class="offcanvas-body p-0" id="editAssetBody" style="background-color: #f8fafc; overflow: hidden; position: relative;">
         <div class="text-center py-5 mt-5" id="editAssetLoading">
             <div class="spinner-border" role="status" style="color: var(--brand); width: 3rem; height: 3rem;">
                 <span class="visually-hidden">Loading...</span>
             </div>
             <div class="mt-3 text-muted fw-semibold">Loading asset details...</div>
         </div>
-        <iframe id="editAssetIframe" name="editAssetIframe" src="" style="width: 100%; height: 100%; border: none; display: none; flex-grow: 1;"></iframe>
+        <iframe id="editAssetIframe" name="editAssetIframe" src="" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; display: none;"></iframe>
     </div>
 </div>
 
+<script>
+    // ============ ADD ASSET OFFCANVAS LOGIC ============
+    (function() {
+        var addAssetEl = document.getElementById('addAssetOffcanvas');
+        var addAssetIframe = document.getElementById('addAssetIframe');
+        var addAssetLoading = document.getElementById('addAssetLoading');
+
+        if (!addAssetEl || !addAssetIframe) return;
+
+        addAssetEl.addEventListener('show.bs.offcanvas', function() {
+            var url = "{% url 'add_asset' %}?iframe=1";
+            if (addAssetIframe.src !== url) {
+                addAssetLoading.style.display = 'block';
+                addAssetIframe.style.display = 'none';
+                addAssetIframe.src = url;
+            }
+        });
+
+        addAssetIframe.addEventListener('load', function() {
+            addAssetLoading.style.display = 'none';
+            addAssetIframe.style.display = 'block';
+        });
+
+        // Listen for postMessage from iframe on success
+        window.addEventListener('message', function(e) {
+            if (e.data === 'add_asset_success') {
+                var bsOc = bootstrap.Offcanvas.getInstance(addAssetEl);
+                if (bsOc) bsOc.hide();
+                window.location.reload();
+            }
+        });
+    })();
+
+    // ============ EDIT ASSET OFFCANVAS LOGIC ============
+    var editAssetEl = document.getElementById('editAssetOffcanvas');
+    var editAssetIframe = document.getElementById('editAssetIframe');
+    var editAssetLoading = document.getElementById('editAssetLoading');
+
+    if (editAssetEl && editAssetIframe) {
+        editAssetIframe.addEventListener('load', function() {
+            editAssetLoading.style.display = 'none';
+            editAssetIframe.style.display = 'block';
+        });
+
+        editAssetEl.addEventListener('hidden.bs.offcanvas', function() {
+            editAssetIframe.style.display = 'none';
+        });
+
+        // Bootstrap only auto-closes a dropdown on clicks OUTSIDE it. We preventDefault
+        // the menu item instead of navigating, so it must be closed explicitly.
+        function closeAncestorDropdown(el) {
+            var wrap = el.closest('.dropdown');
+            if (!wrap) return;
+
+            var toggle = wrap.querySelector('[data-bs-toggle="dropdown"]');
+            var inst = toggle ? bootstrap.Dropdown.getInstance(toggle) : null;
+            if (inst) {
+                inst.hide();
+            } else {
+                wrap.querySelectorAll('.dropdown-menu.show').forEach(function(m) {
+                    m.classList.remove('show');
+                });
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            var trigger = e.target.closest('.edit-asset-trigger');
+            if (!trigger) return;
+
+            e.preventDefault();
+
+            var fullUrl = trigger.getAttribute('href');
+            if (!fullUrl) return;
+
+            closeAncestorDropdown(trigger);
+
+            var iframeUrl = fullUrl + (fullUrl.indexOf('?') === -1 ? '?' : '&') + 'iframe=1';
+
+            if (editAssetIframe.src !== iframeUrl) {
+                editAssetLoading.style.display = 'block';
+                editAssetIframe.style.display = 'none';
+                editAssetIframe.src = iframeUrl;
+            } else {
+                editAssetLoading.style.display = 'none';
+                editAssetIframe.style.display = 'block';
+            }
+
+            var oc = bootstrap.Offcanvas.getInstance(editAssetEl);
+            if (!oc) oc = new bootstrap.Offcanvas(editAssetEl);
+            oc.show();
+        });
+    }
+
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         // If this page was loaded inside an iframe (like after saving the asset in the offcanvas)
@@ -2168,42 +2807,6 @@
             window.parent.location.reload();
             return;
         }
-
-        const editAssetButtons = document.querySelectorAll('.edit-asset-trigger');
-        const editAssetOffcanvasEl = document.getElementById('editAssetOffcanvas');
-        let editAssetOffcanvas = null;
-        
-        if (editAssetOffcanvasEl) {
-            editAssetOffcanvas = new bootstrap.Offcanvas(editAssetOffcanvasEl);
-        }
-        
-        editAssetButtons.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const url = this.getAttribute('href');
-                
-                document.getElementById('editAssetFullPageBtn').href = url;
-                document.getElementById('editAssetFullPageBtn').classList.remove('d-none');
-                
-                const iframe = document.getElementById('editAssetIframe');
-                const loading = document.getElementById('editAssetLoading');
-                
-                iframe.style.display = 'none';
-                loading.style.display = 'block';
-                
-                // Append ?iframe=1 to URL
-                const iframeUrl = url + (url.includes('?') ? '&' : '?') + 'iframe=1';
-                iframe.src = iframeUrl;
-                
-                iframe.onload = function() {
-                    loading.style.display = 'none';
-                    iframe.style.display = 'block';
-                };
-                
-                editAssetOffcanvas.show();
-            });
-        });
-
         // Delete asset modal handling
         let assetFormToSubmit = null;
         const deleteAssetModal = document.getElementById('deleteAssetModal');

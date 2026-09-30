@@ -77,470 +77,498 @@
 
 {% if is_employee %}
 <style>
-    /* Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    /* =====================================================
+       USER DASHBOARD — Matches Admin Dashboard Style
+       ===================================================== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     .emp-dash-bg {
-        padding: 2rem 1.5rem;
-        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-        background-color: #f8fafc;
+        padding: 1.5rem;
+        font-family: 'Inter', sans-serif;
+        background-color: #f7f9fc;
         min-height: 100vh;
+        color: #1e293b;
     }
 
-    /* Welcome Banner */
-    .welcome-banner {
-        background: linear-gradient(135deg, #07518a 0%, #1e88e5 100%);
-        border-radius: 20px;
+    /* --- Welcome Banner --- */
+    .user-welcome-banner {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
+        border-radius: 16px;
         color: #fff;
-        padding: 2.5rem 2.5rem;
+        padding: 2rem 2.5rem;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 15px 35px rgba(7, 81, 138, 0.2);
-        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+        margin-bottom: 1.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-
-    .welcome-banner::after {
+    .user-welcome-banner::before {
         content: '';
         position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+        top: -60px; right: -60px;
+        width: 250px; height: 250px;
+        background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
         border-radius: 50%;
-        pointer-events: none;
     }
-
-    .welcome-banner::before {
+    .user-welcome-banner::after {
         content: '';
         position: absolute;
-        bottom: -50px;
-        left: 10%;
-        width: 200px;
-        height: 200px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+        bottom: -80px; left: 5%;
+        width: 200px; height: 200px;
+        background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
         border-radius: 50%;
-        pointer-events: none;
     }
-
-    .welcome-title {
-        font-weight: 800;
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+    .user-welcome-title {
+        font-weight: 700;
+        font-size: 1.7rem;
+        margin-bottom: 0.4rem;
         letter-spacing: -0.5px;
     }
-
-    .welcome-subtitle {
-        font-weight: 400;
-        font-size: 1rem;
-        opacity: 0.9;
+    .user-welcome-subtitle {
+        font-size: 0.95rem;
+        opacity: 0.85;
         margin-bottom: 0;
     }
-
-    .btn-request-asset {
+    .user-welcome-actions { display: flex; gap: 0.75rem; z-index: 1; }
+    .btn-user-primary {
         background: #fff;
-        color: #07518a;
+        color: #2563eb;
         font-weight: 700;
-        border-radius: 12px;
-        padding: 0.8rem 1.5rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
+        border-radius: 10px;
+        padding: 0.65rem 1.3rem;
+        font-size: 0.9rem;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        transition: all 0.25s ease;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        z-index: 1;
+        border: none;
     }
-
-    .btn-request-asset:hover {
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-        color: #053b66;
+    .btn-user-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+        color: #1d4ed8;
     }
-
-    /* Metric Cards */
-    .emp-card {
-        border: 1px solid rgba(255, 255, 255, 0.8);
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(15px);
-        padding: 1.5rem;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        height: 100%;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
-    }
-
-    .emp-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-        background: rgba(255, 255, 255, 0.95);
-    }
-
-    .emp-icon-box {
-        width: 56px;
-        height: 56px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        transition: transform 0.4s ease;
-    }
-
-    .emp-card:hover .emp-icon-box {
-        transform: scale(1.1) rotate(5deg);
-    }
-
-    /* Gradients for Icon Boxes */
-    .bg-blue-gradient {
-        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-        color: #0284c7;
-    }
-
-    .bg-orange-gradient {
-        background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
-        color: #ea580c;
-    }
-
-    .bg-green-gradient {
-        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-        color: #166534;
-    }
-
-    .bg-purple-gradient {
-        background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-        color: #7e22ce;
-    }
-
-    .emp-num {
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #0f172a;
-        margin: 0;
-        line-height: 1.1;
-        letter-spacing: -1px;
-    }
-
-    .emp-title {
+    .btn-user-secondary {
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 0.65rem 1.3rem;
         font-size: 0.9rem;
-        font-weight: 700;
-        color: #334155;
-        margin-bottom: 0.5rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .emp-subtitle {
-        font-size: 0.8rem;
-        color: #64748b;
-        margin-top: 0.5rem;
-        font-weight: 500;
-    }
-
-    /* Table & List Cards */
-    .emp-table-card {
-        background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
-        padding: 1.75rem;
-        height: 100%;
-        border: 1px solid rgba(0, 0, 0, 0.02);
-    }
-
-    .emp-table-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-
-    .emp-table-header h5 {
-        font-weight: 800;
-        color: #0f172a;
-        font-size: 1.25rem;
-        margin: 0;
-    }
-
-    .emp-table-header a {
-        font-size: 0.85rem;
-        font-weight: 700;
+        transition: all 0.25s ease;
         text-decoration: none;
-        color: #07518a;
-        padding: 0.4rem 0.8rem;
-        border-radius: 8px;
-        background: #f0f6fa;
-        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid rgba(255,255,255,0.3);
     }
-
-    .emp-table-header a:hover {
-        background: #07518a;
+    .btn-user-secondary:hover {
+        background: rgba(255,255,255,0.25);
         color: #fff;
     }
 
-    .emp-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 10px;
-        margin-top: -10px;
-    }
-
-    .emp-table th {
-        color: #64748b;
-        font-weight: 700;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        padding: 0 1rem 0.5rem 1rem;
-        border: none;
-    }
-
-    .emp-table td {
-        padding: 1.25rem 1rem;
+    /* --- Stat Cards (admin-style) --- */
+    .user-stat-card {
         background: #fff;
-        vertical-align: middle;
-        font-weight: 500;
-        font-size: 0.95rem;
-        color: #334155;
-        border-top: 1px solid #f8fafc;
-        border-bottom: 1px solid #f8fafc;
-        transition: background 0.2s;
-    }
-
-    .emp-table tr td:first-child {
-        border-left: 1px solid #f8fafc;
-        border-top-left-radius: 12px;
-        border-bottom-left-radius: 12px;
-    }
-
-    .emp-table tr td:last-child {
-        border-right: 1px solid #f8fafc;
-        border-top-right-radius: 12px;
-        border-bottom-right-radius: 12px;
-    }
-
-    .emp-table tbody tr {
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.01);
-    }
-
-    .emp-table tbody tr:hover td {
-        background: #f8fafc;
-    }
-
-    /* Dynamic Badges */
-    .emp-status-badge {
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-
-    .badge-green {
-        background-color: #dcfce7;
-        color: #166534;
-        border: 1px solid #bbf7d0;
-    }
-
-    .badge-orange {
-        background-color: #ffedd5;
-        color: #ea580c;
-        border: 1px solid #fed7aa;
-    }
-
-    .badge-red {
-        background-color: #fee2e2;
-        color: #dc2626;
-        border: 1px solid #fecaca;
-    }
-
-    /* Activity Feed / Requests */
-    .emp-request-item {
-        padding: 1.25rem;
         border-radius: 16px;
-        background: #f8fafc;
-        margin-bottom: 1rem;
-        border: 1px solid #f1f5f9;
-        transition: all 0.2s ease;
+        padding: 1.5rem;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        height: 100%;
+        position: relative;
+        transition: all 0.25s ease;
     }
-
-    .emp-request-item:hover {
-        background: #fff;
-        border-color: #e2e8f0;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-        transform: scale(1.01);
+    .user-stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.07);
     }
+    .user-stat-card.card-highlight {
+        background: #2563eb;
+        box-shadow: 0 10px 25px rgba(37,99,235,0.2);
+    }
+    .user-stat-card.card-highlight .stat-label { color: rgba(255,255,255,0.8); }
+    .user-stat-card.card-highlight .stat-value { color: #fff; }
+    .user-stat-card.card-highlight .stat-trend-up { color: #6ee7b7; }
+    .user-stat-card.card-highlight .stat-trend-text { color: rgba(255,255,255,0.7); }
+    .user-stat-card.card-highlight .stat-icon-box { background: rgba(255,255,255,0.2); color: #fff; }
 
-    .emp-req-title {
+    .stat-label {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.4rem;
+    }
+    .stat-value {
+        font-size: 2rem;
         font-weight: 700;
         color: #0f172a;
+        margin-bottom: 0.4rem;
+        line-height: 1;
+    }
+    .stat-trend-up { color: #10b981; font-size: 0.78rem; font-weight: 600; }
+    .stat-trend-down { color: #ef4444; font-size: 0.78rem; font-weight: 600; }
+    .stat-trend-text { color: #94a3b8; font-size: 0.73rem; margin-left: 4px; }
+    .stat-icon-box {
+        width: 46px; height: 46px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.4rem;
+    }
+    .stat-icon-blue   { background: #f0f6ff; color: #2563eb; }
+    .stat-icon-green  { background: #f0fdf4; color: #10b981; }
+    .stat-icon-orange { background: #fff7ed; color: #f97316; }
+    .stat-icon-purple { background: #f5f3ff; color: #8b5cf6; }
+
+    /* --- Dashboard Cards --- */
+    .user-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        height: 100%;
+    }
+    .user-card-title {
         font-size: 1rem;
-        margin-bottom: 0.25rem;
+        font-weight: 700;
+        color: #0f172a;
     }
-
-    .emp-req-id {
+    .user-view-all {
+        color: #2563eb;
         font-size: 0.8rem;
-        color: #64748b;
         font-weight: 600;
-        font-family: monospace;
-        letter-spacing: 0.5px;
+        text-decoration: none;
     }
+    .user-view-all:hover { text-decoration: underline; }
 
-    .emp-req-date {
-        font-size: 0.75rem;
-        color: #94a3b8;
-        text-align: right;
-        margin-top: 0.4rem;
+    /* --- Quick Actions --- */
+    .u-qa-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
         font-weight: 600;
-        text-transform: uppercase;
+        font-size: 0.88rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: none;
+        width: 100%;
     }
+    .u-qa-dark   { background: #1e293b; color: #fff; }
+    .u-qa-dark:hover { background: #0f172a; color: #fff; }
+    .u-qa-blue   { background: #2563eb; color: #fff; }
+    .u-qa-blue:hover { background: #1d4ed8; color: #fff; }
+    .u-qa-light  { background: #f8fafc; color: #4f46e5; border: 1px solid #e2e8f0; }
+    .u-qa-light:hover { background: #f1f5f9; }
+
+    /* --- Asset Table --- */
+    .user-dashboard-table th {
+        font-size: 0.73rem;
+        text-transform: capitalize;
+        color: #64748b;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 10px 0;
+        font-weight: 600;
+    }
+    .user-dashboard-table td {
+        font-size: 0.84rem;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 12px 0;
+        vertical-align: middle;
+    }
+    .user-dashboard-table tr:last-child td { border-bottom: none; }
+
+    /* --- Badges --- */
+    .ubadge-green  { background: #dcfce7; color: #10b981; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.73rem; }
+    .ubadge-orange { background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.73rem; }
+    .ubadge-red    { background: #fee2e2; color: #ef4444; padding: 4px 10px; border-radius: 6px; font-weight: 600; font-size: 0.73rem; }
+
+    /* --- Activity Feed --- */
+    .u-activity-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 1.2rem;
+    }
+    .u-activity-icon {
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+        font-size: 0.9rem;
+    }
+    .u-activity-title { font-weight: 600; font-size: 0.84rem; color: #0f172a; margin-bottom: 2px; }
+    .u-activity-desc  { font-size: 0.73rem; color: #64748b; }
+    .u-activity-time  { font-size: 0.73rem; color: #94a3b8; white-space: nowrap; }
+
+    /* --- Ticket Row --- */
+    .u-ticket-row {
+        display: flex;
+        align-items: center;
+        padding: 0.9rem 0;
+        border-bottom: 1px solid #f1f5f9;
+        gap: 0.75rem;
+        transition: background 0.15s;
+    }
+    .u-ticket-row:last-child { border-bottom: none; }
+    .u-ticket-icon {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; font-size: 1rem;
+    }
+    .u-ticket-title { font-weight: 600; font-size: 0.84rem; color: #0f172a; }
+    .u-ticket-id    { font-size: 0.73rem; color: #94a3b8; font-family: monospace; }
+
+    /* --- Empty State --- */
+    .u-empty-state {
+        text-align: center;
+        padding: 2.5rem 1rem;
+        color: #94a3b8;
+    }
+    .u-empty-state i { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+    .u-empty-state span { font-size: 0.88rem; font-weight: 500; }
 </style>
 
 <div class="emp-dash-bg">
-    <!-- Welcome Banner -->
-    <div class="welcome-banner">
-        <div>
-            <h1 class="welcome-title">Welcome back, {{ display_name|title }}!</h1>
-            <p class="welcome-subtitle">Here's a quick overview of your assigned hardware and recent requests.</p>
+
+    <!-- ===== Welcome Banner ===== -->
+    <div class="user-welcome-banner">
+        <div style="z-index:1;">
+            <h1 class="user-welcome-title">Welcome back, {{ display_name|title }}! 👋</h1>
+            <p class="user-welcome-subtitle">Here's a quick overview of your assigned hardware and recent activity.</p>
         </div>
-        <div>
-            <a href="{% url 'create_procurement' %}" class="btn-request-asset">
-                <i class="bi bi-plus-lg"></i> Request Asset
+        <div class="user-welcome-actions">
+            <a href="{% url 'procurement_list' %}" class="btn-user-primary">
+                <i class="bi bi-cart-plus"></i> Request Asset
+            </a>
+            <a href="{% url 'raise_ticket' %}" class="btn-user-secondary">
+                <i class="bi bi-headset"></i> Support
             </a>
         </div>
     </div>
 
-    <!-- Warranty Alerts -->
-    {% if request.user.is_staff or request.user.role == 'manager' or request.user.role == 'superadmin' %}
-    {% if expired_warranty or expiring_soon_warranty %}
-    <div
-        class="alert {% if expired_warranty %}alert-danger{% else %}alert-warning{% endif %} border-0 rounded-4 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-shield-exclamation fs-3"></i>
-            <div>
-                {% if expired_warranty %}
-                <strong>{{ expired_warranty }} asset(s)</strong> have an expired warranty.
-                {% endif %}
-                {% if expired_warranty and expiring_soon_warranty %} &amp; {% endif %}
-                {% if expiring_soon_warranty %}
-                <strong>{{ expiring_soon_warranty }} asset(s)</strong> warranty expiring within 30 days.
-                {% endif %}
+    <!-- ===== Row 1: 4 Stat Cards ===== -->
+    <div class="row g-4 mb-4">
+        <!-- My Assets -->
+        <div class="col-md-3 col-sm-6">
+            <div class="user-stat-card d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">My Assets</div>
+                    <div class="stat-value">{{ emp_my_assets|default:"0" }}</div>
+                    <div>
+                        <span class="stat-trend-up"><i class="bi bi-laptop"></i></span>
+                        <span class="stat-trend-text">Hardware in use</span>
+                    </div>
+                </div>
+                <div class="stat-icon-box stat-icon-blue"><i class="bi bi-laptop"></i></div>
+                <div class="position-absolute" style="top:14px;right:14px;cursor:pointer;">
+                    <i class="bi bi-three-dots-vertical text-muted"></i>
+                </div>
             </div>
         </div>
-        <a href="{% url 'warranty_tracking' %}"
-            class="btn {% if expired_warranty %}btn-danger{% else %}btn-warning text-dark{% endif %} rounded-pill px-4 fw-bold shadow-sm">
-            <i class="bi bi-shield-check me-1"></i> View Tracking
-        </a>
+        <!-- Pending -->
+        <div class="col-md-3 col-sm-6">
+            <div class="user-stat-card d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Pending Requests</div>
+                    <div class="stat-value">{{ emp_pending_requests|default:"0" }}</div>
+                    <div>
+                        <span class="stat-trend-up"><i class="bi bi-clock"></i></span>
+                        <span class="stat-trend-text">Awaiting approval</span>
+                    </div>
+                </div>
+                <div class="stat-icon-box stat-icon-orange"><i class="bi bi-hourglass-split"></i></div>
+                <div class="position-absolute" style="top:14px;right:14px;cursor:pointer;">
+                    <i class="bi bi-three-dots-vertical text-muted"></i>
+                </div>
+            </div>
+        </div>
+        <!-- Approved (Blue highlight) -->
+        <div class="col-md-3 col-sm-6">
+            <div class="user-stat-card card-highlight d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Approved</div>
+                    <div class="stat-value">{{ emp_approved_requests|default:"0" }}</div>
+                    <div>
+                        <span class="stat-trend-up"><i class="bi bi-arrow-up-short"></i></span>
+                        <span class="stat-trend-text">Successfully approved</span>
+                    </div>
+                </div>
+                <div class="stat-icon-box"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="position-absolute" style="top:14px;right:14px;cursor:pointer;">
+                    <i class="bi bi-three-dots-vertical text-white" style="opacity:0.7;"></i>
+                </div>
+            </div>
+        </div>
+        <!-- Returned -->
+        <div class="col-md-3 col-sm-6">
+            <div class="user-stat-card d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Returned Assets</div>
+                    <div class="stat-value">{{ emp_returned_assets|default:"0" }}</div>
+                    <div>
+                        <span class="stat-trend-up"><i class="bi bi-arrow-return-left"></i></span>
+                        <span class="stat-trend-text">Previously returned</span>
+                    </div>
+                </div>
+                <div class="stat-icon-box stat-icon-purple"><i class="bi bi-arrow-return-left"></i></div>
+                <div class="position-absolute" style="top:14px;right:14px;cursor:pointer;">
+                    <i class="bi bi-three-dots-vertical text-muted"></i>
+                </div>
+            </div>
+        </div>
     </div>
-    {% endif %}
-    {% endif %}
 
-    <!-- Metric Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-xl-3 col-md-6">
-            <div class="emp-card d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="emp-title">My Assets</div>
-                    <div class="emp-num">{{ emp_my_assets }}</div>
-                    <div class="emp-subtitle">Hardware in use</div>
+    <!-- ===== Row 2: Assets Profile + Status Donut + Quick Actions ===== -->
+    <div class="row g-4 mb-4">
+        <!-- My Asset Profile Card -->
+        <div class="col-md-4">
+            <div class="user-card">
+                <div class="position-absolute" style="top:14px;right:14px;cursor:pointer;"><i class="bi bi-three-dots-vertical text-muted"></i></div>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="stat-icon-box stat-icon-blue me-3"><i class="bi bi-person-badge-fill"></i></div>
+                    <div>
+                        <div class="user-card-title mb-0">My Profile</div>
+                        <div style="font-size:0.8rem;color:#64748b;">{{ request.user.username }}</div>
+                    </div>
                 </div>
-                <div class="emp-icon-box bg-blue-gradient"><i class="bi bi-laptop"></i></div>
+                <div class="stat-value mb-1">{{ emp_my_assets|default:"0" }}</div>
+                <div class="mb-4" style="font-size:0.82rem;color:#64748b;">Total Assets Assigned</div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'view_assets' %}" class="btn flex-grow-1 text-center text-decoration-none" style="background:#1e293b;color:#fff;border-radius:8px;font-weight:600;padding:0.5rem 1rem;font-size:0.85rem;">
+                        <i class="bi bi-box-seam me-1"></i> My Assets
+                    </a>
+                    <a href="{% url 'procurement_list' %}" class="btn flex-grow-1 text-center text-decoration-none" style="background:#2563eb;color:#fff;border-radius:8px;font-weight:600;padding:0.5rem 1rem;font-size:0.85rem;">
+                        <i class="bi bi-plus-lg me-1"></i> Request
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="emp-card d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="emp-title">Pending</div>
-                    <div class="emp-num">{{ emp_pending_requests }}</div>
-                    <div class="emp-subtitle">Awaiting approval</div>
+
+        <!-- Request Status Donut -->
+        <div class="col-md-4">
+            <div class="user-card">
+                <div class="position-absolute" style="top:14px;right:14px;cursor:pointer;"><i class="bi bi-three-dots-vertical text-muted"></i></div>
+                <div class="user-card-title mb-3">Request Status</div>
+                <div class="d-flex align-items-center justify-content-between h-100 pb-3">
+                    <div style="width:140px;height:140px;position:relative;flex-shrink:0;">
+                        <canvas id="userStatusDonut"></canvas>
+                        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                            <div style="font-size:0.62rem;color:#64748b;font-weight:600;">My Requests</div>
+                            <div style="font-size:1.2rem;color:#0f172a;font-weight:700;">{{ emp_pending_requests|add:emp_approved_requests|add:emp_returned_assets|default:"0" }}</div>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="font-size:0.8rem;color:#475569;"><span style="color:#2563eb;">●</span> Approved</span>
+                            <span style="font-size:0.84rem;font-weight:600;">{{ emp_approved_requests|default:"0" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="font-size:0.8rem;color:#475569;"><span style="color:#f97316;">●</span> Pending</span>
+                            <span style="font-size:0.84rem;font-weight:600;">{{ emp_pending_requests|default:"0" }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span style="font-size:0.8rem;color:#475569;"><span style="color:#8b5cf6;">●</span> Returned</span>
+                            <span style="font-size:0.84rem;font-weight:600;">{{ emp_returned_assets|default:"0" }}</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="emp-icon-box bg-orange-gradient"><i class="bi bi-hourglass-split"></i></div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="emp-card d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="emp-title">Approved</div>
-                    <div class="emp-num">{{ emp_approved_requests }}</div>
-                    <div class="emp-subtitle">Successfully approved</div>
+
+        <!-- Quick Actions -->
+        <div class="col-md-4">
+            <div class="user-card">
+                <div class="user-card-title mb-3">Quick Actions</div>
+                <div class="row g-3 h-100 pb-2">
+                    <div class="col-6">
+                        <a href="{% url 'procurement_list' %}" class="u-qa-btn u-qa-dark">
+                            <i class="bi bi-cart-plus"></i> Request Asset
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'raise_ticket' %}" class="u-qa-btn u-qa-blue">
+                            <i class="bi bi-headset"></i> Raise Ticket
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'view_tickets' %}" class="u-qa-btn u-qa-light">
+                            <i class="bi bi-ticket-perforated"></i> My Tickets
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{% url 'procurement_list' %}" class="u-qa-btn u-qa-light">
+                            <i class="bi bi-list-check"></i> My Requests
+                        </a>
+                    </div>
                 </div>
-                <div class="emp-icon-box bg-green-gradient"><i class="bi bi-check-circle-fill"></i></div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="emp-card d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="emp-title">Returned</div>
-                    <div class="emp-num">{{ emp_returned_assets }}</div>
-                    <div class="emp-subtitle">Previously returned</div>
-                </div>
-                <div class="emp-icon-box bg-purple-gradient"><i class="bi bi-arrow-return-left"></i></div>
             </div>
         </div>
     </div>
 
-    <!-- Tables & Feed -->
-    <div class="row g-4">
-        <!-- My Assets Table -->
-        <div class="col-xl-7">
-            <div class="emp-table-card">
-                <div class="emp-table-header">
-                    <h5><i class="bi bi-box-seam text-primary me-2"></i>Assigned Hardware</h5>
+    <!-- ===== Row 3: Assigned Hardware + Recent Requests ===== -->
+    <div class="row g-4 mb-4">
+        <!-- Assigned Hardware Table -->
+        <div class="col-md-8">
+            <div class="user-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="user-card-title"><i class="bi bi-box-seam text-primary me-2"></i>Assigned Hardware</div>
                 </div>
                 <div class="table-responsive">
-                    <table class="emp-table">
+                    <table class="w-100 user-dashboard-table">
                         <thead>
                             <tr>
                                 <th>Asset Details</th>
                                 <th>Asset ID</th>
                                 <th>Status</th>
-                                <th>Date Assigned</th>
+                                <th class="text-end">Date Assigned</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for assignment in emp_recent_assignments %}
                             <tr>
-                                <td class="d-flex align-items-center border-0 py-3">
-                                    {% if assignment.asset.image %}
-                                    <img src="{{ assignment.asset.image.url }}" class="rounded shadow-sm me-3"
-                                        style="width: 45px; height: 45px; object-fit: contain; background: #f8fafc; border: 1px solid #e2e8f0; padding: 2px;">
-                                    {% else %}
-                                    <div class="rounded shadow-sm d-flex align-items-center justify-content-center me-3"
-                                        style="width: 45px; height: 45px; background: #f1f5f9; border: 1px solid #e2e8f0;">
-                                        <i class="bi bi-display text-slate-400 fs-5"></i>
-                                    </div>
-                                    {% endif %}
-                                    <div>
-                                        <div class="fw-bold text-slate-800" style="color: #0f172a;">{{ assignment.asset.name|default:assignment.asset.asset_type }}</div>
-                                        <div class="text-muted small fw-medium">{{ assignment.asset.asset_type }}</div>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if assignment.asset.image %}
+                                        <img src="{{ assignment.asset.image.url }}" style="width:38px;height:38px;object-fit:contain;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:2px;">
+                                        {% else %}
+                                        <div style="width:38px;height:38px;background:#f0f6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#2563eb;font-size:1.1rem;">
+                                            <i class="bi bi-display"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <div style="font-weight:600;color:#0f172a;font-size:0.88rem;">{{ assignment.asset.name|default:assignment.asset.asset_type }}</div>
+                                            <div style="font-size:0.75rem;color:#94a3b8;">{{ assignment.asset.asset_type }}</div>
+                                        </div>
                                     </div>
                                 </td>
                                 <td>
-                                    <span
-                                        style="font-family: monospace; font-weight: 600; color: #475569; background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">{{ assignment.asset.asset_id }}</span>
+                                    <span style="font-family:monospace;font-weight:600;color:#475569;background:#f1f5f9;padding:3px 8px;border-radius:6px;font-size:0.8rem;">{{ assignment.asset.asset_id }}</span>
                                 </td>
                                 <td>
-                                    <span class="emp-status-badge badge-green">
-                                        <span
-                                            style="width: 6px; height: 6px; border-radius: 50%; background-color: #166534; display: inline-block;"></span>
-                                        In Use
+                                    <span class="ubadge-green">
+                                        <span style="width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block;margin-right:4px;"></span>In Use
                                     </span>
                                 </td>
-                                <td>
-                                    <span class="fw-bold" style="color: #334155;">{{ assignment.assigned_date|date:"d/m/Y"|default:assignment.assigned_at|date:"d/m/Y" }}</span>
+                                <td class="text-end" style="color:#475569;font-size:0.84rem;font-weight:600;">
+                                    {{ assignment.assigned_date|date:"d/m/Y"|default:assignment.assigned_at|date:"d/m/Y" }}
                                 </td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center py-5">
-                                    <i class="bi bi-inbox fs-1 text-slate-300 mb-3 d-block" style="color: #cbd5e1;"></i>
-                                    <span class="text-slate-500 fw-medium" style="color: #64748b;">No assets currently
-                                        assigned to you.</span>
+                                <td colspan="4">
+                                    <div class="u-empty-state">
+                                        <i class="bi bi-inbox"></i>
+                                        <span>No assets currently assigned to you.</span>
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -550,465 +578,170 @@
             </div>
         </div>
 
-        <!-- My Requests Activity Feed -->
-        <div class="col-xl-5">
-            <div class="emp-table-card">
-                <div class="emp-table-header">
-                    <h5><i class="bi bi-list-stars text-primary me-2"></i>Recent Requests</h5>
-                    <a href="{% url 'procurement_list' %}">View All <i class="bi bi-arrow-right ms-1"></i></a>
+        <!-- Recent Requests -->
+        <div class="col-md-4">
+            <div class="user-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="user-card-title"><i class="bi bi-list-stars text-primary me-2"></i>My Requests</div>
+                    <a href="{% url 'procurement_list' %}" class="user-view-all">View All</a>
                 </div>
-                <div>
-                    {% for req in emp_recent_requests %}
-                    <div class="emp-request-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="emp-req-title">Request for {{ req.asset_type }}</div>
-                            <div class="emp-req-id">REQ{{ req.id|stringformat:"04d" }}</div>
-                        </div>
-                        <div class="text-end">
-                            {% if 'Pending' in req.status or 'Review' in req.status %}
-                            <span class="emp-status-badge badge-orange"><i class="bi bi-clock-history"></i>
-                                Pending</span>
-                            {% elif 'Approved' in req.status or 'Completed' in req.status %}
-                            <span class="emp-status-badge badge-green"><i class="bi bi-check-lg"></i> Approved</span>
-                            {% elif 'Reject' in req.status %}
-                            <span class="emp-status-badge badge-red"><i class="bi bi-x-lg"></i> Rejected</span>
-                            {% else %}
-                            <span class="emp-status-badge" style="background: #e2e8f0; color: #475569;">{{ req.status
-                                }}</span>
-                            {% endif %}
-                            <div class="emp-req-date">{{ req.request_date|date:"d/m/Y" }}</div>
-                        </div>
+                {% for req in emp_recent_requests %}
+                <div style="padding:0.85rem 0;border-bottom:1px solid #f1f5f9;" class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div style="font-weight:600;font-size:0.85rem;color:#0f172a;">Request for {{ req.asset_type }}</div>
+                        <div style="font-size:0.75rem;color:#94a3b8;font-family:monospace;">REQ{{ req.id|stringformat:"04d" }}</div>
                     </div>
-                    {% empty %}
-                    <div class="text-center py-5">
-                        <i class="bi bi-journal-x fs-1 text-slate-300 mb-3 d-block" style="color: #cbd5e1;"></i>
-                        <span class="text-slate-500 fw-medium" style="color: #64748b;">No recent requests found.</span>
+                    <div class="text-end">
+                        {% if 'Pending' in req.status or 'Review' in req.status %}
+                        <span class="ubadge-orange">Pending</span>
+                        {% elif 'Approved' in req.status or 'Completed' in req.status %}
+                        <span class="ubadge-green">Approved</span>
+                        {% elif 'Reject' in req.status %}
+                        <span class="ubadge-red">Rejected</span>
+                        {% else %}
+                        <span class="ubadge-orange">{{ req.status }}</span>
+                        {% endif %}
+                        <div style="font-size:0.7rem;color:#94a3b8;margin-top:3px;">{{ req.request_date|date:"d/m/Y" }}</div>
                     </div>
-                    {% endfor %}
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{% elif is_manager %}
-<style>
-    /* Mockup Dashboard Styles */
-    .mockup-bg {
-        background-color: #f7f9fb;
-        min-height: 100vh;
-        padding: 2rem;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
-    }
-
-    .mockup-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .mockup-header-title {
-        font-weight: 700;
-        font-size: 1.5rem;
-        color: #111827;
-        margin: 0;
-    }
-
-    .mockup-header-sub {
-        color: #6b7280;
-        font-size: 0.9rem;
-        margin-top: 0.2rem;
-    }
-
-    .mockup-search {
-        background: #fff;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        width: 300px;
-        display: flex;
-        align-items: center;
-    }
-
-    .mockup-search input {
-        border: none;
-        outline: none;
-        width: 100%;
-        font-size: 0.9rem;
-        margin-right: 0.5rem;
-    }
-
-    .mockup-card {
-        background: #ffffff;
-        border: 1px solid #f3f4f6;
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .mockup-icon-circle {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.25rem;
-    }
-
-    .bg-blue-soft {
-        background: #eff6ff;
-        color: #3b82f6;
-    }
-
-    .bg-green-soft {
-        background: #f0fdf4;
-        color: #22c55e;
-    }
-
-    .bg-orange-soft {
-        background: #fff7ed;
-        color: #f97316;
-    }
-
-    .bg-purple-soft {
-        background: #faf5ff;
-        color: #a855f7;
-    }
-
-    .bg-red-soft {
-        background: #fef2f2;
-        color: #ef4444;
-    }
-
-    .mockup-metric-title {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #4b5563;
-        text-transform: capitalize;
-        margin-bottom: 0.25rem;
-    }
-
-    .mockup-metric-val {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #111827;
-        line-height: 1;
-    }
-
-    .mockup-metric-sub {
-        font-size: 0.75rem;
-        color: #9ca3af;
-        margin-top: auto;
-        padding-top: 1rem;
-    }
-
-    .mockup-link {
-        color: #3b82f6;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.75rem;
-    }
-
-    .mockup-link:hover {
-        text-decoration: underline;
-    }
-
-    .mockup-panel-title {
-        font-weight: 700;
-        font-size: 1rem;
-        color: #111827;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Request List */
-    .req-list-item {
-        display: flex;
-        align-items: center;
-        padding-bottom: 1rem;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid #f3f4f6;
-    }
-
-    .req-list-item:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0;
-    }
-
-    .req-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #e5e7eb;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6b7280;
-        font-weight: bold;
-        margin-right: 1rem;
-        flex-shrink: 0;
-    }
-
-    .req-name {
-        font-weight: 600;
-        font-size: 0.85rem;
-        color: #111827;
-        margin-bottom: 0.1rem;
-    }
-
-    .req-desc {
-        font-size: 0.8rem;
-        color: #6b7280;
-        margin-bottom: 0.1rem;
-    }
-
-    .req-date {
-        font-size: 0.75rem;
-        color: #9ca3af;
-    }
-
-    .badge-pill {
-        padding: 0.25rem 0.75rem;
-        border-radius: 9999px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .badge-pending {
-        background: #fff7ed;
-        color: #ea580c;
-        border: 1px solid #ffedd5;
-    }
-
-    .badge-approved {
-        background: #f0fdf4;
-        color: #16a34a;
-        border: 1px solid #dcfce7;
-    }
-
-    .badge-rejected {
-        background: #fef2f2;
-        color: #dc2626;
-        border: 1px solid #fee2e2;
-    }
-</style>
-
-<div class="mockup-bg">
-    <!-- Header -->
-    <div class="mockup-header">
-        <div>
-            <h1 class="mockup-header-title">{% if is_manager %}Manager Dashboard{% else %}Command Center{% endif %}</h1>
-            <div class="mockup-header-sub">Welcome back, {{ display_name }}! 👋</div>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-            <div class="mockup-search">
-                <input type="text" placeholder="Search assets, requests...">
-                <i class="bi bi-search text-muted"></i>
-            </div>
-            <!-- Notification Icon Purposely Omitted per Request -->
-            <div class="d-flex align-items-center ms-2">
-                <div class="req-avatar mb-0 me-2 bg-primary text-white"
-                    style="width:36px; height:36px; font-size:14px;">{{ request.user.username|make_list|first|upper }}
+                {% empty %}
+                <div class="u-empty-state">
+                    <i class="bi bi-journal-x"></i>
+                    <span>No recent requests found.</span>
                 </div>
-                <div class="d-none d-md-block">
-                    <div class="fw-bold" style="font-size:0.85rem;">{{ request.user.first_name|default:request.user.username }}</div>
-                    <div class="text-muted" style="font-size:0.75rem;">{{ request.user.role|title }}</div>
-                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
 
-    <!-- Top Cards (4 items matching mockup exactly) -->
-    <div class="row g-3 mb-4">
-        <div class="col">
-            <div class="mockup-card">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="mockup-icon-circle bg-blue-soft me-3"><i class="bi bi-people-fill"></i></div>
-                    <div>
-                        <div class="mockup-metric-title">Total Team Members</div>
-                        <div class="mockup-metric-val">{{ total_team_members }}</div>
-                    </div>
-                </div>
-                <div class="mockup-metric-sub d-flex justify-content-between">
-                    <span>Active members</span>
-                    <a href="{% url 'view_users' %}" class="mockup-link">View all &rarr;</a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="mockup-card">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="mockup-icon-circle bg-green-soft me-3"><i class="bi bi-pc-display"></i></div>
-                    <div>
-                        <div class="mockup-metric-title">Total Assets</div>
-                        <div class="mockup-metric-val">{{ total_assets }}</div>
-                    </div>
-                </div>
-                <div class="mockup-metric-sub d-flex justify-content-between">
-                    <span>Active inventory</span>
-                    <a href="{% url 'view_assets' %}" class="mockup-link">View all &rarr;</a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="mockup-card">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="mockup-icon-circle bg-orange-soft me-3"><i class="bi bi-hourglass-split"></i></div>
-                    <div>
-                        <div class="mockup-metric-title">Pending Requests</div>
-                        <div class="mockup-metric-val">{{ pending }}</div>
-                    </div>
-                </div>
-                <div class="mockup-metric-sub d-flex justify-content-between">
-                    <span>Awaiting action</span>
-                    <a href="{% url 'procurement_list' %}" class="mockup-link">View all &rarr;</a>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="mockup-card">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="mockup-icon-circle bg-purple-soft me-3"><i class="bi bi-check-circle"></i></div>
-                    <div>
-                        <div class="mockup-metric-title">Approved Requests</div>
-                        <div class="mockup-metric-val">{{ approved }}</div>
-                    </div>
-                </div>
-                <div class="mockup-metric-sub d-flex justify-content-between">
-                    <span>This month</span>
-                    <a href="{% url 'procurement_list' %}" class="mockup-link">View all &rarr;</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
+    <!-- ===== Row 4: My Tickets + Activity Timeline ===== -->
     <div class="row g-4">
-        <!-- LEFT COLUMN -->
-        <div class="col-lg-6">
-            <!-- Assets by Category (Bar Chart) -->
-            <div class="mockup-card mb-4" style="height: auto;">
-                <div class="mockup-panel-title">
-                    <span>Assets by Category</span>
-                    <a href="{% url 'view_assets' %}" class="mockup-link">View All</a>
+        <!-- My Support Tickets -->
+        <div class="col-md-6">
+            <div class="user-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="user-card-title"><i class="bi bi-ticket-perforated text-primary me-2"></i>My Support Tickets</div>
+                    <a href="{% url 'view_tickets' %}" class="user-view-all">View All</a>
                 </div>
-                <div style="position: relative; height: 250px; width: 100%;">
-                    <canvas id="barChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Pending Approvals -> Branch Data -->
-            <div class="mockup-card" style="height: auto;">
-                <div class="mockup-panel-title">
-                    <span>Branch Distribution</span>
-                    <a href="{% url 'assigned_employees' %}" class="mockup-link">View All</a>
-                </div>
-                <div>
-                    {% for b in branch_counts %}
-                    <div class="req-list-item">
-                        <div class="req-avatar" style="background: #eef2ff; color: #4f46e5;"><i
-                                class="bi bi-buildings"></i></div>
-                        <div class="flex-grow-1">
-                            <div class="req-name">{{ b.branch }}</div>
-                            <div class="req-desc">
-                                {% for t in b.types %}{{ t.type }}: {{ t.count }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                            </div>
-                        </div>
-                        <div class="text-end">
-                            <div class="badge-pill bg-light text-dark border">{{ b.total }} Assets</div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-muted text-center py-4 small">No branch data available.</div>
-                    {% endfor %}
-                </div>
+                <table class="w-100 user-dashboard-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Issue</th>
+                            <th class="text-end">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ticket in emp_recent_tickets %}
+                        <tr>
+                            <td style="color:#94a3b8;font-size:0.8rem;font-family:monospace;">ST-{{ ticket.id|stringformat:"04d" }}</td>
+                            <td style="font-weight:600;">{{ ticket.subject|default:ticket.issue|truncatechars:30 }}</td>
+                            <td class="text-end">
+                                {% if ticket.status == 'Open' or ticket.status == 'open' %}
+                                <span class="ubadge-red">Open</span>
+                                {% elif ticket.status == 'In Progress' or ticket.status == 'in_progress' %}
+                                <span class="ubadge-orange">In Progress</span>
+                                {% elif ticket.status == 'Resolved' or ticket.status == 'resolved' or ticket.status == 'Closed' %}
+                                <span class="ubadge-green">Resolved</span>
+                                {% else %}
+                                <span class="ubadge-orange">{{ ticket.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3">
+                                <div class="u-empty-state">
+                                    <i class="bi bi-check2-circle"></i>
+                                    <span>No support tickets raised yet.</span>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- RIGHT COLUMN -->
-        <div class="col-lg-6">
-            <!-- Recent Requests -->
-            <div class="mockup-card">
-                <div class="mockup-panel-title">
-                    <span>Recent Requests</span>
-                    <a href="{% url 'procurement_list' %}" class="mockup-link">View All</a>
+        <!-- Activity Timeline -->
+        <div class="col-md-6">
+            <div class="user-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="user-card-title"><i class="bi bi-activity text-primary me-2"></i>Recent Activity</div>
                 </div>
-                <div>
-                    {% for r in requests_list %}
-                    <div class="req-list-item">
-                        <div class="req-avatar">{{ r.requested_by.username|make_list|first|upper }}</div>
-                        <div class="flex-grow-1">
-                            <div class="req-name">{{ r.requested_by.first_name|default:r.requested_by.username|title }}
-                            </div>
-                            <div class="req-desc">Request for {{ r.asset_type }}</div>
-                            <div class="req-date">REQ{{ r.id|stringformat:"04d" }}</div>
+                <div class="mt-2">
+                    <!-- Activity items dynamically based on assignments and requests -->
+                    {% for assignment in emp_recent_assignments|slice:":3" %}
+                    <div class="u-activity-item">
+                        <div class="u-activity-icon" style="background:#dcfce7;color:#10b981;">
+                            <i class="bi bi-check-circle-fill"></i>
                         </div>
-                        <div class="text-end">
-                            {% if r.status == 'Approved' %}
-                            <div class="badge-pill badge-approved mb-2">Approved</div>
-                            {% elif r.status == 'Rejected' %}
-                            <div class="badge-pill badge-rejected mb-2">Rejected</div>
-                            {% else %}
-                            <div class="badge-pill badge-pending mb-2">Pending</div>
-                            {% endif %}
-                            <div class="req-date">{{ r.request_date|date:"d/m/Y" }}</div>
+                        <div style="flex-grow:1;">
+                            <div class="d-flex justify-content-between">
+                                <div class="u-activity-title">Asset Assigned</div>
+                                <div class="u-activity-time">{{ assignment.assigned_date|date:"d M"|default:assignment.assigned_at|date:"d M" }}</div>
+                            </div>
+                            <div class="u-activity-desc">{{ assignment.asset.name|default:assignment.asset.asset_type }} ({{ assignment.asset.asset_id }}) assigned to you</div>
                         </div>
                     </div>
-                    {% empty %}
-                    <div class="text-muted text-center py-4 small">No recent requests found.</div>
                     {% endfor %}
+                    {% for req in emp_recent_requests|slice:":3" %}
+                    <div class="u-activity-item">
+                        <div class="u-activity-icon" style="
+                            {% if 'Approved' in req.status or 'Completed' in req.status %}background:#dcfce7;color:#10b981;
+                            {% elif 'Reject' in req.status %}background:#fee2e2;color:#ef4444;
+                            {% else %}background:#fef3c7;color:#d97706;{% endif %}">
+                            <i class="bi bi-file-earmark-text-fill"></i>
+                        </div>
+                        <div style="flex-grow:1;">
+                            <div class="d-flex justify-content-between">
+                                <div class="u-activity-title">Request {{ req.status }}</div>
+                                <div class="u-activity-time">{{ req.request_date|date:"d M" }}</div>
+                            </div>
+                            <div class="u-activity-desc">REQ{{ req.id|stringformat:"04d" }} — {{ req.asset_type }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% if not emp_recent_assignments and not emp_recent_requests %}
+                    <div class="u-empty-state">
+                        <i class="bi bi-clock-history"></i>
+                        <span>No recent activity yet.</span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Assets by Category Doughnut Chart
-        const barCtx = document.getElementById('barChart');
-        if (barCtx) {
-            new Chart(barCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: {{ asset_types_json|safe|default:"[]" }}
-    },
-        datasets: [
-        {
-            data: {{ asset_type_counts_json|safe|default:"[]" }},
-        backgroundColor: ['#4F46E5', '#0EA5E9', '#10B981', '#F43F5E', '#F59E0B', '#8B5CF6'],
-        borderWidth: 0,
-        hoverOffset: 4
-                    }
-    ]
+document.addEventListener('DOMContentLoaded', function () {
+    const donutCtx = document.getElementById('userStatusDonut');
+    if (donutCtx) {
+        new Chart(donutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Pending', 'Returned'],
+                datasets: [{
+                    data: [{{ emp_approved_requests|default:0 }}, {{ emp_pending_requests|default:0 }}, {{ emp_returned_assets|default:0 }}],
+                    backgroundColor: ['#2563eb', '#f97316', '#8b5cf6'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
             },
-        options: {
-        maintainAspectRatio: false,
-        cutout: '75%',
-        plugins: {
-            legend: {
-                position: window.innerWidth < 1200 ? 'bottom' : 'right',
-                labels: {
-                    usePointStyle: true,
-                    padding: 20,
-                    font: { family: "'Inter', sans-serif" }
-                }
+            options: {
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: { legend: { display: false } }
             }
-        }
-    }
         });
     }
 });
 </script>
+
+
 {% else %}
 <style>
     /* Admin Mockup Styles */

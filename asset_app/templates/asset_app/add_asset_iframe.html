@@ -1,0 +1,556 @@
+{% load widget_tweaks %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Asset</title>
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #07518A;
+            --primary-2: #0d6efd;
+            --grad-primary: linear-gradient(135deg, #07518A 0%, #0d6efd 100%);
+            --input-focus-shadow: 0 0 0 0.25rem rgba(7, 81, 138, 0.12);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            margin: 0; padding: 0;
+            background: #f4f7fe;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .iframe-body {
+            padding: 1.5rem 1.8rem 2rem;
+            min-height: 100%;
+        }
+
+        .section-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(7,81,138,0.1), rgba(13,110,253,0.16));
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 1.2rem;
+        }
+
+        .section-divider {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(7,81,138,0.22), transparent);
+            margin: 1.5rem 0;
+        }
+
+        .form-control, .form-select {
+            border: 1.5px solid #e0e6ed;
+            border-radius: 12px;
+            transition: var(--transition);
+            background-color: #fff;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: var(--input-focus-shadow);
+            background-color: #fff;
+        }
+
+        .form-floating > label {
+            padding-left: 1rem;
+            opacity: 0.7;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label,
+        .form-floating > .form-select ~ label {
+            color: var(--primary) !important;
+            opacity: 1;
+            font-weight: 700;
+        }
+
+        .field-error-msg {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 6px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, #fff0f0, #ffe8e8);
+            border: 1px solid rgba(220,53,69,0.3);
+            border-left: 4px solid #dc3545;
+            border-radius: 10px;
+            color: #b91c1c;
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .input-locked {
+            background: linear-gradient(135deg, #f6f9fd, #eef3fa) !important;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-submit {
+            background: var(--grad-primary);
+            border: none;
+            padding: 0.85rem 2.5rem;
+            font-weight: 700;
+            border-radius: 50px;
+            font-size: 1rem;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(7,81,138,0.28);
+            transition: all 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            filter: brightness(1.08);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(7,81,138,0.38);
+        }
+
+        .custom-file-upload {
+            border: 2px dashed rgba(7,81,138,0.32);
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background: linear-gradient(135deg, rgba(7,81,138,0.03), rgba(13,110,253,0.06));
+            transition: border-color 0.3s, background 0.3s;
+        }
+
+        .custom-file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(7,81,138,0.05);
+        }
+
+        .fm-hint {
+            font-size: 0.78em;
+            font-weight: 400;
+            opacity: 0.75;
+            margin-left: 4px;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in { animation: fadeInUp 0.45s ease-out; }
+    </style>
+</head>
+<body>
+<div class="iframe-body">
+
+    {% if form.non_field_errors or form.errors %}
+    <div class="alert alert-danger border-0 rounded-4 py-3 d-flex align-items-start gap-3 mb-4 fade-in"
+         style="background: linear-gradient(135deg,#fff0f0,#ffe8e8); border-left: 5px solid #dc3545 !important;">
+        <div style="font-size:1.4rem; color:#dc3545; flex-shrink:0;"><i class="bi bi-shield-exclamation"></i></div>
+        <div>
+            <div class="fw-bold mb-1" style="color:#b91c1c;">⚠️ Could not save — please fix the errors below:</div>
+            <ul class="mb-0 ps-3" style="color:#7f1d1d; font-size:0.9rem;">
+                {% for field in form %}{% for error in field.errors %}
+                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                {% endfor %}{% endfor %}
+                {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <form id="assetForm" method="POST" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="iframe" value="1">
+
+        <!-- ── SECTION: IDENTIFICATION ── -->
+        <span class="section-chip"><i class="bi bi-tags-fill"></i> Asset Identification</span>
+
+        <div class="row g-3 mb-2">
+            <!-- Asset ID (readonly) -->
+            <div class="col-md-6">
+                <div class="form-floating position-relative">
+                    <input type="text" class="form-control input-locked" placeholder="Auto" value="SYSTEM-GENERATED" readonly>
+                    <label>Asset ID</label>
+                    <i class="bi bi-lock-fill" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);color:var(--primary);opacity:0.4;"></i>
+                </div>
+            </div>
+
+            <!-- Asset Type -->
+            <div class="col-md-6" id="assetTypeContainer">
+                <div class="form-floating">
+                    {{ form.asset_type|add_class:"form-select"|attr:"required"|attr:"id:id_asset_type" }}
+                    <label>Asset Type <span class="text-danger">*</span></label>
+                </div>
+                {{ form.other_asset_type }}
+            </div>
+
+            <!-- Manufacturer -->
+            <div class="col-md-6">
+                <div class="form-floating">
+                    {{ form.company_name|add_class:"form-control"|attr:"required"|attr:"placeholder:Company" }}
+                    <label>Manufacturer / Company <span class="text-danger">*</span></label>
+                </div>
+            </div>
+
+            <!-- Model -->
+            <div class="col-md-6">
+                <div class="form-floating">
+                    {{ form.model|add_class:"form-control"|attr:"required"|attr:"placeholder:Model" }}
+                    <label>Model Name <span class="text-danger">*</span></label>
+                </div>
+            </div>
+
+            <!-- Serial Number -->
+            <div class="col-md-6">
+                <div class="form-floating position-relative{% if form.series_number.errors %} has-error{% endif %}">
+                    {{ form.series_number|add_class:"form-control"|attr:"style:padding-right: 120px;"|attr:"placeholder:Series" }}
+                    <label>Serial / Series Number</label>
+                    <button type="button" class="btn btn-sm btn-outline-primary position-absolute top-50 end-0 translate-middle-y me-2" style="z-index: 5; border-radius: 20px; font-weight: 600;" onclick="document.getElementById('{{ form.series_number.id_for_label }}').value = 'SN-' + Math.random().toString(36).substr(2, 8).toUpperCase();">
+                        <i class="bi bi-magic"></i> Generate
+                    </button>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-1">
+                    <div class="form-text text-muted small m-0" style="font-weight: 600;">Optional — auto-generates if blank.</div>
+                    <button type="button" class="btn btn-sm btn-link text-primary text-decoration-none p-0 m-0 fw-semibold" style="font-size: 0.85rem;" onclick="document.getElementById('{{ form.series_number.id_for_label }}').value = '';">
+                        <i class="bi bi-x-circle me-1"></i>Clear
+                    </button>
+                </div>
+                {% if form.series_number.errors %}
+                <div class="field-error-msg mt-1">
+                    <i class="bi bi-exclamation-circle-fill text-danger"></i>
+                    <span>{% for error in form.series_number.errors %}{{ error }}{% endfor %}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Vendor -->
+            <div class="col-md-6">
+                <div class="form-floating">
+                    {{ form.vendor_name|add_class:"form-control"|attr:"placeholder:Vendor Name" }}
+                    <label>Vendor Name</label>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-6" id="statusContainer">
+                <div class="form-floating">
+                    {{ form.status|add_class:"form-select"|attr:"required"|attr:"id:id_status" }}
+                    <label>Status <span class="text-danger">*</span></label>
+                </div>
+                {{ form.other_status }}
+            </div>
+
+            <!-- Asset Name (if exists) -->
+            {% if form.name %}
+            <div class="col-md-6">
+                <div class="form-floating">
+                    {{ form.name|add_class:"form-control"|attr:"placeholder:Name" }}
+                    <label>Asset Name</label>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- ── SECTION: SPECIFICATIONS & WARRANTY ── -->
+        <span class="section-chip"><i class="bi bi-sliders"></i> Specifications &amp; Warranty</span>
+
+        <div class="row g-3 mb-2">
+            <!-- RAM -->
+            <div class="col-md-6" id="ramContainer">
+                <div class="form-floating">
+                    {{ form.ram|add_class:"form-select" }}
+                    <label>RAM</label>
+                </div>
+                {{ form.other_ram }}
+            </div>
+
+            <!-- Storage -->
+            <div class="col-md-6" id="storageContainer">
+                <div class="form-floating">
+                    {{ form.storage|add_class:"form-select" }}
+                    <label>Storage</label>
+                </div>
+                {{ form.other_storage }}
+            </div>
+
+            <!-- Processor -->
+            <div class="col-md-6" id="processorContainer">
+                <div class="form-floating">
+                    {{ form.processor|add_class:"form-control"|attr:"placeholder:Processor" }}
+                    <label>Processor</label>
+                </div>
+            </div>
+
+            <!-- Graphic Card -->
+            <div class="col-md-6" id="graphicCardContainer">
+                <div class="form-floating">
+                    {{ form.graphic_card|add_class:"form-control"|attr:"placeholder:Graphic Card" }}
+                    <label>Graphic Card</label>
+                </div>
+            </div>
+
+            <!-- Purchase Date -->
+            <div class="col-md-6">
+                <div class="form-floating">
+                    {{ form.purchase_date|add_class:"form-control"|attr:"placeholder:DD/MM/YYYY"|attr:"autocomplete:off" }}
+                    <label>Purchase / Add Date <span class="fm-hint">(DD/MM/YYYY)</span></label>
+                </div>
+                <div class="form-text ms-1">Format: DD/MM/YYYY</div>
+            </div>
+
+            <!-- Cost -->
+            <div class="col-md-6" id="costContainer">
+                <div class="form-floating">
+                    {{ form.cost|add_class:"form-control"|attr:"placeholder:Cost" }}
+                    <label>Cost</label>
+                </div>
+            </div>
+
+            <!-- Warranty -->
+            <div class="col-md-6" id="warrantyContainer">
+                <div class="form-floating">
+                    {{ form.warranty|add_class:"form-select"|attr:"id:id_warranty" }}
+                    <label>Warranty</label>
+                </div>
+                {{ form.other_warranty }}
+            </div>
+
+            <!-- Warranty End Date -->
+            <div class="col-md-6" id="warrantyEndDateContainer">
+                <div class="form-floating">
+                    {{ form.warranty_end_date|add_class:"form-control"|attr:"placeholder:DD/MM/YYYY"|attr:"autocomplete:off" }}
+                    <label>Warranty End Date <span class="fm-hint">(DD/MM/YYYY)</span></label>
+                </div>
+                <div class="form-text ms-1">Format: DD/MM/YYYY</div>
+            </div>
+
+            <!-- Image upload -->
+            {% if form.image %}
+            <div class="col-12">
+                <div class="custom-file-upload">
+                    <i class="bi bi-cloud-arrow-up fs-2 mb-2" style="color:var(--primary);"></i>
+                    <p class="mb-2 fw-semibold">Upload Asset Image</p>
+                    {{ form.image|add_class:"form-control" }}
+                    <div class="form-text mt-2">Maximum file size: 5 MB (JPG, PNG)</div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Submit -->
+        <div class="mt-4">
+            <button id="submitBtn" type="submit" class="btn-submit">
+                <span id="btnText">
+                    <i class="bi bi-check2-circle me-2"></i>Save Asset
+                </span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('assetForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+
+    // Auto-hide serial error on typing
+    const serialInput = document.getElementById('id_series_number');
+    const serialErrorMsg = document.querySelector('.field-error-msg');
+    if (serialInput && serialErrorMsg) {
+        serialInput.addEventListener('input', function () {
+            serialErrorMsg.style.opacity = '0';
+            serialErrorMsg.style.transition = 'opacity 0.25s ease';
+            setTimeout(() => serialErrorMsg.remove(), 260);
+        });
+    }
+
+    form.addEventListener('submit', function (e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+            submitBtn.classList.add('animate__animated', 'animate__shakeX');
+            setTimeout(() => submitBtn.classList.remove('animate__shakeX'), 500);
+            form.classList.add('was-validated');
+            const firstInvalid = form.querySelector(':invalid');
+            if (firstInvalid) firstInvalid.focus();
+        } else {
+            submitBtn.disabled = true;
+            btnText.innerHTML = `<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...`;
+            submitBtn.style.opacity = '0.8';
+        }
+    }, false);
+
+    // ── Asset Type → Other ──
+    const assetTypeSelect = document.getElementById('id_asset_type');
+    const otherAssetTypeInput = document.getElementById('otherAssetTypeInput');
+    if (assetTypeSelect && otherAssetTypeInput) {
+        assetTypeSelect.addEventListener('change', function () {
+            const show = this.value === 'Other';
+            otherAssetTypeInput.style.display = show ? 'block' : 'none';
+            otherAssetTypeInput.required = show;
+            if (!show) otherAssetTypeInput.value = '';
+        });
+        if (assetTypeSelect.value === 'Other') otherAssetTypeInput.style.display = 'block';
+    }
+
+    // ── Status → Other / Dead ──
+    const statusSelect = document.getElementById('id_status');
+    const otherStatusInput = document.getElementById('otherStatusInput');
+    const costContainer = document.getElementById('costContainer');
+    const warrantyContainer = document.getElementById('warrantyContainer');
+    const warrantyEndContainer = document.getElementById('warrantyEndDateContainer');
+
+    function handleStatusChange() {
+        if (!statusSelect) return;
+        const val = statusSelect.value;
+        if (otherStatusInput) {
+            const show = val === 'Other';
+            otherStatusInput.style.display = show ? 'block' : 'none';
+            otherStatusInput.required = show;
+            if (!show) otherStatusInput.value = '';
+        }
+        const isDead = val === 'Dead';
+        if (costContainer) costContainer.style.display = isDead ? 'none' : 'block';
+        if (warrantyContainer) warrantyContainer.style.display = isDead ? 'none' : 'block';
+        if (warrantyEndContainer) warrantyEndContainer.style.display = isDead ? 'none' : 'block';
+    }
+    if (statusSelect) {
+        statusSelect.addEventListener('change', handleStatusChange);
+        handleStatusChange();
+    }
+
+    // ── Warranty → Other ──
+    const warrantySelect = document.getElementById('id_warranty');
+    const otherWarrantyInput = document.getElementById('otherWarrantyInput');
+    if (warrantySelect && otherWarrantyInput) {
+        warrantySelect.addEventListener('change', function () {
+            const show = this.value === 'Other';
+            otherWarrantyInput.style.display = show ? 'block' : 'none';
+            otherWarrantyInput.required = show;
+            if (!show) otherWarrantyInput.value = '';
+        });
+        if (warrantySelect.value === 'Other') otherWarrantyInput.style.display = 'block';
+    }
+
+    // ── RAM → Other ──
+    const ramSelect = document.getElementById('id_ram');
+    const otherRamInput = document.getElementById('otherRamInput');
+    if (ramSelect && otherRamInput) {
+        ramSelect.addEventListener('change', function () {
+            const show = this.value === 'Other';
+            otherRamInput.style.display = show ? 'block' : 'none';
+            otherRamInput.required = show;
+            if (!show) otherRamInput.value = '';
+        });
+        if (ramSelect.value === 'Other') otherRamInput.style.display = 'block';
+    }
+
+    // ── Storage → Other ──
+    const storageSelect = document.getElementById('id_storage');
+    const otherStorageInput = document.getElementById('otherStorageInput');
+    if (storageSelect && otherStorageInput) {
+        storageSelect.addEventListener('change', function () {
+            const show = this.value === 'Other';
+            otherStorageInput.style.display = show ? 'block' : 'none';
+            otherStorageInput.required = show;
+            if (!show) otherStorageInput.value = '';
+        });
+        if (storageSelect.value === 'Other') otherStorageInput.style.display = 'block';
+    }
+
+    // ── RAM/Storage/Processor/GPU visibility by asset type ──
+    const ramContainer = document.getElementById('ramContainer');
+    const storageContainer2 = document.getElementById('storageContainer');
+    const processorContainer = document.getElementById('processorContainer');
+    const graphicCardContainer = document.getElementById('graphicCardContainer');
+
+    function toggleRamStorage() {
+        if (!assetTypeSelect) return;
+        const typeVal = assetTypeSelect.value.toLowerCase();
+        const show = typeVal === 'laptop' || typeVal === 'desktop';
+        if (ramContainer) ramContainer.style.display = show ? 'block' : 'none';
+        if (storageContainer2) storageContainer2.style.display = show ? 'block' : 'none';
+        if (processorContainer) processorContainer.style.display = show ? 'block' : 'none';
+        if (graphicCardContainer) graphicCardContainer.style.display = show ? 'block' : 'none';
+    }
+    if (assetTypeSelect) {
+        assetTypeSelect.addEventListener('change', toggleRamStorage);
+        toggleRamStorage();
+    }
+
+    // ── Auto-calculate Warranty End Date ──
+    const purchaseDateInput = document.getElementById('id_purchase_date');
+    const warrantyEndDateInput = document.getElementById('id_warranty_end_date');
+
+    function parseDmY(s) {
+        const m = (s || '').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (!m) return null;
+        const d = new Date(+m[3], +m[2] - 1, +m[1]);
+        return (d.getDate() === +m[1] && d.getMonth() === +m[2] - 1) ? d : null;
+    }
+    function toDmY(d) {
+        return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
+    }
+    function calcWarrantyEnd() {
+        if (!purchaseDateInput || !warrantyEndDateInput || !warrantySelect) return;
+        let base = parseDmY(purchaseDateInput.value) || new Date();
+        let years = 0, months = 0, days = 0;
+        if (warrantySelect.value === 'Other') {
+            const cv = (otherWarrantyInput ? otherWarrantyInput.value : '').toLowerCase().trim();
+            const nm = cv.match(/^(\d+)\s*(year|month|day)s?/);
+            if (!nm) { warrantyEndDateInput.value = ''; return; }
+            const n = parseInt(nm[1], 10);
+            if (nm[2] === 'year') years = n;
+            else if (nm[2] === 'month') months = n;
+            else days = n;
+        } else if (warrantySelect.value === 'Complete') {
+            warrantyEndDateInput.value = 'Complete'; return;
+        } else {
+            years = parseInt(warrantySelect.value, 10);
+            if (isNaN(years)) { warrantyEndDateInput.value = ''; return; }
+        }
+        const d = new Date(base);
+        d.setFullYear(d.getFullYear() + years);
+        d.setMonth(d.getMonth() + months);
+        d.setDate(d.getDate() + days);
+        warrantyEndDateInput.value = toDmY(d);
+    }
+    if (warrantySelect) {
+        warrantySelect.addEventListener('change', calcWarrantyEnd);
+        warrantySelect.addEventListener('click', calcWarrantyEnd);
+    }
+    if (otherWarrantyInput) {
+        otherWarrantyInput.addEventListener('input', calcWarrantyEnd);
+        otherWarrantyInput.addEventListener('change', calcWarrantyEnd);
+    }
+    if (purchaseDateInput) {
+        purchaseDateInput.addEventListener('change', calcWarrantyEnd);
+        purchaseDateInput.addEventListener('input', calcWarrantyEnd);
+    }
+    calcWarrantyEnd();
+});
+</script>
+</body>
+</html>

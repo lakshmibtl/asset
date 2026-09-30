@@ -2,115 +2,349 @@
 {% load static %}
 
 {% block content %}
-<div class="container py-4">
+<style>
+    :root {
+        --brand: #0d6efd;
+        --brand-hover: #0b5ed7;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+    }
+    
+    .tk-page-head h2 { color: var(--ink); font-weight: 700; margin: 0; font-size: 1.5rem; }
+    .tk-page-head p { color: var(--muted); font-size: 0.9rem; margin: 4px 0 0; }
+    
+    .tk-stat {
+        background: #fff; padding: 20px; border-radius: 12px; border: 1px solid var(--line); display: flex; align-items: center; gap: 16px;
+    }
+    .tk-stat .stat-icon {
+        width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .tk-stat-content { flex: 1; }
+    .tk-stat .stat-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+    .tk-stat .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--ink); line-height: 1; margin-bottom: 6px; }
+    .tk-stat .stat-trend { font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    
+    .tk-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .tk-card-head { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: center; background: #fafbfc; }
+    
+    .tk-table { font-size: 0.8rem; margin: 0; }
+    .tk-table th { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); padding: 12px 16px; background: #fafbfc; white-space: nowrap; }
+    .tk-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; color: var(--ink); }
+    .tk-table tr:hover { background: #f9fafb; cursor: pointer; }
+    
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; }
+    
+    .role-pill { font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+    .role-admin { background: #fee2e2; color: #ef4444; }
+    .role-manager { background: #fef9c3; color: #ca8a04; }
+    .role-employee { background: #eff6ff; color: #3b82f6; }
+    .role-hr { background: #f3e8ff; color: #9333ea; }
+    
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+    .status-active .status-dot { background: #10b981; }
+    .status-inactive .status-dot { background: #ef4444; }
+    .status-text { font-size: 0.75rem; font-weight: 600; }
+    .status-active .status-text { color: #10b981; }
+    .status-inactive .status-text { color: #ef4444; }
+
+    /* Side Panel */
+    .side-panel {
+        background: #fff; border: 1px solid var(--line); border-radius: 12px; height: 100%;
+    }
+    .sp-head { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+    
+    .sp-tabs { display: flex; border-bottom: 1px solid var(--line); padding: 0 20px; }
+    .sp-tab { padding: 10px 14px; font-size: 0.8rem; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
+    .sp-tab.active { color: var(--brand); border-bottom-color: var(--brand); }
+    
+    .info-row { display: flex; font-size: 0.8rem; margin-bottom: 12px; }
+    .info-label { width: 125px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .info-value { color: var(--ink); font-weight: 500; }
+</style>
+
+<div class="container-fluid py-4">
 
     <!-- Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-        <div>
-            <h2 class="fw-bold text-dark">Users</h2>
-            <!--<p class="text-muted">View and manage all system users ({{ users|length }})</p>-->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="tk-page-head">
+            <h2>View Users</h2>
+            <p>Manage system users, roles and permissions</p>
         </div>
 
         {% if request.user.is_staff %}
-        <button type="button" class="btn btn-primary btn-lg rounded-3 shadow-sm" data-bs-toggle="offcanvas" data-bs-target="#createUserOffcanvas">
-            <i class="bi bi-person-plus-fill me-2"></i> New User
+        <button type="button" class="btn btn-primary rounded-3 shadow-sm px-4 fw-bold" data-bs-toggle="offcanvas" data-bs-target="#createUserOffcanvas">
+            <i class="bi bi-plus-lg me-1"></i> Add User
         </button>
         {% endif %}
     </div>
 
-
-    <!-- Search Box -->
-    <div class="card border-0 shadow-sm rounded-4 mb-4">
-        <div class="card-body p-3">
-            <div class="input-group input-group-lg">
-                <span class="input-group-text bg-light border-end-0">
-                    <i class="bi bi-search text-muted"></i>
-                </span>
-                <input type="text" id="userSearch" class="form-control border-start-0 bg-light"
-                       placeholder="Search by username or email...">
+    <!-- Stat Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-3">
+            <div class="tk-stat">
+                <div class="stat-icon" style="background:#eff6ff;color:#3b82f6;"><i class="bi bi-people-fill"></i></div>
+                <div class="tk-stat-content">
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value">{{ total_users_count }}</div>
+                    <div class="stat-trend" style="color:#10b981;"><i class="bi bi-arrow-up"></i> <span style="color:var(--muted)">Current</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="tk-stat">
+                <div class="stat-icon" style="background:#ecfdf5;color:#10b981;"><i class="bi bi-person-check-fill"></i></div>
+                <div class="tk-stat-content">
+                    <div class="stat-label">Active Users</div>
+                    <div class="stat-value">{{ active_users_count }}</div>
+                    <div class="stat-trend" style="color:#10b981;"><i class="bi bi-arrow-up"></i> <span style="color:var(--muted)">Current</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="tk-stat">
+                <div class="stat-icon" style="background:#fef2f2;color:#ef4444;"><i class="bi bi-person-x-fill"></i></div>
+                <div class="tk-stat-content">
+                    <div class="stat-label">Inactive Users</div>
+                    <div class="stat-value">{{ inactive_users_count }}</div>
+                    <div class="stat-trend" style="color:#ef4444;"><i class="bi bi-arrow-up"></i> <span style="color:var(--muted)">Current</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="tk-stat">
+                <div class="stat-icon" style="background:#f3e8ff;color:#9333ea;"><i class="bi bi-shield-lock-fill"></i></div>
+                <div class="tk-stat-content">
+                    <div class="stat-label">Roles</div>
+                    <div class="stat-value">{{ roles_count }}</div>
+                    <div class="stat-trend"><span style="color:var(--muted)">Admin, Manager, HR...</span></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- User Cards -->
-    <div class="row g-4" id="usersContainer">
-        {% for u in users %}
-        <div class="col-lg-6 user-row" data-name="{{ u.display_name|lower }}" data-username="{{ u.username|lower }}" data-email="{{ u.email|lower }}">
-            <div class="card user-card rounded-4 shadow-sm border-0 p-3">
-
-                <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-3">
-
-                    <!-- Avatar -->
-                    <div class="avatar-circle">
-                        {{ u.display_name|first|upper }}
+    <!-- Main Content: Table & Side Panel -->
+    <div class="row g-4">
+        <!-- Users Table -->
+        <div class="col-12 col-xl-8">
+            <div class="tk-card">
+                <!-- Toolbar -->
+                <div class="tk-card-head d-flex gap-2">
+                    <div class="position-relative flex-grow-1">
+                        <i class="bi bi-search position-absolute top-50 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" id="userSearch" class="form-control ps-5" style="border-radius:8px; font-size:0.85rem;" placeholder="Search by name, employee ID, email...">
                     </div>
-
-                    <div class="flex-grow-1">
-                        <h5 class="mb-1 fw-semibold">{{ u.display_name }}</h5>
-
-                        <p class="text-muted small mb-1">
-                            Emp ID: {{ u.username }}
-                        </p>
-
-                        <p class="text-muted small mb-1">
-                            <i class="bi bi-envelope me-1"></i>{{ u.email }}
-                        </p>
-
-                        <!-- Department -->
-                        <p class="text-muted small mb-0 mt-1">
-                            <i class="bi bi-building me-1"></i>Dept: {{ u.department|default:"Unspecified" }}
-                        </p>
-                    </div>
-
-                    <!-- Role Badge & Actions -->
-                    <div class="d-flex flex-column align-items-end gap-2 ms-auto">
-                        <span class="badge role-badge 
-                            {% if 'admin' in u.role|lower %}
-                                bg-danger
-                            {% elif u.role == 'manager' %}
-                                bg-success
-                            {% else %}
-                                bg-primary
-                            {% endif %}
-                        ">
-                            {% if 'admin' in u.role|lower %}
-                                <i class="bi bi-person-gear me-1"></i> {{ u.get_role_display|default:u.role|title }}
-                            {% elif u.role == 'manager' %}
-                                <i class="bi bi-person-workspace me-1"></i> {{ u.get_role_display|default:u.role|title }}
-                            {% else %}
-                                <i class="bi bi-person-fill me-1"></i> {{ u.get_role_display|default:u.role|title }}
-                            {% endif %}
-                        </span>
-
-                        {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'superadmin' %}
-                            <a href="{% url 'edit_user' u.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 mt-1">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a>
-                        {% endif %}
-                        
-                        {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'superadmin' or request.user.role == 'asset_admin' %}
-                            {% if u.id != request.user.id %}
-                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 mt-1" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-url="{% url 'delete_user' u.id %}" data-username="{{ u.username }}">
-                                <i class="bi bi-trash"></i> Delete
-                            </button>
-                            {% endif %}
-                        {% endif %}
-                    </div>
-
                 </div>
 
+                <!-- Table -->
+                <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                    <table class="table tk-table align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width:40px;"><input type="checkbox" class="form-check-input"></th>
+                                <th>#</th>
+                                <th>User</th>
+                                <th>Employee ID</th>
+                                <th>Department</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in users %}
+                            <tr class="user-row" data-name="{{ u.custom_display_name|lower }}" data-username="{{ u.username|lower }}" data-email="{{ u.email|lower }}" onclick="showUserDetails('{{ u.id }}', '{{ u.custom_display_name|escapejs }}', '{{ u.username|escapejs }}', '{{ u.email|escapejs }}', '{{ u.department|escapejs }}', '{{ u.get_role_display|default:u.role|title|escapejs }}', '{{ u.role|escapejs }}', '{% if u.is_active %}Active{% else %}Inactive{% endif %}', '{% url "edit_user" u.id %}', '{% url "delete_user" u.id %}', {% if u.id == request.user.id %}true{% else %}false{% endif %})">
+                                <td><input type="checkbox" class="form-check-input"></td>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="user-avatar" style="background:#3b82f6;">{{ u.custom_display_name|first|upper }}</div>
+                                        <div>
+                                            <div class="fw-bold" style="color:var(--ink);">{{ u.custom_display_name }}</div>
+                                            <div style="font-size:0.7rem; color:var(--brand);">{{ u.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-muted fw-medium">{{ u.username }}</td>
+                                <td>{{ u.department|default:"Unspecified" }}</td>
+                                <td>
+                                    <span class="role-pill 
+                                        {% if 'admin' in u.role|lower %} role-admin
+                                        {% elif u.role == 'manager' %} role-manager
+                                        {% elif u.role == 'hr' %} role-hr
+                                        {% else %} role-employee {% endif %}">
+                                        {{ u.get_role_display|default:u.role|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if u.is_active %}
+                                    <div class="status-active">
+                                        <span class="status-dot"></span><span class="status-text">Active</span>
+                                    </div>
+                                    {% else %}
+                                    <div class="status-inactive">
+                                        <span class="status-dot"></span><span class="status-text">Inactive</span>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.last_login %}
+                                    <div class="text-dark">{{ u.last_login|date:"d M Y" }}</div>
+                                    <div class="text-muted" style="font-size:0.7rem;">{{ u.last_login|time:"h:i A" }}</div>
+                                    {% else %}
+                                    <div class="text-muted">—</div>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-muted p-0 border-0" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="font-size:0.85rem;">
+                                            <li><a class="dropdown-item" href="#" onclick="event.preventDefault(); showUserDetails('{{ u.id }}', '{{ u.custom_display_name|escapejs }}', '{{ u.username|escapejs }}', '{{ u.email|escapejs }}', '{{ u.department|escapejs }}', '{{ u.get_role_display|default:u.role|title|escapejs }}', '{{ u.role|escapejs }}', '{% if u.is_active %}Active{% else %}Inactive{% endif %}', '{% url "edit_user" u.id %}', '{% url "delete_user" u.id %}', {% if u.id == request.user.id %}true{% else %}false{% endif %}); setTimeout(() => { const bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('editUserOffcanvas')); bsOffcanvas.show(); }, 100);"><i class="bi bi-pencil me-2"></i> Edit</a></li>
+                                            {% if u.id != request.user.id %}
+                                            <li><a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-url="{% url 'delete_user' u.id %}" data-username="{{ u.username }}"><i class="bi bi-trash me-2"></i> Delete</a></li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9">
+                                    <div class="text-center py-5">
+                                        <i class="bi bi-people display-4 text-muted opacity-25"></i>
+                                        <p class="text-muted mt-3">No users found</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination mock -->
+                <div class="d-flex justify-content-between align-items-center p-3 border-top" style="font-size:0.8rem; color:var(--muted);">
+                    <div>Showing 1 to {{ users|length }} of {{ users|length }} users</div>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item disabled"><a class="page-link" href="#"><i class="bi bi-chevron-left"></i></a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#"><i class="bi bi-chevron-right"></i></a></li>
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
 
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <i class="bi bi-people display-1 text-muted opacity-25"></i>
-            <p class="text-muted mt-3 fs-5">No users found</p>
-        </div>
-        {% endfor %}
-    </div>
+        <!-- User Details Panel -->
+        <div class="col-12 col-xl-4">
+            <div class="side-panel d-flex flex-column" id="userDetailsPanel">
+                <div class="sp-head">
+                    User Details
+                    <button class="btn-close" style="font-size:0.7rem;"></button>
+                </div>
+                
+                <!-- Mock User Details Default State -->
+                <div class="p-4 text-center border-bottom">
+                    <div class="user-avatar mx-auto mb-3" id="ud-avatar" style="width:72px; height:72px; font-size:2rem; background:#3b82f6;">-</div>
+                    <h5 class="fw-bold mb-1" id="ud-name" style="color:var(--ink);">Select a User</h5>
+                    <div class="text-muted small mb-2" id="ud-empid">—</div>
+                    <div id="ud-status-container" class="status-active d-inline-block px-3 py-1 bg-success bg-opacity-10 rounded-pill" style="visibility: hidden;">
+                        <span id="ud-status-dot" class="status-dot"></span><span id="ud-status-text" class="status-text">Active</span>
+                    </div>
+                </div>
 
+                <div class="sp-tabs">
+                    <div class="sp-tab active">Profile</div>
+                    <div class="sp-tab">Roles & Permissions</div>
+                    <div class="sp-tab">Assigned Assets</div>
+                </div>
+
+                <div class="p-4 flex-grow-1" style="overflow-y:auto;">
+                    <div class="info-row">
+                        <div class="info-label"><i class="bi bi-envelope"></i> Email</div>
+                        <div class="info-value text-primary" id="ud-email">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label"><i class="bi bi-building"></i> Department</div>
+                        <div class="info-value" id="ud-dept">—</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label"><i class="bi bi-shield-check"></i> Role</div>
+                        <div class="info-value" id="ud-role">—</div>
+                    </div>
+                </div>
+
+                <div class="p-3 border-top bg-light mt-auto" id="ud-actions" style="visibility: hidden;">
+                    <div class="d-flex gap-2">
+                        <button type="button" id="ud-edit-btn" class="btn btn-primary flex-grow-1 fw-semibold btn-sm py-2" data-bs-toggle="offcanvas" data-bs-target="#editUserOffcanvas"><i class="bi bi-pencil-square me-1"></i> Edit</button>
+                        <button type="button" id="ud-delete-btn" class="btn btn-outline-danger flex-grow-1 fw-semibold btn-sm py-2" style="background:#fff;" data-bs-toggle="modal" data-bs-target="#deleteUserModal" data-url="" data-username=""><i class="bi bi-trash me-1"></i> Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    function showUserDetails(id, name, empId, email, dept, roleDisplay, rawRole, status, editUrl, deleteUrl, isSelf) {
+        document.getElementById('ud-avatar').textContent = name.charAt(0).toUpperCase();
+        document.getElementById('ud-name').textContent = name;
+        document.getElementById('ud-empid').textContent = empId;
+        document.getElementById('ud-email').textContent = email || '—';
+        document.getElementById('ud-dept').textContent = dept || 'Unspecified';
+        document.getElementById('ud-role').textContent = roleDisplay || '—';
+        
+        document.getElementById('ud-status-text').textContent = status;
+        const statusContainer = document.getElementById('ud-status-container');
+        statusContainer.style.visibility = 'visible';
+        
+        if (status === 'Active') {
+            statusContainer.className = 'status-active d-inline-block px-3 py-1 bg-success bg-opacity-10 rounded-pill';
+        } else {
+            statusContainer.className = 'status-inactive d-inline-block px-3 py-1 bg-danger bg-opacity-10 rounded-pill';
+        }
+        
+        // Update Action Buttons
+        document.getElementById('ud-actions').style.visibility = 'visible';
+        
+        // Populate edit offcanvas form
+        document.getElementById('editUserForm').action = editUrl;
+        document.getElementById('editUsername').value = empId;
+        document.getElementById('editEmail').value = email || '';
+        
+        // Helper function to safely set select values
+        function setSelectValue(selectId, valToSet) {
+            const select = document.getElementById(selectId);
+            if(select) {
+                let found = false;
+                for(let i=0; i<select.options.length; i++) {
+                    if(select.options[i].value === valToSet) {
+                        select.selectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) select.selectedIndex = 0; // Default fallback
+            }
+        }
+        
+        setSelectValue('editRole', rawRole);
+        setSelectValue('editDepartment', dept);
+        setSelectValue('editIsActive', status === 'Active' ? 'True' : 'False');
+        
+        const deleteBtn = document.getElementById('ud-delete-btn');
+        if (isSelf) {
+            deleteBtn.style.display = 'none';
+        } else {
+            deleteBtn.style.display = 'block';
+            deleteBtn.setAttribute('data-url', deleteUrl);
+            deleteBtn.setAttribute('data-username', empId);
+        }
+    }
+</script>
 
 <!-- Delete User Modal -->
 <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-hidden="true">
@@ -134,7 +368,7 @@
 </div>
 
 <!-- Offcanvas Panel -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="createUserOffcanvas" aria-labelledby="createUserOffcanvasLabel" data-bs-backdrop="false">
+<div class="offcanvas offcanvas-end" tabindex="-1" id="createUserOffcanvas" aria-labelledby="createUserOffcanvasLabel" data-bs-backdrop="true" style="z-index: 9999;">
   <div class="offcanvas-header border-bottom">
     <h5 class="offcanvas-title fw-bold" id="createUserOffcanvasLabel">Create New User</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -207,10 +441,85 @@
             </div>
         </div>
         
-        <!-- Pass 'next' parameter so we return to this page after creation -->
         <input type="hidden" name="next" value="{{ request.path }}">
         
         <button type="submit" class="btn btn-primary w-100">Create User</button>
+    </form>
+  </div>
+</div>
+
+<!-- Edit User Offcanvas Panel -->
+<div class="offcanvas offcanvas-end shadow-lg" tabindex="-1" id="editUserOffcanvas" aria-labelledby="editUserOffcanvasLabel" data-bs-backdrop="true" style="z-index: 9999; border-left: none; width: 400px;">
+  <div class="offcanvas-header border-bottom bg-light px-4 py-3">
+    <h5 class="offcanvas-title fw-bold" id="editUserOffcanvasLabel" style="color:var(--ink);"><i class="bi bi-pencil-square text-primary me-2"></i>Edit User Profile</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-4">
+    <form method="POST" action="" id="editUserForm" autocomplete="off">
+        {% csrf_token %}
+        
+        <div class="mb-4">
+            <label class="form-label fw-bold text-muted small text-uppercase letter-spacing-1 mb-3">Account Details</label>
+            
+            <div class="mb-3">
+                <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                    <span class="input-group-text bg-white border-end-0 text-muted px-3"><i class="bi bi-person-badge"></i></span>
+                    <input type="text" name="username" id="editUsername" class="form-control border-start-0 ps-0 py-2" placeholder="Employee ID / Username" required>
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                    <span class="input-group-text bg-white border-end-0 text-muted px-3"><i class="bi bi-envelope"></i></span>
+                    <input type="email" name="email" id="editEmail" class="form-control border-start-0 ps-0 py-2" placeholder="Email Address" required>
+                </div>
+            </div>
+        </div>
+        
+        <hr class="my-4 text-muted opacity-25">
+        
+        <div class="mb-4">
+            <label class="form-label fw-bold text-muted small text-uppercase letter-spacing-1 mb-3">Permissions & Dept</label>
+            
+            {% if request.user.role == 'superadmin' %}
+            <div class="mb-3">
+                <select name="role" id="editRole" class="form-select shadow-sm py-2" style="border-radius: 8px;">
+                    <option value="superadmin">👑 Super Admin</option>
+                    <option value="admin">🛡️ Admin</option>
+                    <option value="asset_admin">📦 Asset Admin</option>
+                    <option value="manager">👔 Manager</option>
+                    <option value="asset_user">👤 User</option>
+                </select>
+            </div>
+            {% endif %}
+            
+            <div class="mb-3">
+                <select name="department" id="editDepartment" class="form-select shadow-sm py-2" style="border-radius: 8px;">
+                    <option value="">🏢 Unspecified Department</option>
+                    <option value="IT Support">💻 IT Support</option>
+                    <option value="Network">🌐 Network</option>
+                    <option value="Software">⌨️ Software</option>
+                    <option value="Hardware">🖨️ Hardware</option>
+                    <option value="HR">👥 HR</option>
+                    <option value="Finance">💰 Finance</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <select name="is_active" id="editIsActive" class="form-select shadow-sm py-2" style="border-radius: 8px;">
+                    <option value="True">🟢 Active</option>
+                    <option value="False">🔴 Inactive</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Return to this page after save -->
+        <input type="hidden" name="next" value="{{ request.path }}">
+        
+        <div class="mt-5 pt-3">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold shadow-sm mb-2" style="border-radius: 8px; font-size: 0.95rem;">Save Changes</button>
+            <button type="button" class="btn btn-light w-100 py-2 fw-semibold" data-bs-dismiss="offcanvas" style="border-radius: 8px; border: 1px solid var(--line); font-size: 0.95rem;">Cancel</button>
+        </div>
     </form>
   </div>
 </div>

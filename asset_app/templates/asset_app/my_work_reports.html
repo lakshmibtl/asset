@@ -18,7 +18,7 @@
     }
 
     body {
-        background: #f3f6f9;
+        /* Inheriting from base.html */
     }
 
     .wr-crumb {
@@ -132,9 +132,9 @@
     /* Report cards */
     .wr-card {
         background: #ffffff;
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        box-shadow: var(--sha-card);
+        border: none;
+        border-radius: var(--card-radius);
+        box-shadow: var(--card-shadow);
         transition: box-shadow 0.2s ease, transform 0.2s ease;
         height: 100%;
         display: flex;

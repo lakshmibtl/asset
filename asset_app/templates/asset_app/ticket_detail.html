@@ -23,9 +23,7 @@
         --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
     }
 
-    body {
-        background: #f3f6f9;
-    }
+    /* body styling removed to prevent bleeding into offcanvas parent */
 
     .tk-crumb {
         font-size: 0.82rem;
@@ -269,6 +267,11 @@
         background: #fff;
         box-shadow: 0 0 0 3px rgba(7, 81, 138, 0.12);
     }
+    
+    .tk-form .form-select {
+        text-overflow: ellipsis;
+        padding-right: 2.5rem;
+    }
 
     .divider {
         border: none;
@@ -277,7 +280,19 @@
     }
 </style>
 
-<div class="container {% if not is_ajax %}py-4{% else %}p-3 mt-2{% endif %}" style="max-width: 860px;">
+<div class="container-fluid {% if not is_ajax %}py-4{% else %}mt-2{% endif %}" {% if not is_ajax %}style="max-width: 860px;"{% endif %}>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm border-0" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
     {% if not is_ajax %}
     <!-- Breadcrumb -->
@@ -295,7 +310,7 @@
     {% endif %}
 
     <!-- Ticket card -->
-    <div class="tk-card">
+    <div class="tk-card {% if is_ajax %}border-0 shadow-none bg-transparent{% endif %}">
         <div class="tk-card-head">
             <div class="ttl">
                 <span class="bar"></span>
@@ -321,7 +336,7 @@
             </span>
         </div>
 
-        <div class="tk-card-body">
+        <div class="tk-card-body {% if is_ajax %}px-2{% endif %}">
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="info-tile">
@@ -562,9 +577,23 @@
                 <h5 class="fw-semibold mb-3" style="color:var(--ink);">
                     <i class="bi bi-arrow-repeat me-2" style="color:var(--brand);"></i>Update Ticket Status
                 </h5>
-                <form method="POST" action="{% url 'ticket_detail' ticket.id %}" class="tk-form mx-auto" style="max-width: 520px;">
+                <form method="POST" action="{% url 'ticket_detail' ticket.id %}" class="tk-form mx-auto" {% if not is_ajax %}style="max-width: 520px;"{% endif %}>
                     {% csrf_token %}
+                    {% if request.user.is_staff or request.user.role == 'manager' or request.user.role == 'superadmin' %}
+                    <div class="mb-3 text-start">
+                        <label class="f-label"><i class="bi bi-person-badge me-1"></i>Assign To</label>
+                        <select name="assigned_to" class="form-select" style="border-radius:8px;">
+                            <option value="unassigned">-- Unassigned --</option>
+                            {% for admin in admin_users %}
+                            <option value="{{ admin.id }}" {% if ticket.assigned_to and ticket.assigned_to.id == admin.id %}selected{% endif %}>
+                                {{ admin.display_name }} ({{ admin.department|default:'No Dept' }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% else %}
                     <input type="hidden" name="assigned_to" value="{{ ticket.assigned_to.id|default:'unassigned' }}">
+                    {% endif %}
                     <div class="mb-3 text-start">
                         <label class="f-label"><i class="bi bi-journal-text me-1"></i>New Resolution Notes</label>
                         <textarea name="resolution_message" class="form-control" rows="3" placeholder="Enter new resolution notes..."></textarea>

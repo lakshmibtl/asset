@@ -29,6 +29,13 @@ class Asset(models.Model):
         ('Other', 'Other'),
     ]
 
+    # Statuses handled by the dedicated UI sections; anything else is a
+    # user-entered custom deployment status and must be rendered verbatim.
+    STANDARD_STATUSES = {
+        'available', 'in use', 'temporary', 'temporary use',
+        'dead', 'under repair', 'other',
+    }
+
     RAM_CHOICES = [
         ('4GB', '4GB'),
         ('8GB', '8GB'),
@@ -67,6 +74,8 @@ class Asset(models.Model):
 
     ram = models.CharField(max_length=50, blank=True, null=True)
     storage = models.CharField(max_length=50, blank=True, null=True)
+    processor = models.CharField(max_length=100, blank=True, null=True)
+    graphic_card = models.CharField(max_length=100, blank=True, null=True)
 
     image = models.ImageField(upload_to='assets/', blank=True, null=True)
     qr_code_base64 = models.TextField(blank=True, null=True)
@@ -75,6 +84,7 @@ class Asset(models.Model):
     cost = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     warranty = models.CharField(max_length=50, blank=True, null=True)
     warranty_end_date = models.DateField(blank=True, null=True)
+    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
 
 
  
@@ -85,6 +95,23 @@ class Asset(models.Model):
     @property
     def warranty_label(self):
         return dict(self.WARRANTY_CHOICES).get(self.warranty, self.warranty or "-")
+
+    @property
+    def has_custom_status(self):
+        """True when status holds a user-typed 'Other' deployment status (e.g. 'IN SERVER')."""
+        return (self.status or '').strip().lower() not in self.STANDARD_STATUSES
+
+    @property
+    def display_status(self):
+        """Label to render on cards/badges: the custom status if there is one, else the stored value."""
+        return (self.status or '').strip() or 'Available'
+
+    @property
+    def has_active_assignment(self):
+        """True while the asset is checked out to someone. One query - use on detail pages only."""
+        return self.assignment_set.filter(
+            status__in=['In Use', 'Temporary', 'Temporary Use']
+        ).exists()
 
     @property
     def days_until_warranty_end(self):
@@ -128,6 +155,15 @@ class Asset(models.Model):
                 pass
             next_number = max(numbers) + 1 if numbers else 1
             self.asset_id = f"{prefix}-{next_number:04d}"
+
+        # Auto-generate unique series_number if blank
+        if not self.series_number:
+            import string, random
+            while True:
+                rnd = 'SN-' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+                if not Asset.objects.filter(series_number=rnd).exists():
+                    self.series_number = rnd
+                    break
 
         # Auto-calculate warranty end date = add/purchase date + warranty years/months/days
         import re
@@ -322,6 +358,7 @@ class ProcurementRequestWorkflow(models.Model):
     ]
 
     asset_type = models.CharField(max_length=100)
+    purpose = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -394,14 +431,13 @@ class Assignment(models.Model):
     STATUS_CHOICES = [
         ('In Use', 'In Use'),
         ('Returned', 'Returned'),
-        ('Temporary', 'Temporary Use'),
+        ('Temporary', 'Temporary User'),
     ]
 
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE)
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     status = models.CharField(
         max_length=50,
-        choices=STATUS_CHOICES,
         default='In Use'
     )
     assigned_at = models.DateTimeField(auto_now_add=True)

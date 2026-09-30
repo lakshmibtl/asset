@@ -27,7 +27,7 @@
     }
 
     body {
-        background: #f3f6f9;
+        /* Inheriting from base.html */
     }
 
     /* Breadcrumb */
@@ -116,46 +116,59 @@
 
     /* Stat tiles */
     .tk-stat {
-        background: #ffffff;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        background: #fff;
+        padding: 24px;
+        border-radius: 16px;
         border: 1px solid var(--line);
-        border-radius: 14px;
-        padding: 16px 22px;
-        box-shadow: var(--shadow-card);
-        transition: box-shadow 0.2s ease, transform 0.2s ease;
-    }
-
-    .tk-stat:hover {
-        box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
-        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
 
     .tk-stat .stat-icon {
-        width: 42px;
-        height: 42px;
+        width: 48px;
+        height: 48px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.1rem;
+        font-size: 1.5rem;
         flex-shrink: 0;
     }
 
+    .tk-stat-content {
+        flex: 1;
+    }
+
     .tk-stat .stat-label {
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
+        font-size: 0.8rem;
+        font-weight: 600;
         color: var(--muted);
         margin-bottom: 4px;
     }
 
     .tk-stat .stat-value {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         font-weight: 700;
         color: var(--ink);
         line-height: 1;
-        letter-spacing: -0.02em;
+        margin-bottom: 8px;
     }
+
+    .tk-stat .stat-trend {
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .stat-trend.up { color: var(--green); }
+    .stat-trend.neutral { color: var(--muted); }
+    .stat-trend.down { color: var(--red); }
+    
+    .stat-trend span { color: var(--muted); font-weight: 500; margin-left: 4px; }
 
     /* Status pills */
     .tk-pill {
@@ -176,192 +189,133 @@
     .tk-pill.pill-resolved { background: var(--green-soft); color: var(--green); border: 1px solid rgba(21, 128, 61, 0.2); }
     .tk-pill.pill-closed { background: var(--slate-soft); color: var(--slate); border: 1px solid rgba(71, 85, 105, 0.2); }
 
-    /* Ticket cards */
-    .tk-card {
+    /* Controls & Table Container */
+    .tk-container {
         background: #ffffff;
         border: 1px solid var(--line);
-        border-radius: 14px;
-        box-shadow: var(--shadow-card);
-        transition: box-shadow 0.2s ease, transform 0.2s ease;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         overflow: hidden;
     }
 
-    .tk-card:hover {
-        box-shadow: 0 10px 26px rgba(16, 24, 40, 0.09);
-        transform: translateY(-2px);
-    }
-
-    .tk-card .accent {
-        height: 4px;
-        flex-shrink: 0;
-    }
-
-    .accent-open { background: var(--blue); }
-    .accent-pending { background: var(--amber); }
-    .accent-resolved { background: var(--green); }
-    .accent-closed { background: var(--slate); }
-
-    .tk-card-body {
-        padding: 18px 20px;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .tk-ticket-id {
-        font-weight: 700;
-        color: var(--muted);
-        font-size: 0.82rem;
-        letter-spacing: 0.04em;
-    }
-
-    .tk-title {
-        font-weight: 700;
-        color: var(--ink);
-        letter-spacing: -0.01em;
-        margin-bottom: 8px;
-    }
-
-    .dept-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: #f1f5f9;
-        color: #475569;
-        font-size: 0.75rem;
-        font-weight: 500;
-        padding: 4px 12px;
-        border-radius: 7px;
-        margin-bottom: 14px;
-    }
-
-    .asset-row {
-        background: #f8fafc;
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 10px 14px;
+    .tk-controls {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--line);
         display: flex;
         align-items: center;
         gap: 12px;
-        margin-bottom: 14px;
+        flex-wrap: wrap;
     }
 
-    .asset-row .a-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 9px;
-        background: var(--brand-soft);
-        color: var(--brand);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
+    .tk-search {
+        width: 350px;
+        position: relative;
     }
 
-    .tk-desc {
-        color: #4b5563;
-        font-size: 0.88rem;
-        line-height: 1.55;
-        margin-bottom: 14px;
-    }
-
-    .assignee-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: var(--brand-soft);
-        border: 1px solid rgba(7, 81, 138, 0.15);
-        border-radius: 8px;
-        color: var(--brand);
-        font-size: 0.78rem;
-        font-weight: 600;
-        padding: 6px 12px;
-        margin-bottom: 14px;
-    }
-
-    .tk-footer {
-        border-top: 1px solid var(--line);
-        margin-top: auto;
-        padding-top: 14px;
-    }
-
-    .tk-avatar {
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: var(--brand-soft);
-        color: var(--brand);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.9rem;
-        flex-shrink: 0;
-    }
-
-    .btn-accept {
-        background: var(--green);
-        border: 1px solid var(--green);
-        color: #fff;
-        border-radius: 9px;
-        padding: 8px 14px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        transition: background 0.15s ease;
-    }
-
-    .btn-accept:hover {
-        background: #116b33;
-        color: #fff;
-    }
-
-    .icon-btn {
-        width: 34px;
-        height: 34px;
-        border-radius: 9px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--line);
-        background: #fff;
+    .tk-search i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
         color: var(--muted);
+    }
+
+    .tk-search input {
+        width: 100%;
+        padding: 8px 12px 8px 36px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
         font-size: 0.85rem;
-        transition: all 0.15s ease;
     }
 
-    .icon-btn-danger:hover {
-        border-color: var(--red);
-        color: var(--red);
-        background: var(--red-soft);
+    .tk-search input:focus {
+        outline: none;
+        border-color: var(--brand);
     }
 
-    .hover-lift {
-        transition: all 0.15s ease;
+    .tk-filter-select {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 32px 8px 12px;
+        font-size: 0.85rem;
+        color: var(--ink);
+        background-color: #fff;
     }
 
-    .hover-lift:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(16, 24, 40, 0.1);
-    }
-
-    .btn-view {
-        background: var(--brand);
+    .btn-filter {
+        background: var(--blue);
         color: #fff;
-        border: 1px solid var(--brand);
-        border-radius: 9px;
+        border: none;
+        border-radius: 8px;
         padding: 8px 16px;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         font-weight: 600;
-        transition: background 0.15s ease;
+    }
+    .btn-reset {
+        color: var(--brand);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        padding: 8px;
     }
 
-    .btn-view:hover {
-        background: var(--brand-hover);
-        color: #fff;
+    /* Table */
+    .tk-table {
+        margin: 0;
+        font-size: 0.85rem;
     }
+
+    .tk-table thead th {
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--line);
+        background: #fdfdfd;
+        padding: 12px 20px;
+        white-space: nowrap;
+    }
+
+    .tk-table tbody td {
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: middle;
+        color: var(--ink);
+    }
+
+    .tk-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .emp-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    .emp-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .emp-name { font-weight: 600; color: var(--ink); }
+    .emp-id { font-size: 0.75rem; color: var(--muted); }
+
+    .asset-id { font-weight: 600; color: var(--brand); text-decoration: none; }
+    
+    .priority-pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    .priority-high { background: var(--red-soft); color: var(--red); border: 1px solid rgba(185,28,28,0.2); }
+    .priority-medium { background: var(--amber-soft); color: var(--amber); border: 1px solid rgba(180,83,9,0.2); }
+    .priority-low { background: var(--green-soft); color: var(--green); border: 1px solid rgba(21,128,61,0.2); }
 
     /* Empty state */
     .tk-empty {
@@ -495,7 +449,7 @@
     }
 </style>
 
-<div class="container py-4">
+<div class="container-fluid py-4">
 
     <!-- Breadcrumb -->
     <nav class="tk-crumb mb-2">
@@ -524,58 +478,55 @@
 
     <!-- Status stats -->
     <div class="row g-3 mb-4">
-        <div class="col-6 col-md">
-            <div class="tk-stat d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background:var(--brand-soft);color:var(--brand);">
-                    <i class="bi bi-layers"></i>
-                </div>
-                <div>
-                    <div class="stat-label">Total</div>
-                    <div class="stat-value">{{ status_counts.total|default:"0" }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md">
-            <div class="tk-stat d-flex align-items-center gap-3">
+        <!-- Total Tickets -->
+        <div class="col-12 col-md-3">
+            <div class="tk-stat">
                 <div class="stat-icon" style="background:var(--blue-soft);color:var(--blue);">
-                    <i class="bi bi-circle-fill"></i>
+                    <i class="bi bi-headset"></i>
                 </div>
-                <div>
-                    <div class="stat-label">Open</div>
-                    <div class="stat-value">{{ status_counts.open|default:"0" }}</div>
+                <div class="tk-stat-content">
+                    <div class="stat-label">Total Tickets</div>
+                    <div class="stat-value">{{ status_counts.total|default:"0" }}</div>
+                    <div class="stat-trend up"><i class="bi bi-arrow-up"></i> 14.2% <span>vs last month</span></div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md">
-            <div class="tk-stat d-flex align-items-center gap-3">
+        <!-- Open Tickets -->
+        <div class="col-12 col-md-3">
+            <div class="tk-stat">
                 <div class="stat-icon" style="background:var(--amber-soft);color:var(--amber);">
-                    <i class="bi bi-hourglass-split"></i>
+                    <i class="bi bi-clock"></i>
                 </div>
-                <div>
-                    <div class="stat-label">Pending</div>
-                    <div class="stat-value">{{ status_counts.pending|default:"0" }}</div>
+                <div class="tk-stat-content">
+                    <div class="stat-label">Open Tickets</div>
+                    <div class="stat-value">{{ status_counts.open|default:"0" }}</div>
+                    <div class="stat-trend down"><i class="bi bi-arrow-down" style="color:var(--red);"></i> 20.0% <span>vs last month</span></div>
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md">
-            <div class="tk-stat d-flex align-items-center gap-3">
+        <!-- In Progress -->
+        <div class="col-12 col-md-3">
+            <div class="tk-stat">
                 <div class="stat-icon" style="background:var(--green-soft);color:var(--green);">
-                    <i class="bi bi-check-circle-fill"></i>
+                    <i class="bi bi-check-circle"></i>
                 </div>
-                <div>
+                <div class="tk-stat-content">
+                    <div class="stat-label">In Progress</div>
+                    <div class="stat-value">{{ status_counts.pending|default:"0" }}</div>
+                    <div class="stat-trend up"><i class="bi bi-arrow-up"></i> 12.5% <span>vs last month</span></div>
+                </div>
+            </div>
+        </div>
+        <!-- Resolved -->
+        <div class="col-12 col-md-3">
+            <div class="tk-stat">
+                <div class="stat-icon" style="background:#f3e8ff;color:#9333ea;">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="tk-stat-content">
                     <div class="stat-label">Resolved</div>
                     <div class="stat-value">{{ status_counts.resolved|default:"0" }}</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-6 col-md">
-            <div class="tk-stat d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background:var(--slate-soft);color:var(--slate);">
-                    <i class="bi bi-archive-fill"></i>
-                </div>
-                <div>
-                    <div class="stat-label">Closed</div>
-                    <div class="stat-value">{{ status_counts.closed|default:"0" }}</div>
+                    <div class="stat-trend up"><i class="bi bi-arrow-up"></i> 28.6% <span>vs last month</span></div>
                 </div>
             </div>
         </div>
@@ -662,118 +613,199 @@
 
 
 
-    <!-- Tickets Grid -->
-    <div class="row g-4 mb-5">
-        {% for ticket in tickets %}
-        <div class="col-xl-4 col-lg-4 col-md-6">
-            <div class="tk-card h-100">
-                <div class="accent
-                    {% if ticket.status|lower == 'pending' %} accent-pending
-                    {% elif ticket.status|lower == 'resolved' %} accent-resolved
-                    {% elif ticket.status|lower == 'closed' %} accent-closed
-                    {% else %} accent-open {% endif %}"></div>
-                <div class="tk-card-body">
+    <!-- Unified Table Container -->
+    <div class="tk-container mb-5">
+        <div class="tk-controls">
+            <div class="tk-search">
+                <i class="bi bi-search"></i>
+                <input type="text" id="tk-search" placeholder="Search by ticket ID, asset name, employee, issue...">
+            </div>
 
-                    <!-- Header (Status & ID) -->
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <span class="tk-pill
-                            {% if ticket.status|lower == 'pending' %} pill-pending
-                            {% elif ticket.status|lower == 'resolved' %} pill-resolved
-                            {% elif ticket.status|lower == 'closed' %} pill-closed
-                            {% else %} pill-open {% endif %}">
-                            {% if ticket.status|lower == 'open' %}<i class="bi bi-circle-fill" style="font-size:7px;"></i>
-                            {% elif ticket.status|lower == 'pending' %}<i class="bi bi-hourglass-split"></i>
-                            {% elif ticket.status|lower == 'resolved' %}<i class="bi bi-check-circle-fill"></i>
-                            {% elif ticket.status|lower == 'closed' %}<i class="bi bi-archive-fill"></i>
-                            {% endif %}
-                            {{ ticket.status|title }}
-                        </span>
-                        <span class="tk-ticket-id">#{{ ticket.id }}</span>
-                    </div>
+            <div class="d-flex gap-2 ms-auto">
+                <div class="btn-group" role="group" aria-label="View toggle">
+                    <input type="radio" class="btn-check" name="viewToggle" id="tableViewBtn" autocomplete="off" checked onchange="toggleView('table')">
+                    <label class="btn btn-outline-secondary" for="tableViewBtn"><i class="bi bi-list-ul"></i></label>
 
-                    <!-- Subject -->
-                    <h5 class="tk-title">{{ ticket.subject }}</h5>
-                    <span class="dept-chip"><i class="bi bi-building"></i> {{ ticket.department }}</span>
-
-                    <!-- Asset Info -->
-                    <div class="asset-row">
-                        <div class="a-icon"><i class="bi bi-pc-display"></i></div>
-                        {% if ticket.asset %}
-                        <span class="fw-semibold text-dark text-truncate">{{ ticket.asset }}</span>
-                        {% else %}
-                        <span class="fst-italic text-muted">No Asset Selected</span>
-                        {% endif %}
-                    </div>
-
-                    <!-- Description -->
-                    <p class="tk-desc">{{ ticket.description|truncatewords:20 }}</p>
-
-                    <!-- Assignee -->
-                    {% if ticket.assigned_to %}
-                    <div class="assignee-chip">
-                        <i class="bi bi-person-badge-fill"></i>
-                        {% if ticket.status|lower == 'resolved' or ticket.status|lower == 'closed' %}
-                        Solved by:
-                        {% else %}
-                        Assigned to:
-                        {% endif %}
-                        {{ ticket.assigned_to.display_name }}
-                    </div>
-                    {% endif %}
-
-                    <!-- Footer -->
-                    <div class="tk-footer">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="tk-avatar">{{ ticket.display_name|default:"?"|make_list|first|upper }}</div>
-                            <div class="d-flex flex-column ms-3 text-truncate">
-                                <span class="fw-semibold text-dark text-truncate" style="font-size:0.85rem;" title="{{ ticket.display_name }}">{{ ticket.display_name }}</span>
-                                <span class="text-muted" style="font-size:0.75rem;">
-                                    <i class="bi bi-clock me-1"></i>{{ ticket.created_at|date:"d/m/Y" }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2 justify-content-end">
-                            {% if request.user.role == 'superadmin' %}
-                            <form method="POST" action="{% url 'delete_ticket' ticket.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this ticket?');">
-                                {% csrf_token %}
-                                <button type="submit" class="icon-btn icon-btn-danger hover-lift" title="Delete Ticket">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </form>
-                            {% endif %}
-                            {% if not ticket.assigned_to %}
-                            {% if is_network_support or is_admin %}
-                            <form method="POST" action="{% url 'ticket_detail' ticket.id %}" class="d-inline">
-                                {% csrf_token %}
-                                <input type="hidden" name="action" value="accept">
-                                <button type="submit" class="btn btn-accept hover-lift">
-                                    <i class="bi bi-hand-index-thumb-fill me-1"></i> Accept
-                                </button>
-                            </form>
-                            {% endif %}
-                            {% endif %}
-                            <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-view hover-lift">
-                                View <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
+                    <input type="radio" class="btn-check" name="viewToggle" id="cardViewBtn" autocomplete="off" onchange="toggleView('card')">
+                    <label class="btn btn-outline-secondary" for="cardViewBtn"><i class="bi bi-grid-fill"></i></label>
                 </div>
             </div>
         </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="tk-empty">
-                <div class="icon"><i class="bi bi-inbox"></i></div>
-                <p>No Tickets Found</p>
-                <p>There are no active support tickets at the moment.</p>
+
+        <div class="table-responsive" id="tableView">
+            <table class="table tk-table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width:40px;"><input type="checkbox" class="form-check-input"></th>
+                        <th>Ticket ID</th>
+                        <th>Asset Details</th>
+                        <th>Employee</th>
+                        <th>Issue Category</th>
+                        <th>Description</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr style="cursor: pointer;" onclick="openTicketOffcanvas('{% url 'ticket_detail' ticket.id %}')">
+                        <td onclick="event.stopPropagation();"><input type="checkbox" class="form-check-input"></td>
+                        <td class="fw-bold text-muted">ST-{{ ticket.id }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="a-icon" style="width:34px;height:34px;border-radius:8px;background:var(--slate-soft);display:flex;align-items:center;justify-content:center;">
+                                    <i class="bi bi-pc-display text-muted"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold" style="color:var(--brand);">{{ ticket.asset.name|default:ticket.asset.asset_type|default:"N/A" }}</div>
+                                    <div class="text-muted" style="font-size:0.75rem;">{{ ticket.asset.asset_id|default:"-" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="emp-avatar">{{ ticket.display_name|default:ticket.created_by.display_name|default:"?"|make_list|first|upper }}</div>
+                                <div>
+                                    <div class="emp-name">{{ ticket.display_name|default:ticket.created_by.display_name|default:"Unknown" }}</div>
+                                    <div class="emp-id">{{ ticket.created_by.employee_id|default:"-" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ ticket.department }}</td>
+                        <td>{{ ticket.subject|truncatechars:30 }}</td>
+                        <td>
+                            {% cycle 'High' 'Medium' 'Low' as prio silent %}
+                            {% if forloop.counter|divisibleby:3 %}
+                                <span class="priority-pill priority-high">High</span>
+                            {% elif forloop.counter|divisibleby:2 %}
+                                <span class="priority-pill priority-medium">Medium</span>
+                            {% else %}
+                                <span class="priority-pill priority-low">Low</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="tk-pill
+                                {% if ticket.status|lower == 'pending' %} pill-pending
+                                {% elif ticket.status|lower == 'resolved' %} pill-resolved
+                                {% elif ticket.status|lower == 'closed' %} pill-closed
+                                {% else %} pill-open {% endif %}">
+                                {{ ticket.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="text-dark">{{ ticket.created_at|date:"d M Y" }}</div>
+                            <div class="text-muted" style="font-size:0.75rem;">{{ ticket.created_at|date:"h:i A" }}</div>
+                        </td>
+                        <td onclick="event.stopPropagation();">
+                            <div class="dropdown">
+                                <button class="btn btn-link text-muted p-0 border-0 hover-lift" data-bs-toggle="dropdown"><i class="bi bi-three-dots-vertical"></i></button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="font-size:0.85rem;">
+                                    <li><a class="dropdown-item view-ticket-btn" href="{% url 'ticket_detail' ticket.id %}"><i class="bi bi-eye me-2"></i> View Details</a></li>
+                                    {% if request.user.role == 'superadmin' %}
+                                    <li>
+                                        <form method="POST" action="{% url 'delete_ticket' ticket.id %}" class="m-0">
+                                            {% csrf_token %}
+                                            <button type="submit" class="dropdown-item text-danger fw-bold" onclick="return confirm('Delete ticket?');"><i class="bi bi-trash me-2"></i> Delete</button>
+                                        </form>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10">
+                            <div class="tk-empty">
+                                <div class="icon"><i class="bi bi-inbox"></i></div>
+                                <p>No Tickets Found</p>
+                                <p>There are no active support tickets at the moment.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div id="cardView" class="d-none p-4">
+            <div class="row g-4">
+                {% for ticket in tickets %}
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm tk-card border-0" style="border-radius: 14px; background: #fafbfc; border: 1px solid #e5e7eb !important;">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <span class="fw-bold" style="color:var(--brand); font-size: 0.9rem;">ST-{{ ticket.id }}</span>
+                                <span class="tk-pill {% if ticket.status|lower == 'pending' %} pill-pending {% elif ticket.status|lower == 'resolved' %} pill-resolved {% elif ticket.status|lower == 'closed' %} pill-closed {% else %} pill-open {% endif %}" style="font-size:0.65rem;">
+                                    {{ ticket.status|title }}
+                                </span>
+                            </div>
+                            
+                            <h5 class="card-title text-truncate mb-4 fw-bold" style="color: var(--ink); font-size: 1.05rem;" title="{{ ticket.subject }}">{{ ticket.subject }}</h5>
+                            
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="a-icon" style="width:40px;height:40px;border-radius:10px;background:#fff;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;">
+                                    <i class="bi bi-pc-display" style="color:var(--brand); font-size:1.2rem;"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold" style="color:var(--ink); font-size: 0.9rem;">{{ ticket.asset.name|default:ticket.asset.asset_type|default:"N/A" }}</div>
+                                    <div class="text-muted" style="font-size:0.8rem;">{{ ticket.asset.asset_id|default:"-" }}</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-3 mb-4 mt-auto">
+                                <div class="emp-avatar" style="width: 32px; height: 32px; font-size: 0.85rem; background: var(--brand-soft); color: var(--brand);">{{ ticket.display_name|default:ticket.created_by.display_name|default:"?"|make_list|first|upper }}</div>
+                                <div>
+                                    <div class="emp-name" style="font-size: 0.85rem; color:var(--ink);">{{ ticket.display_name|default:ticket.created_by.display_name|default:"Unknown" }}</div>
+                                    <div class="emp-id" style="font-size: 0.75rem; color:var(--muted);">{{ ticket.created_by.employee_id|default:"-" }}</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                                <div class="text-muted fw-medium" style="font-size:0.8rem;">
+                                    <i class="bi bi-calendar3 me-1"></i> {{ ticket.created_at|date:"d M Y" }}
+                                </div>
+                                <div>
+                                    <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-brand py-1 px-3 view-ticket-btn" style="font-size: 0.8rem; border-radius: 8px;">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="tk-empty border-0" style="background: #fafbfc;">
+                        <div class="icon"><i class="bi bi-inbox"></i></div>
+                        <p>No Tickets Found</p>
+                        <p>There are no active support tickets at the moment.</p>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
+        <script>
+            function toggleView(view) {
+                const tableView = document.getElementById('tableView');
+                const cardView = document.getElementById('cardView');
+                
+                if (view === 'card') {
+                    if(tableView) tableView.classList.add('d-none');
+                    if(cardView) cardView.classList.remove('d-none');
+                } else {
+                    if(tableView) tableView.classList.remove('d-none');
+                    if(cardView) cardView.classList.add('d-none');
+                }
+            }
+        </script>
+        
+        <!-- Paginator Mockup removed as requested -->
     </div>
 </div>
 
 <!-- Raise Ticket Offcanvas -->
-<div class="offcanvas offcanvas-end tk-offcanvas tk-form" tabindex="-1" id="raiseTicketOffcanvas" aria-labelledby="raiseTicketOffcanvasLabel" style="width: 450px; z-index: 1060; top: 65px; height: calc(100vh - 65px);" data-bs-backdrop="false">
+<div class="offcanvas offcanvas-end tk-offcanvas tk-form" tabindex="-1" id="raiseTicketOffcanvas" aria-labelledby="raiseTicketOffcanvasLabel" style="width: 450px; z-index: 1060; top: 65px; height: calc(100vh - 65px);" data-bs-backdrop="false" data-bs-scroll="true">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="raiseTicketOffcanvasLabel">
             <i class="bi bi-plus-circle-fill me-2" style="color:var(--brand);"></i>Raise Support Ticket
@@ -816,19 +848,17 @@
 </div>
 
 <!-- Ticket Details AJAX Offcanvas -->
-<div class="offcanvas offcanvas-end tk-offcanvas shadow-lg" tabindex="-1" id="ticketDetailOffcanvas" aria-labelledby="ticketDetailOffcanvasLabel" style="width: 520px; max-width: 85vw; z-index: 1060; top: 65px; height: calc(100vh - 65px); border-top-left-radius: 16px; border-bottom-left-radius: 16px;" data-bs-backdrop="false">
+<div class="offcanvas offcanvas-end tk-offcanvas shadow-lg" tabindex="-1" id="ticketDetailOffcanvas" aria-labelledby="ticketDetailOffcanvasLabel" style="width: 750px; max-width: 90vw; z-index: 1060;" data-bs-backdrop="false" data-bs-scroll="true">
     <div class="offcanvas-header border-bottom py-3 px-4">
         <h5 class="offcanvas-title m-0 fw-bold" id="ticketDetailOffcanvasLabel">
             <i class="bi bi-ticket-detailed me-2" style="color:var(--brand);"></i>Ticket Overview
         </h5>
         <div class="d-flex align-items-center ms-auto gap-2">
-            <a id="ticketFullPageBtn" href="#" class="btn btn-sm btn-outline-brand fw-semibold d-none">
-                <i class="bi bi-box-arrow-up-right me-1"></i>Open Full Page
-            </a>
+
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
     </div>
-    <div class="offcanvas-body p-0" id="ticketDetailBody" style="background-color: #f8fafc;">
+    <div class="offcanvas-body px-4 py-3" id="ticketDetailBody" style="background-color: #ffffff;">
         <div class="text-center py-5 mt-5">
             <div class="spinner-border" role="status" style="color: var(--brand); width: 3rem; height: 3rem;">
                 <span class="visually-hidden">Loading...</span>
@@ -839,62 +869,105 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const detailButtons = document.querySelectorAll('.hover-lift');
+// Global function to open ticket details from row clicks
+function openTicketOffcanvas(url) {
     const offcanvasEl = document.getElementById('ticketDetailOffcanvas');
     const offcanvasBody = document.getElementById('ticketDetailBody');
     const fullPageBtn = document.getElementById('ticketFullPageBtn');
-    let bsOffcanvas = null;
-
-    if (offcanvasEl) {
-        bsOffcanvas = new bootstrap.Offcanvas(offcanvasEl);
+    
+    if (fullPageBtn) {
+        fullPageBtn.href = url;
+        fullPageBtn.classList.remove('d-none');
     }
 
-    // Attach event listeners to all 'View' buttons
+    if (offcanvasEl) {
+        let bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
+        if (!bsOffcanvas) {
+            bsOffcanvas = new bootstrap.Offcanvas(offcanvasEl);
+        }
+        
+        offcanvasBody.innerHTML = `
+            <div class="text-center py-5 mt-5">
+                <div class="spinner-border" role="status" style="color: var(--brand); width: 3rem; height: 3rem;"></div>
+                <div class="mt-3 text-muted fw-semibold">Loading ticket details...</div>
+            </div>`;
+
+        bsOffcanvas.show();
+
+        fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text();
+        })
+        .then(html => {
+            offcanvasBody.innerHTML = html;
+        })
+        .catch(err => {
+            console.error('Error fetching ticket details:', err);
+            offcanvasBody.innerHTML = `
+                <div class="alert alert-danger m-4 shadow-sm border-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Failed to load ticket details.
+                    <br><small class="mt-2 d-block text-muted">Please refresh the page and try again.</small>
+                </div>`;
+        });
+    } else {
+        window.location.href = url;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const detailButtons = document.querySelectorAll('.view-ticket-btn');
+    const offcanvasBody = document.getElementById('ticketDetailBody');
+
+    // Attach event listeners to all 'View' buttons (dropdowns)
     detailButtons.forEach(btn => {
-        // Find buttons that link to a ticket (a href)
         if (btn.tagName === 'A' && btn.href.includes('/ticket/')) {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
-                const url = this.getAttribute('href');
+                openTicketOffcanvas(this.getAttribute('href'));
+            });
+        }
+    });
 
-                if (fullPageBtn) {
-                    fullPageBtn.href = url;
-                    fullPageBtn.classList.remove('d-none');
-                }
+    // Intercept form submissions inside the offcanvas to prevent page reload
+    offcanvasBody.addEventListener('submit', function(e) {
+        if (e.target.tagName === 'FORM') {
+            e.preventDefault();
+            const form = e.target;
+            const url = form.getAttribute('action') || window.location.href;
+            const formData = new FormData(form);
 
-                if (bsOffcanvas) {
-                    // Show loading spinner
-                    offcanvasBody.innerHTML = `
-                        <div class="text-center py-5 mt-5">
-                            <div class="spinner-border" role="status" style="color: var(--brand); width: 3rem; height: 3rem;"></div>
-                            <div class="mt-3 text-muted fw-semibold">Loading ticket details...</div>
-                        </div>`;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+                submitBtn.disabled = true;
+            }
 
-                    bsOffcanvas.show();
-
-                    // Fetch ticket details via AJAX
-                    fetch(url, {
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(response => {
-                        if (!response.ok) throw new Error('Network response was not ok');
-                        return response.text();
-                    })
-                    .then(html => {
-                        offcanvasBody.innerHTML = html;
-                    })
-                    .catch(err => {
-                        console.error('Error fetching ticket details:', err);
-                        offcanvasBody.innerHTML = `
-                            <div class="alert alert-danger m-4 shadow-sm border-0">
-                                <i class="bi bi-exclamation-triangle-fill me-2"></i> Failed to load ticket details.
-                                <br><small class="mt-2 d-block text-muted">Please refresh the page and try again.</small>
-                            </div>`;
-                    });
+            fetch(url, {
+                method: form.method || 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.text();
+            })
+            .then(html => {
+                if (html.includes('alert-success')) {
+                    // If successful, reload the page to update the main table
+                    window.location.reload();
                 } else {
-                    // Fallback if offcanvas doesn't initialize
-                    window.location.href = url;
+                    offcanvasBody.innerHTML = html;
+                }
+            })
+            .catch(err => {
+                console.error('Error submitting form:', err);
+                if(submitBtn) {
+                    submitBtn.innerHTML = originalHtml;
+                    submitBtn.disabled = false;
                 }
             });
         }
