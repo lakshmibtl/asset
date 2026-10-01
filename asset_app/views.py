@@ -796,12 +796,15 @@ def add_asset(request):
                 
                 if is_iframe:
                     if original_status.lower() == "in use":
+                        messages.info(request, "Asset saved to stock. Please complete assignment to mark it as 'In Use'.")
                         # Redirect parent to assign page
                         assign_url = reverse('assign_asset') + f"?asset={asset.pk}"
                         return HttpResponse(
                             f"<script>window.parent.location.href='{assign_url}';</script>"
                         )
+                    
                     # Signal the parent window to close the offcanvas and reload
+                    messages.success(request, f"Asset {asset.asset_id} (Series: {asset.series_number}) added successfully!")
                     return HttpResponse(
                         "<script>window.parent.postMessage('add_asset_success', '*');</script>"
                     )
@@ -810,7 +813,7 @@ def add_asset(request):
                     messages.info(request, "Asset saved to stock. Please complete assignment to mark it as 'In Use'.")
                     return redirect(f"{reverse('assign_asset')}?asset={asset.pk}")
                 else:
-                    messages.success(request, "Asset added successfully!")
+                    messages.success(request, f"Asset {asset.asset_id} (Series: {asset.series_number}) added successfully!")
                     return redirect('view_assets')
             except IntegrityError:
                 messages.error(request, "Error: Asset ID must be unique.")
