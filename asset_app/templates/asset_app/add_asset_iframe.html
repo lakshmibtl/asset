@@ -311,6 +311,14 @@
                 </div>
             </div>
 
+            <!-- Display Size -->
+            <div class="col-md-6" id="displaySizeContainer" style="display:none;">
+                <div class="form-floating">
+                    {{ form.display_size|add_class:"form-control"|attr:"placeholder:Display Size" }}
+                    <label>Display Size</label>
+                </div>
+            </div>
+
             <!-- Purchase Date -->
             <div class="col-md-6">
                 <div class="form-floating">
@@ -483,20 +491,23 @@ document.addEventListener('DOMContentLoaded', function () {
         if (storageSelect.value === 'Other') otherStorageInput.style.display = 'block';
     }
 
-    // ── RAM/Storage/Processor/GPU visibility by asset type ──
+    // ── RAM/Storage/Processor/GPU/Display visibility by asset type ──
     const ramContainer = document.getElementById('ramContainer');
     const storageContainer2 = document.getElementById('storageContainer');
     const processorContainer = document.getElementById('processorContainer');
     const graphicCardContainer = document.getElementById('graphicCardContainer');
+    const displaySizeContainer = document.getElementById('displaySizeContainer');
 
     function toggleRamStorage() {
         if (!assetTypeSelect) return;
         const typeVal = assetTypeSelect.value.toLowerCase();
-        const show = typeVal === 'laptop' || typeVal === 'desktop' || typeVal === 'monitor';
+        const show = (typeVal === 'laptop' || typeVal === 'desktop');
+        const showMonitor = (typeVal === 'monitor');
         if (ramContainer) ramContainer.style.display = show ? 'block' : 'none';
         if (storageContainer2) storageContainer2.style.display = show ? 'block' : 'none';
         if (processorContainer) processorContainer.style.display = show ? 'block' : 'none';
         if (graphicCardContainer) graphicCardContainer.style.display = show ? 'block' : 'none';
+        if (displaySizeContainer) displaySizeContainer.style.display = showMonitor ? 'block' : 'none';
     }
     if (assetTypeSelect) {
         assetTypeSelect.addEventListener('change', toggleRamStorage);
@@ -531,8 +542,12 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (warrantySelect.value === 'Complete') {
             warrantyEndDateInput.value = 'Complete'; return;
         } else {
-            years = parseInt(warrantySelect.value, 10);
-            if (isNaN(years)) { warrantyEndDateInput.value = ''; return; }
+            if (warrantySelect.value === '0.5') {
+                months = 6;
+            } else {
+                years = parseInt(warrantySelect.value, 10);
+                if (isNaN(years)) { warrantyEndDateInput.value = ''; return; }
+            }
         }
         const d = new Date(base);
         d.setFullYear(d.getFullYear() + years);

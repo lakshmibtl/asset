@@ -427,6 +427,13 @@
                                 </div>
                             </div>
 
+                            <div class="col-md-6 animate__animated animate__fadeInLeft" id="displaySizeContainer" style="display:none;">
+                                <div class="form-floating">
+                                    {{ form.display_size|add_class:"form-control form-control-lg shadow-sm"|attr:"placeholder:Display Size" }}
+                                    <label>Display Size</label>
+                                </div>
+                            </div>
+
                             <div class="col-md-6 animate__animated animate__fadeInLeft">
                                 <div class="form-floating">
                                     {{ form.purchase_date|add_class:"form-control form-control-lg shadow-sm"|attr:"placeholder:DD/MM/YYYY"|attr:"autocomplete:off"|attr:"id:id_purchase_date" }}
@@ -710,10 +717,14 @@
                     warrantyEndDate.value = 'Complete';
                     return;
                 }
-                years = parseInt(warrantySelect.value, 10);
-                if (isNaN(years)) {
-                    warrantyFlat ? warrantyFlat.clear() : (warrantyEndDate.value = '');
-                    return;
+                if (warrantySelect.value === '0.5') {
+                    months = 6;
+                } else {
+                    years = parseInt(warrantySelect.value, 10);
+                    if (isNaN(years)) {
+                        warrantyFlat ? warrantyFlat.clear() : (warrantyEndDate.value = '');
+                        return;
+                    }
                 }
             }
 
@@ -753,16 +764,19 @@
         const storageContainer = document.getElementById('storageContainer');
         const processorContainer = document.getElementById('processorContainer');
         const graphicCardContainer = document.getElementById('graphicCardContainer');
+        const displaySizeContainer = document.getElementById('displaySizeContainer');
 
         function toggleRamStorage() {
             if (assetTypeSelect) {
                 const typeVal = assetTypeSelect.value.toLowerCase();
-                const isLaptopOrDesktop = (typeVal === 'laptop' || typeVal === 'desktop' || typeVal === 'monitor');
+                const isLaptopOrDesktop = (typeVal === 'laptop' || typeVal === 'desktop');
+                const isMonitor = (typeVal === 'monitor');
 
                 if (ramContainer) ramContainer.style.display = isLaptopOrDesktop ? 'block' : 'none';
                 if (storageContainer) storageContainer.style.display = isLaptopOrDesktop ? 'block' : 'none';
                 if (processorContainer) processorContainer.style.display = isLaptopOrDesktop ? 'block' : 'none';
                 if (graphicCardContainer) graphicCardContainer.style.display = isLaptopOrDesktop ? 'block' : 'none';
+                if (displaySizeContainer) displaySizeContainer.style.display = isMonitor ? 'block' : 'none';
             }
         }
 

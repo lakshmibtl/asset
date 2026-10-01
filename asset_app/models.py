@@ -57,6 +57,7 @@ class Asset(models.Model):
     ]
 
     WARRANTY_CHOICES = [
+        ('0.5', '6 Months'),
         ('1', '1 Year'),
         ('2', '2 Years'),
         ('3', '3 Years'),
@@ -77,6 +78,7 @@ class Asset(models.Model):
     storage = models.CharField(max_length=50, blank=True, null=True)
     processor = models.CharField(max_length=100, blank=True, null=True)
     graphic_card = models.CharField(max_length=100, blank=True, null=True)
+    display_size = models.CharField(max_length=50, blank=True, null=True)
 
     image = models.ImageField(upload_to='assets/', blank=True, null=True)
     qr_code_base64 = models.TextField(blank=True, null=True)

@@ -139,6 +139,15 @@ class AssetForm(forms.ModelForm):
         })
     )
 
+    display_size = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-lg rounded-3 shadow-sm',
+            'placeholder': 'e.g. 24 inch, 27 inch',
+            'id': 'id_display_size'
+        })
+    )
+
     warranty = forms.ChoiceField(
         choices=Asset.WARRANTY_CHOICES,
         required=False,
@@ -183,7 +192,7 @@ class AssetForm(forms.ModelForm):
 
     class Meta:
         model = Asset
-        fields = ['asset_type', 'model', 'series_number', 'vendor_name', 'company_name', 'status', 'ram', 'storage', 'processor', 'graphic_card', 'purchase_date', 'cost', 'warranty', 'warranty_end_date', 'image']
+        fields = ['asset_type', 'model', 'series_number', 'vendor_name', 'company_name', 'status', 'ram', 'storage', 'processor', 'graphic_card', 'display_size', 'purchase_date', 'cost', 'warranty', 'warranty_end_date', 'image']
 
         widgets = {
             'model': forms.TextInput(attrs={
