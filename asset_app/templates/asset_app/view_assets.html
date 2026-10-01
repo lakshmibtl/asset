@@ -476,7 +476,7 @@
 
     /* NEW MODERN OVERRIDES */
     :root {
-        --primary: #4361ee;
+        --primary: #07518a;
         --success: #10b981;
         --warning: #f59e0b;
         --danger: #ef4444;
@@ -691,7 +691,7 @@
     }
 </style>
 
-<div class="container-fluid py-4 px-4">
+<div class="container-fluid py-3 py-md-4 px-2 px-md-4">
 
     <!-- ================= STANDARD HEADER ================= -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 animate-in"
@@ -901,8 +901,8 @@
 
     <!-- UNIFIED ASSETS TABLE -->
     <div id="tableViewContainer">
-    <div class="card border-0 shadow-sm mt-4" style="border-radius: 12px; overflow: visible;">
-        <div class="table-responsive" style="overflow: visible;">
+    <div class="card border-0 shadow-sm mt-4" style="border-radius: 12px;">
+        <div class="table-responsive">
             <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem; min-width: 1200px; color: #334155;">
                 <thead style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0;">
                     <tr>
@@ -949,7 +949,7 @@
                         <td class="text-muted">Company</td>
                         <td>
                             {% if row.assignment or row.status == 'In Use' or row.status == 'Assigned' %}
-                            <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1"><i class="bi bi-person-check-fill me-1"></i> Assigned</span>
+                            <span class="badge bg-primary bg-opacity-10 text-primary px-2 py-1"><i class="bi bi-person-check-fill me-1"></i> In Use</span>
                             {% elif 'Temporary' in row.status %}
                             <span class="badge bg-warning bg-opacity-10 text-warning px-2 py-1"><i class="bi bi-clock-history me-1"></i> Temporary</span>
                             {% elif row.status == 'Available' %}
@@ -1772,6 +1772,11 @@
     {% endif %}
     </div> <!-- end gridViewContainer -->
 
+    <!-- Pagination Controls -->
+    <div id="paginationContainer" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 mb-4 px-4 py-3 bg-white shadow-sm rounded-4 gap-3 d-none">
+        <div id="paginationInfo" class="text-muted small fw-bold text-center text-md-start"></div>
+        <div id="paginationControls" class="d-flex flex-wrap justify-content-center gap-2"></div>
+    </div>
 </div>
 
 <!-- Assign Asset Offcanvas (staff only) -->
@@ -2081,16 +2086,27 @@
         const searchInput = document.getElementById("assetSearch");
         const assetItems = document.querySelectorAll(".asset-item");
 
+        let currentPage = 1;
+        const itemsPerPage = 50;
+        const paginationContainer = document.getElementById("paginationContainer");
+        const paginationInfo = document.getElementById("paginationInfo");
+        const paginationControls = document.getElementById("paginationControls");
+
         // Helper: get active filter
         function getActiveFilter() {
             const active = document.querySelector(".filter-btn.active");
             return active ? active.dataset.filter.toLowerCase() : "all";
         }
 
-        // Show/hide logic that combines filter + search
-        function applyFilters() {
+        // Show/hide logic that combines filter + search with pagination
+        function applyFilters(resetPage = true) {
+            if (resetPage) currentPage = 1;
+
             const filterValue = getActiveFilter();
             const query = (searchInput.value || "").trim().toLowerCase();
+
+            let matchedTableItems = [];
+            let matchedGridItems = [];
 
             assetItems.forEach(item => {
                 const types = (item.dataset.type || "").toLowerCase();
@@ -2115,12 +2131,89 @@
                     status.indexOf(query) !== -1;
 
                 if (matchesFilter && matchesQuery) {
-                    item.style.display = "";
+                    if (item.tagName === 'TR') {
+                        matchedTableItems.push(item);
+                    } else {
+                        matchedGridItems.push(item);
+                    }
                 } else {
                     item.style.display = "none";
                 }
             });
+
+            // Pagination logic
+            // We use the count from one of the arrays (they should be identical in count)
+            const totalItems = matchedTableItems.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+            
+            matchedTableItems.forEach((item, index) => {
+                if (index >= startIndex && index < endIndex) {
+                    item.style.display = ""; 
+                } else {
+                    item.style.display = "none";
+                }
+            });
+
+            // Grid items are not paginated because they are split across status tabs
+            matchedGridItems.forEach((item) => {
+                item.style.display = ""; 
+            });
+
+            renderPagination(totalItems, startIndex, endIndex, totalPages);
         }
+
+        function renderPagination(totalItems, startIndex, endIndex, totalPages) {
+            // Only show pagination in list view
+            const pref = localStorage.getItem('assetViewPref');
+            if (pref === 'grid') {
+                if (paginationContainer) paginationContainer.classList.add("d-none");
+                return;
+            }
+
+            if (totalItems <= itemsPerPage) {
+                if (paginationContainer) paginationContainer.classList.add("d-none");
+                return;
+            }
+            if (paginationContainer) paginationContainer.classList.remove("d-none");
+            
+            if (paginationInfo) {
+                paginationInfo.textContent = `Showing ${totalItems === 0 ? 0 : startIndex + 1} to ${endIndex} of ${totalItems} assets`;
+            }
+            
+            if (paginationControls) {
+                let html = '';
+                
+                // Prev button
+                html += `<button type="button" class="btn btn-sm ${currentPage === 1 ? 'btn-light disabled' : 'btn-outline-primary'}" onclick="goToPage(${currentPage - 1})"><i class="bi bi-chevron-left"></i></button>`;
+                
+                // Page numbers (fewer on mobile)
+                const isMobile = window.innerWidth < 768;
+                let numPagesToShow = isMobile ? 1 : 2;
+                
+                let startPage = Math.max(1, currentPage - numPagesToShow);
+                let endPage = Math.min(totalPages, currentPage + numPagesToShow);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    html += `<button type="button" class="btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-secondary'}" onclick="goToPage(${i})">${i}</button>`;
+                }
+                
+                // Next button
+                html += `<button type="button" class="btn btn-sm ${currentPage === totalPages || totalPages === 0 ? 'btn-light disabled' : 'btn-outline-primary'}" onclick="goToPage(${currentPage + 1})"><i class="bi bi-chevron-right"></i></button>`;
+                
+                paginationControls.innerHTML = html;
+            }
+        }
+
+        window.goToPage = function(page) {
+            currentPage = page;
+            applyFilters(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
 
         // Filter btn click: set active, focus search, apply
         filterButtons.forEach(btn => {
@@ -2161,6 +2254,7 @@
                 
                 if (gridViewContainer) gridViewContainer.classList.remove('d-none');
                 if (tableViewContainer) tableViewContainer.classList.add('d-none');
+                if (paginationContainer) paginationContainer.classList.add('d-none');
                 
                 localStorage.setItem('assetViewPref', 'grid');
             });
@@ -2174,12 +2268,15 @@
                 if (tableViewContainer) tableViewContainer.classList.remove('d-none');
                 
                 localStorage.setItem('assetViewPref', 'list');
+                applyFilters(false); // Re-render pagination for table view
             });
             
-            // Restore preference, default to list
-            if (localStorage.getItem('assetViewPref') === 'grid') {
+            // Restore preference, default to grid on mobile, list on desktop
+            const isMobile = window.innerWidth < 768;
+            const pref = localStorage.getItem('assetViewPref');
+            if (pref === 'grid' || (!pref && isMobile)) {
                 btnGrid.click();
-            } else {
+            } else if (pref === 'list' || (!pref && !isMobile)) {
                 btnList.click();
             }
         }
@@ -2803,7 +2900,7 @@
     document.addEventListener("DOMContentLoaded", function() {
         // If this page was loaded inside an iframe (like after saving the asset in the offcanvas)
         // We tell the parent window to reload and break out of the iframe!
-        if (window !== window.parent) {
+        if (window !== window.parent && (window.name === 'addAssetIframe' || window.name === 'editAssetIframe')) {
             window.parent.location.reload();
             return;
         }

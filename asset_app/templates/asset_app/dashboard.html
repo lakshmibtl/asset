@@ -614,57 +614,10 @@
         </div>
     </div>
 
-    <!-- ===== Row 4: My Tickets + Activity Timeline ===== -->
+    <!-- ===== Row 4: Activity Timeline ===== -->
     <div class="row g-4">
-        <!-- My Support Tickets -->
-        <div class="col-md-6">
-            <div class="user-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="user-card-title"><i class="bi bi-ticket-perforated text-primary me-2"></i>My Support Tickets</div>
-                    <a href="{% url 'view_tickets' %}" class="user-view-all">View All</a>
-                </div>
-                <table class="w-100 user-dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Issue</th>
-                            <th class="text-end">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for ticket in emp_recent_tickets %}
-                        <tr>
-                            <td style="color:#94a3b8;font-size:0.8rem;font-family:monospace;">ST-{{ ticket.id|stringformat:"04d" }}</td>
-                            <td style="font-weight:600;">{{ ticket.subject|default:ticket.issue|truncatechars:30 }}</td>
-                            <td class="text-end">
-                                {% if ticket.status == 'Open' or ticket.status == 'open' %}
-                                <span class="ubadge-red">Open</span>
-                                {% elif ticket.status == 'In Progress' or ticket.status == 'in_progress' %}
-                                <span class="ubadge-orange">In Progress</span>
-                                {% elif ticket.status == 'Resolved' or ticket.status == 'resolved' or ticket.status == 'Closed' %}
-                                <span class="ubadge-green">Resolved</span>
-                                {% else %}
-                                <span class="ubadge-orange">{{ ticket.status }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3">
-                                <div class="u-empty-state">
-                                    <i class="bi bi-check2-circle"></i>
-                                    <span>No support tickets raised yet.</span>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
         <!-- Activity Timeline -->
-        <div class="col-md-6">
+        <div class="col-12">
             <div class="user-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="user-card-title"><i class="bi bi-activity text-primary me-2"></i>Recent Activity</div>
@@ -1390,9 +1343,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 </a>
                 <a href="{% url 'view_users' %}" class="btn-quick bq-green">
                     <i class="bi bi-person-plus"></i><span>Add User</span>
-                </a>
-                <a href="{% url 'view_tickets' %}" class="btn-quick bq-purple">
-                    <i class="bi bi-ticket-perforated"></i><span>Support Tickets</span>
                 </a>
                 <a href="{% url 'create_procurement' %}" class="btn-quick bq-orange">
                     <i class="bi bi-file-earmark-plus"></i><span>Request</span>

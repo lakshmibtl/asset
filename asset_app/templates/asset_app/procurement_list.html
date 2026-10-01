@@ -7,8 +7,8 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     :root {
-        --brand: #2563eb;
-        --brand-hover: #1d4ed8;
+        --brand: #07518a;
+        --brand-hover: #053f6d;
         --ink: #0f172a;
         --muted: #64748b;
         --line: #f1f5f9;
@@ -37,7 +37,7 @@
     .tk-card-head { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: center; background: #fafbfc; flex-wrap: wrap; }
     
     .tk-table { font-size: 0.8rem; margin: 0; }
-    .tk-table th { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); padding: 12px 16px; background: #fafbfc; white-space: nowrap; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
+    .tk-table th { color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); padding: 12px 16px; background: #fafbfc; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.5px; }
     .tk-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: middle; color: var(--ink); }
     .tk-table tr:hover { background: #f9fafb; cursor: pointer; }
     
@@ -138,12 +138,10 @@
                 </div>
 
                 <!-- Table -->
-                <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                <div class="table-responsive">
                     <table class="table tk-table align-middle">
                         <thead>
                             <tr>
-                                <th style="width:40px;"><input type="checkbox" class="form-check-input"></th>
-                                <th>#</th>
                                 <th>Request ID</th>
                                 <th>Employee</th>
                                 <th>Department</th>
@@ -157,8 +155,6 @@
                         <tbody>
                             {% for r in requests %}
                             <tr onclick="showReqDetails('REQ-{{ r.id|stringformat:'04d' }}', '{{ r.requested_by.username|escapejs }}', '{{ r.requested_by.department|default:'—'|escapejs }}', '{{ r.asset_type|escapejs }}', '{{ r.purpose|escapejs }}', '{{ r.description|escapejs }}', '{{ r.request_date|date:'d M Y, h:i A' }}', '{{ r.status|escapejs }}', '{% url 'delete_procurement' r.id %}', {{ request.user.is_superuser|yesno:'true,false' }})">
-                                <td><input type="checkbox" class="form-check-input"></td>
-                                <td>{{ forloop.counter }}</td>
                                 <td class="fw-semibold" style="color:var(--brand);">REQ-{{ r.id|stringformat:'04d' }}</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">

@@ -19,11 +19,25 @@
             --sidebar-expanded-width: 260px;
             --header-height: 70px;
             --primary-bg: #f4f7fe;
-            --accent-color: #4361ee;
+            --accent-color: #07518a;
             --text-dark: #111827;
             --text-muted: #475569;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
             --card-radius: 20px;
+        }
+
+        /* Override Bootstrap Primary */
+        :root {
+            --bs-primary: #07518a;
+            --bs-primary-rgb: 7, 81, 138;
+        }
+        .btn-primary { background-color: #07518a !important; border-color: #07518a !important; color: #fff !important; }
+        .btn-primary:hover, .btn-primary:active, .btn-primary:focus { background-color: #053f6d !important; border-color: #053f6d !important; color: #fff !important; box-shadow: none !important;}
+        .btn-outline-primary { color: #07518a !important; border-color: #07518a !important; }
+        .btn-outline-primary:hover, .btn-outline-primary.active, .btn-check:checked + .btn-outline-primary, .btn-check:active + .btn-outline-primary { 
+            background-color: #07518a !important; 
+            border-color: #07518a !important;
+            color: #fff !important; 
         }
 
         * {
@@ -417,18 +431,18 @@
 
         .sidebar a:hover {
             background-color: #f8f9fa;
-            color: #2563eb;
+            color: #07518a;
         }
 
         .sidebar a.active {
-            background-color: #eff6ff;
-            color: #2563eb;
-            border: 1px solid #3b82f6;
+            background-color: #f4f7fe;
+            color: #07518a;
+            border: 1px solid #07518a;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .sidebar a.active i {
-            color: #2563eb;
+            color: #07518a;
         }
 
         .sidebar .return-badge {

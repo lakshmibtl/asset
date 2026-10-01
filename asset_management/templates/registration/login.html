@@ -24,10 +24,11 @@
 
     body {
       background-color: #f0f2f5;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 20px 0;
     }
 
     .login-container {
@@ -73,7 +74,7 @@
     }
 
     .login-left h1 span {
-      color: #0d5cff;
+      color: #07518a;
     }
 
     .login-left .features {
@@ -89,7 +90,7 @@
     .features span.dot {
       width: 5px;
       height: 5px;
-      background-color: #0d5cff;
+      background-color: #07518a;
       border-radius: 50%;
     }
 
@@ -161,8 +162,8 @@
     }
 
     .form-group input:focus {
-      border-color: #0d5cff;
-      box-shadow: 0 0 0 3px rgba(13, 92, 255, 0.1);
+      border-color: #07518a;
+      box-shadow: 0 0 0 3px rgba(7, 81, 138, 0.1);
     }
 
     .password-toggle {
@@ -175,7 +176,7 @@
     }
 
     .password-toggle:hover {
-      color: #0d5cff;
+      color: #07518a;
     }
 
     .checkbox-group {
@@ -190,7 +191,7 @@
       width: 18px;
       height: 18px;
       cursor: pointer;
-      accent-color: #0d5cff;
+      accent-color: #07518a;
     }
 
     .checkbox-group label {
@@ -200,14 +201,14 @@
     }
 
     .checkbox-group a {
-      color: #0d5cff;
+      color: #07518a;
       text-decoration: none;
       font-weight: 500;
     }
 
     .login-btn {
       width: 100%;
-      background: #0d5cff;
+      background: #07518a;
       color: #fff;
       font-size: 16px;
       font-weight: 600;
@@ -216,13 +217,13 @@
       padding: 15px;
       cursor: pointer;
       transition: background 0.3s ease, transform 0.2s ease;
-      box-shadow: 0 4px 14px rgba(13, 92, 255, 0.2);
+      box-shadow: 0 4px 14px rgba(7, 81, 138, 0.2);
     }
 
     .login-btn:hover {
-      background: #0046d6;
+      background: #053f6d;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(13, 92, 255, 0.25);
+      box-shadow: 0 6px 20px rgba(7, 81, 138, 0.25);
     }
 
     .bottom-text {
@@ -233,7 +234,7 @@
     }
 
     .bottom-text a {
-      color: #0d5cff;
+      color: #07518a;
       text-decoration: none;
       font-weight: 600;
       margin-left: 5px;
@@ -249,8 +250,12 @@
     }
 
     @media (max-width: 992px) {
+      body {
+        align-items: flex-start;
+      }
       .login-container {
         flex-direction: column;
+        height: auto;
       }
       .login-left {
         flex: none;

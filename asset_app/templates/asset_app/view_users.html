@@ -4,8 +4,8 @@
 {% block content %}
 <style>
     :root {
-        --brand: #0d6efd;
-        --brand-hover: #0b5ed7;
+        --brand: #07518a;
+        --brand-hover: #053f6d;
         --ink: #1f2937;
         --muted: #6b7280;
         --line: #e5e7eb;
@@ -38,7 +38,7 @@
     .role-pill { font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
     .role-admin { background: #fee2e2; color: #ef4444; }
     .role-manager { background: #fef9c3; color: #ca8a04; }
-    .role-employee { background: #eff6ff; color: #3b82f6; }
+    .role-employee { background: #eff6ff; color: #07518a; }
     .role-hr { background: #f3e8ff; color: #9333ea; }
     
     .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
@@ -50,7 +50,7 @@
 
     /* Side Panel */
     .side-panel {
-        background: #fff; border: 1px solid var(--line); border-radius: 12px; height: 100%;
+        background: #fff; border: 1px solid var(--line); border-radius: 12px;
     }
     .sp-head { padding: 16px 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
     
@@ -83,7 +83,7 @@
     <div class="row g-3 mb-4">
         <div class="col-12 col-md-3">
             <div class="tk-stat">
-                <div class="stat-icon" style="background:#eff6ff;color:#3b82f6;"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-icon" style="background:#eff6ff;color:#07518a;"><i class="bi bi-people-fill"></i></div>
                 <div class="tk-stat-content">
                     <div class="stat-label">Total Users</div>
                     <div class="stat-value">{{ total_users_count }}</div>
@@ -159,7 +159,7 @@
                                 <td>{{ forloop.counter }}</td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
-                                        <div class="user-avatar" style="background:#3b82f6;">{{ u.custom_display_name|first|upper }}</div>
+                                        <div class="user-avatar" style="background:#07518a;">{{ u.custom_display_name|first|upper }}</div>
                                         <div>
                                             <div class="fw-bold" style="color:var(--ink);">{{ u.custom_display_name }}</div>
                                             <div style="font-size:0.7rem; color:var(--brand);">{{ u.email }}</div>
@@ -248,7 +248,7 @@
                 
                 <!-- Mock User Details Default State -->
                 <div class="p-4 text-center border-bottom">
-                    <div class="user-avatar mx-auto mb-3" id="ud-avatar" style="width:72px; height:72px; font-size:2rem; background:#3b82f6;">-</div>
+                    <div class="user-avatar mx-auto mb-3" id="ud-avatar" style="width:72px; height:72px; font-size:2rem; background:#07518a;">-</div>
                     <h5 class="fw-bold mb-1" id="ud-name" style="color:var(--ink);">Select a User</h5>
                     <div class="text-muted small mb-2" id="ud-empid">—</div>
                     <div id="ud-status-container" class="status-active d-inline-block px-3 py-1 bg-success bg-opacity-10 rounded-pill" style="visibility: hidden;">

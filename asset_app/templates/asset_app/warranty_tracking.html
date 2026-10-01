@@ -26,6 +26,8 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
     }
     .wt-page-header h2 {
         font-size: 1.4rem;
@@ -135,7 +137,8 @@
         flex-wrap: wrap;
     }
     .wt-search {
-        width: 350px;
+        width: 100%;
+        max-width: 350px;
         position: relative;
     }
     .wt-search i {
@@ -240,8 +243,8 @@
         transition: all 0.2s ease;
     }
     .wt-view-toggle button.active {
-        background: #fff;
-        color: var(--blue-500);
+        background: #07518a;
+        color: #fff;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
@@ -444,7 +447,12 @@
             </tbody>
         </table>
     </div>
-
+    
+    <!-- Pagination Controls (Table Only) -->
+    <div id="wtPaginationContainer" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 mb-4 px-4 py-3 bg-white shadow-sm rounded-4 gap-3">
+        <div id="wtPaginationInfo" class="text-muted small fw-bold text-center text-md-start"></div>
+        <div id="wtPaginationControls" class="d-flex flex-wrap justify-content-center gap-2"></div>
+    </div>
     <!-- Card View (Hidden by default) -->
     <div class="row g-4 mt-1" id="cardView" style="display: none;">
         {% for asset in all_assets %}
@@ -541,6 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btnCardView.classList.remove('active');
         tableView.style.display = 'block';
         cardView.style.display = 'none';
+        document.getElementById('wtPaginationContainer').style.display = 'flex';
     });
 
     btnCardView.addEventListener('click', () => {
@@ -548,7 +557,69 @@ document.addEventListener('DOMContentLoaded', function() {
         btnTableView.classList.remove('active');
         cardView.style.display = 'flex';
         tableView.style.display = 'none';
+        document.getElementById('wtPaginationContainer').style.display = 'none';
     });
+
+    if (window.innerWidth < 768) {
+        btnCardView.click();
+    }
+
+    // Pagination Logic for Table
+    const tableRows = document.querySelectorAll('#tableView tbody tr');
+    const itemsPerPage = 50;
+    let currentPage = 1;
+    const totalItems = tableRows.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    function renderTablePage(page) {
+        currentPage = page;
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+
+        tableRows.forEach((row, index) => {
+            if (index >= startIndex && index < endIndex) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Update Info
+        const info = document.getElementById('wtPaginationInfo');
+        if (info) {
+            info.textContent = `Showing ${totalItems === 0 ? 0 : startIndex + 1} to ${Math.min(endIndex, totalItems)} of ${totalItems} assets`;
+        }
+
+        // Update Controls
+        const controls = document.getElementById('wtPaginationControls');
+        if (controls) {
+            if (totalItems <= itemsPerPage) {
+                controls.innerHTML = '';
+                return;
+            }
+
+            let html = `<button type="button" class="btn btn-sm ${currentPage === 1 ? 'btn-light disabled' : 'btn-outline-primary'}" onclick="goToWtPage(${currentPage - 1})"><i class="bi bi-chevron-left"></i></button>`;
+            
+            let numPagesToShow = window.innerWidth < 768 ? 1 : 2;
+            let startPage = Math.max(1, currentPage - numPagesToShow);
+            let endPage = Math.min(totalPages, currentPage + numPagesToShow);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button type="button" class="btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-secondary'}" onclick="goToWtPage(${i})">${i}</button>`;
+            }
+            
+            html += `<button type="button" class="btn btn-sm ${currentPage === totalPages || totalPages === 0 ? 'btn-light disabled' : 'btn-outline-primary'}" onclick="goToWtPage(${currentPage + 1})"><i class="bi bi-chevron-right"></i></button>`;
+            controls.innerHTML = html;
+        }
+    }
+
+    window.goToWtPage = function(page) {
+        if (page >= 1 && page <= totalPages) {
+            renderTablePage(page);
+        }
+    };
+
+    renderTablePage(1);
 });
 </script>
 {% endblock %}
