@@ -429,7 +429,7 @@
 
                             <div class="col-md-6 animate__animated animate__fadeInLeft">
                                 <div class="form-floating">
-                                    {{ form.purchase_date|add_class:"form-control form-control-lg shadow-sm"|attr:"placeholder:DD/MM/YYYY"|attr:"autocomplete:off" }}
+                                    {{ form.purchase_date|add_class:"form-control form-control-lg shadow-sm"|attr:"placeholder:DD/MM/YYYY"|attr:"autocomplete:off"|attr:"id:id_purchase_date" }}
                                     <label>Purchase / Add Date <span class="fm-hint">(DD/MM/YYYY)</span></label>
                                     <div class="form-text">Format: DD/MM/YYYY</div>
                                 </div>
@@ -452,7 +452,7 @@
 
                             <div class="col-md-6 animate__animated animate__fadeInRight" id="warrantyEndDateContainer">
                                 <div class="form-floating">
-                                    {{ form.warranty_end_date|add_class:"form-control form-control-lg shadow-sm"|attr:"placeholder:DD/MM/YYYY"|attr:"autocomplete:off" }}
+                                    {{ form.warranty_end_date|add_class:"form-control form-control-lg shadow-sm"|attr:"placeholder:DD/MM/YYYY"|attr:"autocomplete:off"|attr:"id:id_warranty_end_date" }}
                                     <label>Warranty End Date <span class="fm-hint">(DD/MM/YYYY)</span></label>
                                     <div class="form-text">Format: DD/MM/YYYY</div>
                                 </div>
@@ -757,7 +757,7 @@
         function toggleRamStorage() {
             if (assetTypeSelect) {
                 const typeVal = assetTypeSelect.value.toLowerCase();
-                const isLaptopOrDesktop = (typeVal === 'laptop' || typeVal === 'desktop');
+                const isLaptopOrDesktop = (typeVal === 'laptop' || typeVal === 'desktop' || typeVal === 'monitor');
 
                 if (ramContainer) ramContainer.style.display = isLaptopOrDesktop ? 'block' : 'none';
                 if (storageContainer) storageContainer.style.display = isLaptopOrDesktop ? 'block' : 'none';

@@ -318,7 +318,11 @@
                                 <div class="info-tile">
                                     <div class="tile-label"><i class="bi bi-calendar-event me-1"></i>Warranty Ends</div>
                                     <div class="tile-value">
+                                        {% if asset.warranty|lower == 'complete' or asset.warranty|lower == 'complete warranty' %}
+                                        Complete
+                                        {% else %}
                                         {{ asset.warranty_end_date|date:"d/m/Y"|default:"-" }}
+                                        {% endif %}
                                         {% if asset.warranty_status == 'Expired' %}
                                         <div><span class="badge bg-danger">Expired</span></div>
                                         {% elif asset.warranty_status == 'Expiring Soon' %}

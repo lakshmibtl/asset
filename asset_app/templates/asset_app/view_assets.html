@@ -978,6 +978,8 @@
                         <td class="text-muted">
                             {% if row.asset.warranty_end_date %}
                             <div class="text-dark">{{ row.asset.warranty_end_date|date:"d M Y" }}</div>
+                            {% elif row.asset.warranty|lower == 'complete' or row.asset.warranty|lower == 'complete warranty' %}
+                            <div class="text-dark">Complete</div>
                             {% else %}
                             -
                             {% endif %}

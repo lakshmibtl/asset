@@ -343,13 +343,13 @@
         </div>
         
         <div class="wt-view-toggle ms-auto">
-            <button class="active" id="btnTableView"><i class="bi bi-list-ul"></i> Table</button>
-            <button id="btnCardView"><i class="bi bi-grid-fill"></i> Grid</button>
+            <button id="btnTableView"><i class="bi bi-list-ul"></i> Table</button>
+            <button class="active" id="btnCardView"><i class="bi bi-grid-fill"></i> Grid</button>
         </div>
     </div>
 
     <!-- Table View -->
-    <div class="wt-table-wrap table-responsive" id="tableView">
+    <div class="wt-table-wrap table-responsive" id="tableView" style="display: none;">
         <table class="wt-table">
             <thead>
                 <tr>
@@ -405,7 +405,13 @@
                             {{ asset.created_at|date:"d M Y" }}
                         {% endif %}
                     </td>
-                    <td class="text-muted">{{ asset.warranty_end_date|date:"d M Y"|default:"-" }}</td>
+                    <td class="text-muted">
+                        {% if asset.warranty|lower == 'complete' or asset.warranty|lower == 'complete warranty' %}
+                        Complete
+                        {% else %}
+                        {{ asset.warranty_end_date|date:"d M Y"|default:"-" }}
+                        {% endif %}
+                    </td>
                     
                     {% if not asset.warranty or asset.warranty == "No Warranty" %}
                         <td class="text-muted fw-medium">-</td>
@@ -454,7 +460,7 @@
         <div id="wtPaginationControls" class="d-flex flex-wrap justify-content-center gap-2"></div>
     </div>
     <!-- Card View (Hidden by default) -->
-    <div class="row g-4 mt-1" id="cardView" style="display: none;">
+    <div class="row g-4 mt-1" id="cardView" style="display: flex;">
         {% for asset in all_assets %}
         <div class="col-12 col-md-6 col-lg-4 col-xl-3">
             <div class="h-100 d-flex flex-column" style="background: #ffffff; border-radius: 20px; padding: 22px; border: 1px solid #e2e8f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: transform 0.2s ease, box-shadow 0.2s ease;">
@@ -504,7 +510,13 @@
                 <div class="mt-auto p-3" style="background: #f8fafc; border-radius: 14px; border: 1px solid #f1f5f9;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <span class="text-muted" style="font-size: 0.75rem; font-weight: 600;">Warranty Expiry</span>
-                        <span class="fw-bold text-dark" style="font-size: 0.85rem;">{{ asset.warranty_end_date|date:"d M Y"|default:"-" }}</span>
+                        <span class="fw-bold text-dark" style="font-size: 0.85rem;">
+                            {% if asset.warranty|lower == 'complete' or asset.warranty|lower == 'complete warranty' %}
+                            Complete
+                            {% else %}
+                            {{ asset.warranty_end_date|date:"d M Y"|default:"-" }}
+                            {% endif %}
+                        </span>
                     </div>
                     
                     <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 1px dashed #cbd5e1;">
@@ -560,8 +572,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('wtPaginationContainer').style.display = 'none';
     });
 
-    if (window.innerWidth < 768) {
-        btnCardView.click();
+    // In this file, Card View is the default now. Mobile check isn't needed to switch to it,
+    // but we leave it for consistency.
+    if (window.innerWidth >= 768) {
+        // Just explicit setup if needed, already handled by inline styles
     }
 
     // Pagination Logic for Table

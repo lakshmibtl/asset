@@ -15,6 +15,7 @@ class Asset(models.Model):
     ASSET_TYPES = [
         ('Laptop', 'Laptop'),
         ('Desktop', 'Desktop'),
+        ('Monitor', 'Monitor'),
         ('Printer', 'Printer'),
         ('IPPBX', 'IPPBX'),
         ('Mouse', 'Mouse'),
@@ -135,7 +136,7 @@ class Asset(models.Model):
     def save(self, *args, **kwargs):
         # Auto-generate unique asset_id
         if not self.asset_id:
-            prefix_map = {'Laptop': 'LP', 'Desktop': 'DT', 'Printer': 'PR'}
+            prefix_map = {'Laptop': 'LP', 'Desktop': 'DT', 'Monitor': 'MN', 'Printer': 'PR'}
             prefix = prefix_map.get(self.asset_type, 'AS')
             numbers = []
             # Check existing assets
@@ -247,6 +248,7 @@ class AssetRequest(models.Model):
     ASSET_TYPES = [
         ('Laptop', 'Laptop'),
         ('Desktop', 'Desktop'),
+        ('Monitor', 'Monitor'),
         ('Printer', 'Printer'),
         ('IPPBX', 'IPPBX'),
         ('Mouse', 'Mouse'),
@@ -311,6 +313,7 @@ class ProcurementRequestInitial(models.Model):
     ASSET_TYPES = [
         ('Laptop', 'Laptop'),
         ('Desktop', 'Desktop'),
+        ('Monitor', 'Monitor'),
         ('Server', 'Server'),
         ('Software License', 'Software License'),
         ('Peripheral', 'Peripheral'),

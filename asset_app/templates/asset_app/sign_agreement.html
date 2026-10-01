@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="card-body p-0 bg-white"
-                    style="font-family: 'Times New Roman', Times, serif; color: #000; font-size: 15px; line-height: 1.5;">
+                    style="font-family: 'DM Sans', sans-serif; color: #000; font-size: 15px; line-height: 1.5;">
 
                     <div class="px-5 pt-5 pb-4">
                         <div class="text-end mb-3 fw-bold">
@@ -108,14 +108,19 @@
                                 Note: Above is the agreement approved by Management Mr. Rajasekhar P {MD}</div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- BOTTOM FOOTER -->
+                <!-- BOTTOM FOOTER -->
+                <div class="mt-auto">
                     <img src="{% static 'asset_app/images/2.png' %}" alt="Footer"
                         style="width: 100%; height: auto; display: block;">
                 </div>
             </div>
 
-            <div class="text-center my-4">
+            <div class="text-center my-4 d-flex justify-content-center gap-3">
+                <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill px-5 shadow-sm" onclick="window.print()">
+                    <i class="bi bi-printer me-2"></i> Print Agreement
+                </button>
                 <form id="signatureForm" method="POST" action="{% url 'sign_agreement' assignment.pk %}">
                     {% csrf_token %}
                     <input type="hidden" name="signature_data" id="signatureData">
@@ -163,10 +168,14 @@
             margin: 0;
         }
 
-        body {
+        html, body {
             background-color: white !important;
             padding: 0 !important;
             margin: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
@@ -174,97 +183,120 @@
         .header,
         .sidebar,
         .sidebar-overlay,
-        .btn {
+        .btn,
+        form,
+        .modal,
+        .my-4,
+        #clearBtn,
+        .d-flex.justify-content-between.mb-3 {
             display: none !important;
         }
 
-        .main-content {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-
-        .container {
+        .main-content,
+        .container,
+        .container-fluid,
+        .py-4,
+        .row,
+        .col-lg-10 {
             width: 100% !important;
             max-width: 100% !important;
             padding: 0 !important;
             margin: 0 !important;
+            flex: 0 0 100% !important;
+            display: block !important;
+            height: auto !important;
+            min-height: 0 !important;
+            overflow: visible !important;
         }
 
-        .card {
+        /* Take the document out of normal flow so it can never spill to a 2nd page */
+        #agreement-document {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            box-sizing: border-box !important;
             box-shadow: none !important;
             border: none !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            page-break-after: avoid !important;
             page-break-inside: avoid !important;
+            break-after: avoid !important;
+            break-inside: avoid !important;
+            overflow: hidden !important;
+            background-color: white !important;
         }
 
-        form,
-        .my-4 {
-            display: none !important;
-        }
-
-        #clearBtn {
-            display: none !important;
-        }
-
-        /* Adjust spacing to fit on one page */
-        .px-5 {
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-
-        .pt-5 {
-            padding-top: 1rem !important;
-        }
-
-        .pb-4 {
-            padding-bottom: 0.25rem !important;
-        }
-
-        .mt-5 {
-            margin-top: 1rem !important;
-        }
-
-        .mb-5 {
-            margin-bottom: 0.5rem !important;
-        }
-
-        .mb-4 {
-            margin-bottom: 0.5rem !important;
-        }
-
-        .mt-4 {
-            margin-top: 0.5rem !important;
+        #agreement-document .border-bottom {
+            border-bottom: 0 !important;
         }
 
         .card-body {
+            flex-grow: 1 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: stretch !important;
             font-size: 13px !important;
-            line-height: 1.3 !important;
+            line-height: 1.4 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        .card-body > .px-5 {
+            padding-left: 45px !important;
+            padding-right: 45px !important;
+            padding-top: 20px !important;
+        }
+
+        .mb-4, .my-4, .mt-5, .pt-5 {
+            margin-bottom: 1rem !important;
+        }
+
+        /* Push footer to the absolute bottom of the page */
+        .mt-auto {
+            margin-top: auto !important;
+            width: 100% !important;
+        }
+
+        img[alt="Footer"] {
+            width: 100% !important;
+            height: auto !important;
+            display: block !important;
+        }
+
+        img[alt="Letterhead"] {
+            width: 100% !important;
+            height: auto !important;
+            display: block !important;
         }
 
         h3 {
             font-size: 16px !important;
-            margin-bottom: 0.5rem !important;
+            margin-bottom: 0.8rem !important;
         }
 
         .row.mt-5.pt-2 {
-            margin-top: 0.5rem !important;
+            display: flex !important;
+            flex-direction: row !important;
+            margin-top: 1.5rem !important;
             padding-top: 0 !important;
         }
 
-        .text-center.mt-5.pt-3 {
-            margin-top: 0.5rem !important;
-            padding-top: 0 !important;
-        }
-
-        img[alt="Letterhead"],
-        img[alt="Footer"] {
-            width: 100% !important;
-            height: auto !important;
+        .col-6 {
+            width: 50% !important;
+            flex: 0 0 50% !important;
         }
 
         img[alt="Stamp"] {
             width: 100px !important;
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
         }
     }
 </style>

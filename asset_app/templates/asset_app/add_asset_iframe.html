@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <style>
         :root {
             --primary: #07518A;
@@ -489,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function toggleRamStorage() {
         if (!assetTypeSelect) return;
         const typeVal = assetTypeSelect.value.toLowerCase();
-        const show = typeVal === 'laptop' || typeVal === 'desktop';
+        const show = typeVal === 'laptop' || typeVal === 'desktop' || typeVal === 'monitor';
         if (ramContainer) ramContainer.style.display = show ? 'block' : 'none';
         if (storageContainer2) storageContainer2.style.display = show ? 'block' : 'none';
         if (processorContainer) processorContainer.style.display = show ? 'block' : 'none';
@@ -550,6 +553,19 @@ document.addEventListener('DOMContentLoaded', function () {
         purchaseDateInput.addEventListener('input', calcWarrantyEnd);
     }
     calcWarrantyEnd();
+
+    // Initialize Flatpickr for purchase date
+    if (typeof window.flatpickr !== 'undefined') {
+        window.flatpickr('#id_purchase_date', {
+            dateFormat: 'd/m/Y',
+            allowInput: true,
+            maxDate: 'today'
+        });
+        window.flatpickr('#id_warranty_end_date', {
+            dateFormat: 'd/m/Y',
+            allowInput: true
+        });
+    }
 });
 </script>
 </body>

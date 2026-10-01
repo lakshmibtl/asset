@@ -299,7 +299,13 @@
               <div class="col-6 col-lg-4">
                 <div class="info-tile">
                   <div class="tile-label"><i class="bi bi-calendar-event me-1"></i>Warranty Ends</div>
-                  <div class="tile-value">{{ asset.warranty_end_date|date:"d/m/Y"|default:"—" }}</div>
+                  <div class="tile-value">
+                    {% if asset.warranty|lower == 'complete' or asset.warranty|lower == 'complete warranty' %}
+                    Complete
+                    {% else %}
+                    {{ asset.warranty_end_date|date:"d/m/Y"|default:"—" }}
+                    {% endif %}
+                  </div>
                 </div>
               </div>
             </div>

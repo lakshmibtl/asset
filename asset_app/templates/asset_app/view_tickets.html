@@ -623,16 +623,16 @@
 
             <div class="d-flex gap-2 ms-auto">
                 <div class="btn-group" role="group" aria-label="View toggle">
-                    <input type="radio" class="btn-check" name="viewToggle" id="tableViewBtn" autocomplete="off" checked onchange="toggleView('table')">
+                    <input type="radio" class="btn-check" name="viewToggle" id="tableViewBtn" autocomplete="off" onchange="toggleView('table')">
                     <label class="btn btn-outline-primary" for="tableViewBtn"><i class="bi bi-list-ul"></i></label>
 
-                    <input type="radio" class="btn-check" name="viewToggle" id="cardViewBtn" autocomplete="off" onchange="toggleView('card')">
+                    <input type="radio" class="btn-check" name="viewToggle" id="cardViewBtn" autocomplete="off" checked onchange="toggleView('card')">
                     <label class="btn btn-outline-primary" for="cardViewBtn"><i class="bi bi-grid-fill"></i></label>
                 </div>
             </div>
         </div>
 
-        <div class="table-responsive" id="tableView">
+        <div class="table-responsive d-none" id="tableView">
             <table class="table tk-table align-middle">
                 <thead>
                     <tr>
@@ -730,7 +730,7 @@
             </table>
         </div>
 
-        <div id="cardView" class="d-none p-4">
+        <div id="cardView" class="p-4">
             <div class="row g-4">
                 {% for ticket in tickets %}
                 <div class="col-12 col-md-6 col-lg-4">
@@ -786,7 +786,7 @@
             </div>
         </div>
         <!-- Pagination Controls (Table Only) -->
-        <div id="tkPaginationContainer" class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3 bg-white border-top">
+        <div id="tkPaginationContainer" class="d-none flex-column flex-md-row justify-content-between align-items-center p-3 bg-white border-top">
             <div id="tkPaginationInfo" class="text-muted small fw-bold"></div>
             <div id="tkPaginationControls" class="d-flex flex-wrap justify-content-center gap-2"></div>
         </div>
@@ -798,13 +798,29 @@
                 const pagination = document.getElementById('tkPaginationContainer');
                 
                 if (view === 'card') {
-                    if(tableView) tableView.classList.add('d-none');
-                    if(cardView) cardView.classList.remove('d-none');
-                    if(pagination) pagination.classList.add('d-none');
+                    if(tableView) {
+                        tableView.classList.add('d-none');
+                    }
+                    if(cardView) {
+                        cardView.classList.remove('d-none');
+                        cardView.classList.add('d-block');
+                    }
+                    if(pagination) {
+                        pagination.classList.remove('d-flex');
+                        pagination.classList.add('d-none');
+                    }
                 } else {
-                    if(tableView) tableView.classList.remove('d-none');
-                    if(cardView) cardView.classList.add('d-none');
-                    if(pagination) pagination.classList.remove('d-none');
+                    if(tableView) {
+                        tableView.classList.remove('d-none');
+                    }
+                    if(cardView) {
+                        cardView.classList.add('d-none');
+                        cardView.classList.remove('d-block');
+                    }
+                    if(pagination) {
+                        pagination.classList.remove('d-none');
+                        pagination.classList.add('d-flex');
+                    }
                 }
             }
 

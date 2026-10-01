@@ -536,13 +536,13 @@
             </div>
 
             <div class="rr-view-toggle ms-auto">
-                <button class="active" id="btnTableView"><i class="bi bi-list-ul"></i> Table</button>
-                <button id="btnGridView"><i class="bi bi-grid"></i> Grid</button>
+                <button id="btnTableView"><i class="bi bi-list-ul"></i> Table</button>
+                <button class="active" id="btnGridView"><i class="bi bi-grid"></i> Grid</button>
             </div>
         </div>
         
         <!-- Grid View -->
-        <div id="rr-grid-view" style="display:none;" class="p-4 bg-light">
+        <div id="rr-grid-view" style="display:block;" class="p-4 bg-light">
             <div class="row g-4">
                 {% for rq in pending_returns %}
                 <div class="col-12 col-md-6 col-lg-4 rr-grid-item" data-row="{{ rq.employee.name|lower }} {{ rq.employee.employee_id|lower }} {{ rq.asset.asset_id|lower }}">
@@ -638,7 +638,7 @@
             </div>
         </div>
 
-        <div class="table-responsive" id="rr-table-container">
+        <div class="table-responsive" id="rr-table-container" style="display:none;">
             <table class="table rr-table align-middle" id="rr-table">
                 <thead>
                     <tr>
@@ -754,7 +754,7 @@
             </table>
         </div>
         <!-- Pagination Controls (Table Only) -->
-        <div id="rrPaginationContainer" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 px-4 py-3 bg-white shadow-sm rounded-4 gap-3">
+        <div id="rrPaginationContainer" class="d-none flex-column flex-md-row justify-content-between align-items-center mt-3 px-4 py-3 bg-white shadow-sm rounded-4 gap-3">
             <div id="rrPaginationInfo" class="text-muted small fw-bold text-center text-md-start"></div>
             <div id="rrPaginationControls" class="d-flex flex-wrap justify-content-center gap-2"></div>
         </div>

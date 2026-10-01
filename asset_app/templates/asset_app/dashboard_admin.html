@@ -822,7 +822,13 @@
                         <tr>
                             <td class="fw-bold">{{ asset.asset_type }}</td>
                             <td>{{ asset.vendor_name|default:"N/A" }}</td>
-                            <td><span class="badge-soft-red">{{ asset.warranty_end_date|date:"d M Y" }}</span></td>
+                            <td><span class="badge-soft-red">
+                                {% if asset.warranty|lower == 'complete' or asset.warranty|lower == 'complete warranty' %}
+                                Complete
+                                {% else %}
+                                {{ asset.warranty_end_date|date:"d M Y" }}
+                                {% endif %}
+                            </span></td>
                         </tr>
                         {% empty %}
                         <tr>
