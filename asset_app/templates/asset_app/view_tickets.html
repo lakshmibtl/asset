@@ -809,6 +809,7 @@
                         pagination.classList.remove('d-flex');
                         pagination.classList.add('d-none');
                     }
+                    localStorage.setItem('ticketViewPref', 'card');
                 } else {
                     if(tableView) {
                         tableView.classList.remove('d-none');
@@ -821,12 +822,29 @@
                         pagination.classList.remove('d-none');
                         pagination.classList.add('d-flex');
                     }
+                    localStorage.setItem('ticketViewPref', 'table');
                 }
             }
 
             document.addEventListener('DOMContentLoaded', function() {
                 const searchInput = document.getElementById('tk-search');
                 let searchQuery = '';
+
+                // Restore view preference
+                const pref = localStorage.getItem('ticketViewPref');
+                if (pref === 'table') {
+                    const tv = document.getElementById('tableViewBtn');
+                    if(tv) {
+                        tv.checked = true;
+                        toggleView('table');
+                    }
+                } else if (pref === 'card') {
+                    const cv = document.getElementById('cardViewBtn');
+                    if(cv) {
+                        cv.checked = true;
+                        toggleView('card');
+                    }
+                }
 
                 if (searchInput) {
                     searchInput.addEventListener('input', () => {

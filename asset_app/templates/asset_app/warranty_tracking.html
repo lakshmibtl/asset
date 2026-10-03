@@ -563,6 +563,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btnCardView.classList.remove('active');
         tableView.style.display = 'block';
         cardView.style.display = 'none';
+        localStorage.setItem('warrantyViewPref', 'table');
     });
 
     btnCardView.addEventListener('click', () => {
@@ -570,12 +571,18 @@ document.addEventListener('DOMContentLoaded', function() {
         btnTableView.classList.remove('active');
         cardView.style.display = 'flex';
         tableView.style.display = 'none';
+        localStorage.setItem('warrantyViewPref', 'card');
     });
 
-    // In this file, Card View is the default now. Mobile check isn't needed to switch to it,
-    // but we leave it for consistency.
-    if (window.innerWidth >= 768) {
-        // Just explicit setup if needed, already handled by inline styles
+    const pref = localStorage.getItem('warrantyViewPref');
+    if (pref === 'table') {
+        btnTableView.click();
+    } else if (pref === 'card') {
+        btnCardView.click();
+    } else {
+        if (window.innerWidth >= 768) {
+            // Just explicit setup if needed, already handled by inline styles
+        }
     }
 
     // Pagination Logic for Table AND Card View

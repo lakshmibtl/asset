@@ -9,9 +9,8 @@ from accounts.views import login_user, logout_user
 from accounts.password_views import CustomPasswordResetView
 
 urlpatterns = [
-    path("", lambda request: redirect("login"), name="home"),
+    path("", login_user, name="login"),
     path("admin/", admin.site.urls),
-    path("login/", login_user, name="login"),
     path("logout/", logout_user, name="logout"),
     path("logout/", logout_user, name="logout_user"),
     

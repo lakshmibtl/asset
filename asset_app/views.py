@@ -806,7 +806,7 @@ def add_asset(request):
                     # Signal the parent window to close the offcanvas and reload
                     messages.success(request, f"Asset {asset.asset_id} (Series: {asset.series_number}) added successfully!")
                     return HttpResponse(
-                        "<script>window.parent.postMessage('add_asset_success', '*');</script>"
+                        f"<script>window.parent.postMessage('add_asset_success:{asset.pk}', '*');</script>"
                     )
                 
                 if original_status.lower() == "in use":
@@ -814,7 +814,7 @@ def add_asset(request):
                     return redirect(f"{reverse('assign_asset')}?asset={asset.pk}")
                 else:
                     messages.success(request, f"Asset {asset.asset_id} (Series: {asset.series_number}) added successfully!")
-                    return redirect('view_assets')
+                    return redirect(f"{reverse('view_assets')}?updated={asset.pk}")
             except IntegrityError:
                 messages.error(request, "Error: Asset ID must be unique.")
     else:
@@ -1003,11 +1003,10 @@ def edit_asset(request, pk):
                         url = reverse('assign_asset') + f"?asset={asset.pk}"
                         return HttpResponse(f"<script>window.parent.location.href='{url}';</script>")
                     return redirect(f"{reverse('assign_asset')}?asset={asset.pk}")
-                
                 messages.success(request, "Asset updated successfully!")
                 if request.GET.get('iframe') == '1':
-                    return HttpResponse("<script>window.parent.location.href = window.parent.location.href;</script>")
-                return redirect('asset_detail', pk=asset.pk)
+                    return HttpResponse(f"<script>window.parent.location.href = '{reverse('view_assets')}?updated={asset.pk}';</script>")
+                return redirect(f"{reverse('view_assets')}?updated={asset.pk}")
             except IntegrityError:
                 messages.error(request, "Error: Asset ID must be unique.")
     else:

@@ -1344,7 +1344,7 @@
             {% for a in unassigned_assets %}
             <div class="col animate-in asset-item" role="button" tabindex="0" data-type="{{ a.asset_type|lower }}"
                 data-status="{{ a.status|lower }}" data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
-                data-assetid="{{ a.asset_id|lower }}" data-sn="{{ a.series_number|lower|default:'' }}" data-href="" style="--delay: 0.{{ forloop.counter }}s">
+                data-assetid="{{ a.asset_id|lower }}" data-sn="{{ a.series_number|lower|default:'' }}" data-href="{% url 'asset_detail' a.pk %}" style="--delay: 0.{{ forloop.counter }}s">
                 <div class="card h-100 asset-card">
                     <div class="status-strip available w-100"></div>
                     <div class="card-body p-4 d-flex flex-column">
@@ -2359,6 +2359,48 @@
             });
         }
 
+        // Scroll to updated asset if present in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const updatedAssetId = urlParams.get('updated');
+        if (updatedAssetId) {
+            setTimeout(() => {
+                const isGrid = localStorage.getItem('assetViewPref') === 'grid' || !localStorage.getItem('assetViewPref');
+                let target;
+                if (isGrid) {
+                    target = Array.from(assetItems).find(i => i.dataset.href && i.dataset.href.endsWith('/' + updatedAssetId + '/'));
+                } else {
+                    const form = document.querySelector(`.delete-asset-form[action$="/${updatedAssetId}/"]`);
+                    target = form ? form.closest('tr') : null;
+                }
+                
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    if (isGrid) {
+                        const card = target.querySelector('.card');
+                        if (card) {
+                            card.style.transition = 'all 0.5s';
+                            card.style.boxShadow = '0 0 15px rgba(13, 110, 253, 0.5)';
+                            card.style.transform = 'scale(1.02)';
+                            setTimeout(() => {
+                                card.style.boxShadow = '';
+                                card.style.transform = '';
+                            }, 2000);
+                        }
+                    } else {
+                        target.style.transition = 'background-color 0.5s';
+                        target.style.backgroundColor = 'rgba(13, 110, 253, 0.1)';
+                        setTimeout(() => {
+                            target.style.backgroundColor = '';
+                        }, 2000);
+                    }
+                    
+                    // Clean up URL without reloading
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }, 300);
+        }
+
         // Auto-select asset when clicking 'Assign' on a specific card
         document.querySelectorAll('.assign-trigger').forEach(btn => {
             btn.addEventListener('click', function (e) {
@@ -2829,10 +2871,16 @@
 
         // Listen for postMessage from iframe on success
         window.addEventListener('message', function(e) {
-            if (e.data === 'add_asset_success') {
+            if (typeof e.data === 'string' && e.data.startsWith('add_asset_success')) {
                 var bsOc = bootstrap.Offcanvas.getInstance(addAssetEl);
                 if (bsOc) bsOc.hide();
-                window.location.reload();
+                
+                var parts = e.data.split(':');
+                if (parts.length > 1) {
+                    window.location.href = '?updated=' + parts[1];
+                } else {
+                    window.location.reload();
+                }
             }
         });
     })();
