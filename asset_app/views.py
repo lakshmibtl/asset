@@ -1261,7 +1261,7 @@ def assign_asset(request):
             next_url = request.POST.get('next')
             if next_url:
                 return redirect(next_url)
-            messages.success(request, "Asset assigned successfully!")
+            messages.success(request, f"Asset {asset.asset_id} (Series: {asset.series_number}) assigned successfully!")
             return redirect('view_assets')
         else:
             error_msg = "; ".join([f"{k}: {v.as_text()}" for k, v in form.errors.items()])

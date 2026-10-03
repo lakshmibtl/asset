@@ -454,11 +454,7 @@
         </table>
     </div>
     
-    <!-- Pagination Controls (Table Only) -->
-    <div id="wtPaginationContainer" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 mb-4 px-4 py-3 bg-white shadow-sm rounded-4 gap-3">
-        <div id="wtPaginationInfo" class="text-muted small fw-bold text-center text-md-start"></div>
-        <div id="wtPaginationControls" class="d-flex flex-wrap justify-content-center gap-2"></div>
-    </div>
+
     <!-- Card View (Hidden by default) -->
     <div class="row g-4 mt-1" id="cardView" style="display: flex;">
         {% for asset in all_assets %}
@@ -547,6 +543,12 @@
         </div>
         {% endfor %}
     </div>
+
+    <!-- Pagination Controls (Both Views) -->
+    <div id="wtPaginationContainer" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 mb-4 px-4 py-3 bg-white shadow-sm rounded-4 gap-3">
+        <div id="wtPaginationInfo" class="text-muted small fw-bold text-center text-md-start"></div>
+        <div id="wtPaginationControls" class="d-flex flex-wrap justify-content-center gap-2"></div>
+    </div>
 </div>
 
 <script>
@@ -561,7 +563,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btnCardView.classList.remove('active');
         tableView.style.display = 'block';
         cardView.style.display = 'none';
-        document.getElementById('wtPaginationContainer').style.display = 'flex';
     });
 
     btnCardView.addEventListener('click', () => {
@@ -569,7 +570,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btnTableView.classList.remove('active');
         cardView.style.display = 'flex';
         tableView.style.display = 'none';
-        document.getElementById('wtPaginationContainer').style.display = 'none';
     });
 
     // In this file, Card View is the default now. Mobile check isn't needed to switch to it,
@@ -578,14 +578,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Just explicit setup if needed, already handled by inline styles
     }
 
-    // Pagination Logic for Table
+    // Pagination Logic for Table AND Card View
     const tableRows = document.querySelectorAll('#tableView tbody tr');
+    const cardItems = document.querySelectorAll('#cardView > div');
     const itemsPerPage = 50;
     let currentPage = 1;
-    const totalItems = tableRows.length;
+    const totalItems = Math.max(tableRows.length, cardItems.length);
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-    function renderTablePage(page) {
+    function renderPage(page) {
         currentPage = page;
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
@@ -595,6 +596,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
+            }
+        });
+
+        cardItems.forEach((card, index) => {
+            if (index >= startIndex && index < endIndex) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
             }
         });
 
@@ -629,11 +638,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.goToWtPage = function(page) {
         if (page >= 1 && page <= totalPages) {
-            renderTablePage(page);
+            renderPage(page);
         }
     };
 
-    renderTablePage(1);
+    renderPage(1);
 });
 </script>
 {% endblock %}
