@@ -582,15 +582,18 @@
                 const costContainer = document.getElementById('costContainer');
                 const warrantyContainer = document.getElementById('warrantyContainer');
                 const warrantyEndContainer = document.getElementById('warrantyEndDateContainer');
+                const costInput = document.getElementById('id_cost');
                 
                 if (this.value === 'Dead') {
                     if (costContainer) costContainer.style.display = 'none';
                     if (warrantyContainer) warrantyContainer.style.display = 'none';
                     if (warrantyEndContainer) warrantyEndContainer.style.display = 'none';
+                    if (costInput) costInput.required = false;
                 } else {
                     if (costContainer) costContainer.style.display = 'block';
                     if (warrantyContainer) warrantyContainer.style.display = 'block';
                     if (warrantyEndContainer) warrantyEndContainer.style.display = 'block';
+                    if (costInput) costInput.required = true;
                 }
             });
 
@@ -602,9 +605,11 @@
                 const costContainer = document.getElementById('costContainer');
                 const warrantyContainer = document.getElementById('warrantyContainer');
                 const warrantyEndContainer = document.getElementById('warrantyEndDateContainer');
+                const costInput = document.getElementById('id_cost');
                 if (costContainer) costContainer.style.display = 'none';
                 if (warrantyContainer) warrantyContainer.style.display = 'none';
                 if (warrantyEndContainer) warrantyEndContainer.style.display = 'none';
+                if (costInput) costInput.required = false;
             }
         }
 

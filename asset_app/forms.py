@@ -216,7 +216,6 @@ class AssetForm(forms.ModelForm):
             'cost': forms.NumberInput(attrs={
                 'class': 'form-control form-control-lg rounded-3 shadow-sm',
                 'placeholder': 'Enter Cost',
-                'required': 'required'
             }),
         }
 
@@ -226,7 +225,7 @@ class AssetForm(forms.ModelForm):
         # ✅ DOUBLE SAFETY: server-side required
         self.fields['company_name'].required = True
         self.fields['model'].required = True
-        self.fields['cost'].required = True
+        self.fields['cost'].required = False
 
         # Handle custom asset type on Edit
         if self.instance and self.instance.pk:
@@ -306,6 +305,11 @@ class AssetForm(forms.ModelForm):
                 self.add_error('other_warranty', 'Please specify the custom warranty.')
             else:
                 cleaned_data['warranty'] = other_warranty.strip()
+
+        # Validate cost conditionally based on status
+        cost = cleaned_data.get('cost')
+        if status != 'Dead' and cost is None:
+            self.add_error('cost', 'Cost is required unless the asset is Dead.')
 
         warranty_end_raw = self.data.get('warranty_end_date', '').strip()
         if warranty == 'Complete' or (cleaned_data.get('warranty') and str(cleaned_data.get('warranty')).lower() in ['complete', 'complete warranty']) or warranty_end_raw.lower() in ['complete', 'complete warranty']:
