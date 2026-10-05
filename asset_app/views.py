@@ -794,6 +794,12 @@ def add_asset(request):
                 asset.added_by = request.user
                 asset.save()
                 
+                AssetHistory.objects.create(
+                    asset=asset,
+                    edited_by=request.user,
+                    changes=f"Added asset: {asset.asset_id}"
+                )
+                
                 if is_iframe:
                     if original_status.lower() == "in use":
                         messages.info(request, "Asset saved to stock. Please complete assignment to mark it as 'In Use'.")
@@ -962,6 +968,93 @@ def download_asset_template(request):
 
 
 @login_required
+def export_assets_csv(request):
+    import openpyxl
+    from openpyxl.drawing.image import Image
+    from io import BytesIO
+    import base64
+    from django.urls import reverse
+    if request.method == 'POST':
+        asset_type = request.POST.get('asset_type', 'All')
+        
+        if asset_type == 'All':
+            assets = Asset.objects.all()
+            filename = "all_assets_export.xlsx"
+        else:
+            assets = Asset.objects.filter(asset_type__iexact=asset_type)
+            filename = f"{asset_type.lower()}_assets_export.xlsx"
+        
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Assets"
+        
+        headers = [
+            'Asset ID', 'Asset Type', 'Manufacturer/Company', 'Model Name', 'Serial Number',
+            'Vendor Name', 'Status', 'RAM', 'Storage', 'Processor', 'Graphic Card', 'Display Size',
+            'Purchase Date', 'Cost', 'Warranty', 'Warranty End Date', 'Assigned To', 'QR Code'
+        ]
+        ws.append(headers)
+        
+        for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q']:
+            ws.column_dimensions[col].width = 15
+        ws.column_dimensions['R'].width = 20
+        
+        row_num = 2
+        for asset in assets:
+            assigned_to = ''
+            active_assignment = asset.assignment_set.filter(status__in=['In Use', 'Temporary', 'Temporary Use']).first()
+            if active_assignment and active_assignment.employee:
+                assigned_to = f"{active_assignment.employee.name} ({active_assignment.employee.employee_id})"
+                
+            row_data = [
+                asset.asset_id,
+                asset.asset_type,
+                asset.company_name,
+                asset.model,
+                asset.series_number,
+                asset.vendor_name,
+                asset.status,
+                asset.ram,
+                asset.storage,
+                asset.processor,
+                asset.graphic_card,
+                asset.display_size,
+                asset.purchase_date.strftime('%d/%m/%Y') if asset.purchase_date else '',
+                asset.cost,
+                asset.warranty,
+                asset.warranty_end_date.strftime('%d/%m/%Y') if asset.warranty_end_date else '',
+                assigned_to,
+                '' # Image will be added here
+            ]
+            ws.append(row_data)
+            ws.row_dimensions[row_num].height = 80
+            
+            if asset.qr_code_base64:
+                try:
+                    base64_str = asset.qr_code_base64.split('base64,')[1] if "base64," in asset.qr_code_base64 else asset.qr_code_base64
+                    img_data = base64.b64decode(base64_str)
+                    
+                    img_buffer = BytesIO(img_data)
+                    # Give each image a unique name so openpyxl doesn't deduplicate them and use the same image for all rows!
+                    img_buffer.name = f"qr_{asset.asset_id.replace('/', '_')}_{asset.pk}.png"  
+                    
+                    img = Image(img_buffer)
+                    img.width = 100
+                    img.height = 100
+                    ws.add_image(img, f'R{row_num}')
+                except Exception as e:
+                    pass
+            
+            row_num += 1
+            
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        wb.save(response)
+        return response
+    return redirect('view_assets')
+
+
+@login_required
 @xframe_options_exempt
 def edit_asset(request, pk):
     is_admin = request.user.is_staff or getattr(request.user, 'role', '') in ('admin', 'superadmin', 'asset_admin')
@@ -1005,7 +1098,7 @@ def edit_asset(request, pk):
                     return redirect(f"{reverse('assign_asset')}?asset={asset.pk}")
                 messages.success(request, "Asset updated successfully!")
                 if request.GET.get('iframe') == '1':
-                    return HttpResponse(f"<script>window.parent.location.href = '{reverse('view_assets')}?updated={asset.pk}';</script>")
+                    return HttpResponse(f"<script>window.parent.postMessage('edit_asset_success:{asset.pk}', '*');</script>")
                 return redirect(f"{reverse('view_assets')}?updated={asset.pk}")
             except IntegrityError:
                 messages.error(request, "Error: Asset ID must be unique.")
@@ -1256,6 +1349,12 @@ def assign_asset(request):
             else:
                 asset.status = "In Use"
             asset.save()
+            
+            AssetHistory.objects.create(
+                asset=asset,
+                edited_by=request.user,
+                changes=f"Assigned to {employee.name}"
+            )
 
             next_url = request.POST.get('next')
             if next_url:
@@ -1365,6 +1464,13 @@ def return_asset(request, pk):
         assign.save()
         asset.status = 'Available'
         asset.save()
+        
+        AssetHistory.objects.create(
+            asset=asset,
+            edited_by=request.user,
+            changes=f"Returned from {assign.employee.name}. Reason: {reason}"
+        )
+        
         messages.success(request, f"Asset {asset.asset_id} returned successfully.")
     return redirect('view_assets')
 

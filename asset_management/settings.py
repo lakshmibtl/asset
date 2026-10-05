@@ -59,6 +59,13 @@ LOGOUT_REDIRECT_URL = "/login/"
 
 CSRF_FAILURE_VIEW = "asset_app.views.csrf_failure_handler"
 
+# =========================
+# SESSION / TOKEN SETTINGS
+# =========================
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 1800  # Session expires after 30 minutes (1800 seconds) of inactivity
+SESSION_SAVE_EVERY_REQUEST = True  # Refreshes the timeout every time the user makes a request
+
 
 # Application definition
 

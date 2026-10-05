@@ -320,7 +320,7 @@
             </div>
 
             <!-- Purchase Date -->
-            <div class="col-md-6">
+            <div class="col-md-6" id="purchaseDateContainer">
                 <div class="form-floating">
                     {{ form.purchase_date|add_class:"form-control"|attr:"placeholder:DD/MM/YYYY"|attr:"autocomplete:off" }}
                     <label>Purchase / Add Date <span class="fm-hint">(DD/MM/YYYY)</span></label>
@@ -446,6 +446,30 @@ document.addEventListener('DOMContentLoaded', function () {
         if (costContainer) costContainer.style.display = isDead ? 'none' : 'block';
         if (warrantyContainer) warrantyContainer.style.display = isDead ? 'none' : 'block';
         if (warrantyEndContainer) warrantyEndContainer.style.display = isDead ? 'none' : 'block';
+        
+        // Also hide specs if Dead
+        const ramContainer = document.getElementById('ramContainer');
+        const storageContainer = document.getElementById('storageContainer');
+        const processorContainer = document.getElementById('processorContainer');
+        const graphicCardContainer = document.getElementById('graphicCardContainer');
+        const displaySizeContainer = document.getElementById('displaySizeContainer');
+        const purchaseDateContainer = document.getElementById('purchaseDateContainer');
+        
+        if (ramContainer) ramContainer.style.display = isDead ? 'none' : (assetTypeSelect && ['laptop','desktop','other'].includes(assetTypeSelect.value.toLowerCase()) ? 'block' : 'none');
+        if (storageContainer) storageContainer.style.display = isDead ? 'none' : (assetTypeSelect && ['laptop','desktop','other'].includes(assetTypeSelect.value.toLowerCase()) ? 'block' : 'none');
+        if (processorContainer) processorContainer.style.display = isDead ? 'none' : (assetTypeSelect && ['laptop','desktop','other'].includes(assetTypeSelect.value.toLowerCase()) ? 'block' : 'none');
+        if (graphicCardContainer) graphicCardContainer.style.display = isDead ? 'none' : (assetTypeSelect && ['laptop','desktop','other'].includes(assetTypeSelect.value.toLowerCase()) ? 'block' : 'none');
+        if (displaySizeContainer) displaySizeContainer.style.display = isDead ? 'none' : (assetTypeSelect && ['monitor','other'].includes(assetTypeSelect.value.toLowerCase()) ? 'block' : 'none');
+        if (purchaseDateContainer) purchaseDateContainer.style.display = isDead ? 'none' : 'block';
+
+        const costInput = document.getElementById('id_cost');
+        if (costInput) {
+            if (isDead) {
+                costInput.removeAttribute('required');
+            } else {
+                costInput.setAttribute('required', 'required');
+            }
+        }
     }
     if (statusSelect) {
         statusSelect.addEventListener('change', handleStatusChange);
@@ -501,8 +525,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function toggleRamStorage() {
         if (!assetTypeSelect) return;
         const typeVal = assetTypeSelect.value.toLowerCase();
-        const show = (typeVal === 'laptop' || typeVal === 'desktop');
-        const showMonitor = (typeVal === 'monitor');
+        const isDead = statusSelect && statusSelect.value === 'Dead';
+        const show = !isDead && (typeVal === 'laptop' || typeVal === 'desktop' || typeVal === 'other');
+        const showMonitor = !isDead && (typeVal === 'monitor' || typeVal === 'other');
         if (ramContainer) ramContainer.style.display = show ? 'block' : 'none';
         if (storageContainer2) storageContainer2.style.display = show ? 'block' : 'none';
         if (processorContainer) processorContainer.style.display = show ? 'block' : 'none';

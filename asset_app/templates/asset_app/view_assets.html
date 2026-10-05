@@ -704,7 +704,10 @@
             <p class="text-muted mb-0">Overview of assigned and available warehouse stock.</p>
         </div>
         {% if request.user.is_staff %}
-        <div class="mt-2 mt-md-0">
+        <div class="mt-2 mt-md-0 d-flex gap-2">
+            <button type="button" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#downloadExportModal">
+                <i class="bi bi-file-earmark-excel me-1"></i> Download
+            </button>
             <button type="button" class="btn btn-primary rounded-pill px-4 fw-semibold shadow-sm"
                     id="openAddAssetOffcanvasBtn"
                     data-bs-toggle="offcanvas" data-bs-target="#addAssetOffcanvas" aria-controls="addAssetOffcanvas">
@@ -749,7 +752,7 @@
                     </span>
                     {% endif %}
                     {% if stat.other_statuses %}
-                    <div class="dropdown d-inline-block" onclick="event.stopPropagation();">
+                    <div class="dropdown d-inline-block">
                         <button type="button" class="btn btn-sm rounded-pill border-0" style="background: rgba(109, 40, 217, 0.12); color: #6d28d9; font-size: 0.875em; font-weight: bold; padding: 0.25rem 0.75rem;" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-tags-fill me-1"></i>Other {{ stat.other }} <i class="bi bi-chevron-down ms-1" style="font-size: 0.7rem;"></i>
                         </button>
@@ -2055,7 +2058,6 @@
 <!-- FILTER + SEARCH SCRIPT -->
 <script>
     function filterByBadge(e, assetType, statusKeyword) {
-        e.stopPropagation();
         const targetBtn = document.querySelector(`.filter-btn[data-filter="${assetType}"]`);
         if (targetBtn) {
             targetBtn.click();
@@ -2291,8 +2293,8 @@
         // Make stat cards clickable
         document.querySelectorAll('.stat-card-btn').forEach(card => {
             card.addEventListener('click', function (e) {
-                // Ignore clicks on buttons or dropdowns inside the card
-                if (e.target.closest('.dropdown') || e.target.closest('button')) {
+                // Ignore clicks on buttons, dropdowns, or clickable chips inside the card
+                if (e.target.closest('.dropdown') || e.target.closest('button') || e.target.closest('span[onclick]')) {
                     return;
                 }
                 
@@ -2359,8 +2361,15 @@
             });
         }
 
-        // Scroll to updated asset if present in URL
+        // Restore search query if present in URL
         const urlParams = new URLSearchParams(window.location.search);
+        const searchParam = urlParams.get('search');
+        if (searchParam && searchInput) {
+            searchInput.value = searchParam;
+            searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        // Scroll to updated asset if present in URL
         const updatedAssetId = urlParams.get('updated');
         if (updatedAssetId) {
             setTimeout(() => {
@@ -2372,8 +2381,15 @@
                     const form = document.querySelector(`.delete-asset-form[action$="/${updatedAssetId}/"]`);
                     target = form ? form.closest('tr') : null;
                 }
-                
                 if (target) {
+                    // Populate search bar to isolate this specific asset
+                    const actualAssetId = target.dataset.assetid;
+                    const searchInput = document.getElementById("assetSearch");
+                    if (actualAssetId && searchInput) {
+                        searchInput.value = actualAssetId.toUpperCase();
+                        applyFilters();
+                    }
+                    
                     target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     
                     if (isGrid) {
@@ -2871,15 +2887,27 @@
 
         // Listen for postMessage from iframe on success
         window.addEventListener('message', function(e) {
-            if (typeof e.data === 'string' && e.data.startsWith('add_asset_success')) {
-                var bsOc = bootstrap.Offcanvas.getInstance(addAssetEl);
+            if (typeof e.data === 'string' && (e.data.startsWith('add_asset_success') || e.data.startsWith('edit_asset_success'))) {
+                var isEdit = e.data.startsWith('edit_asset_success');
+                var bsOc = bootstrap.Offcanvas.getInstance(isEdit ? editAssetEl : addAssetEl);
                 if (bsOc) bsOc.hide();
                 
                 var parts = e.data.split(':');
+                var reloadUrl = '?';
+                
                 if (parts.length > 1) {
-                    window.location.href = '?updated=' + parts[1];
-                } else {
+                    reloadUrl += 'updated=' + parts[1];
+                }
+                
+                var currentSearch = document.getElementById('assetSearch');
+                if (currentSearch && currentSearch.value.trim() !== '') {
+                    reloadUrl += (reloadUrl === '?' ? '' : '&') + 'search=' + encodeURIComponent(currentSearch.value.trim());
+                }
+                
+                if (reloadUrl === '?') {
                     window.location.reload();
+                } else {
+                    window.location.href = reloadUrl;
                 }
             }
         });
@@ -2996,4 +3024,38 @@
         });
     });
 </script>
+
+<!-- Download Export Modal -->
+<div class="modal fade" id="downloadExportModal" tabindex="-1" aria-labelledby="downloadExportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold" id="downloadExportModalLabel"><i class="bi bi-file-earmark-excel me-2"></i>Export Assets</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'export_assets_csv' %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4">Select the asset type you want to download as an Excel report.</p>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Asset Type</label>
+                        <select name="asset_type" class="form-select form-select-lg shadow-sm">
+                            <option value="All">All Types</option>
+                            <option value="Laptop">Laptop</option>
+                            <option value="Desktop">Desktop</option>
+                            <option value="Monitor">Monitor</option>
+                            <option value="IPPBX">IPPBX</option>
+                            <option value="Printer">Printer</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success px-4" onclick="setTimeout(()=>bootstrap.Modal.getInstance(document.getElementById('downloadExportModal')).hide(), 500)"><i class="bi bi-download me-2"></i>Download Excel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

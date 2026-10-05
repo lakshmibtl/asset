@@ -460,7 +460,7 @@
                                 </div>
                             </div>
 
-                            <div class="col-md-6 animate__animated animate__fadeInLeft">
+                            <div class="col-md-6 animate__animated animate__fadeInLeft" id="purchaseDateContainer">
                                 <div class="form-floating">
                                     {{ form.purchase_date|add_class:"form-control form-control-lg shadow-sm"|attr:"placeholder:DD/MM/YYYY"|attr:"autocomplete:off"|attr:"id:id_purchase_date" }}
                                     <label>Purchase / Add Date <span class="fm-hint">(DD/MM/YYYY)</span></label>
@@ -598,7 +598,8 @@
         
         if (statusSelect && otherStatusInput) {
             statusSelect.addEventListener('change', function () {
-                if (this.value === 'Other') {
+                const val = this.value;
+                if (val === 'Other') {
                     otherStatusInput.style.display = 'block';
                     otherStatusInput.required = true;
                 } else {
@@ -606,11 +607,49 @@
                     otherStatusInput.required = false;
                     otherStatusInput.value = ''; // clear out
                 }
+                
+                const isDead = val === 'Dead';
+                const costContainer = document.getElementById('costContainer');
+                const warrantyContainer = document.getElementById('warrantyContainer');
+                const warrantyEndContainer = document.getElementById('warrantyEndDateContainer');
+                if (costContainer) costContainer.style.display = isDead ? 'none' : 'block';
+                if (warrantyContainer) warrantyContainer.style.display = isDead ? 'none' : 'block';
+                if (warrantyEndContainer) warrantyEndContainer.style.display = isDead ? 'none' : 'block';
+                
+                const ramContainer = document.getElementById('ramContainer');
+                const storageContainer = document.getElementById('storageContainer');
+                const processorContainer = document.getElementById('processorContainer');
+                const graphicCardContainer = document.getElementById('graphicCardContainer');
+                const displaySizeContainer = document.getElementById('displaySizeContainer');
+                const purchaseDateContainer = document.getElementById('purchaseDateContainer');
+                
+                const typeVal = assetTypeSelect ? assetTypeSelect.value.toLowerCase() : '';
+                const isLaptopOrDesktop = ['laptop', 'desktop', 'other'].includes(typeVal);
+                const isMonitor = ['monitor', 'other'].includes(typeVal);
+                
+                if (ramContainer) ramContainer.style.display = isDead ? 'none' : (isLaptopOrDesktop ? 'block' : 'none');
+                if (storageContainer) storageContainer.style.display = isDead ? 'none' : (isLaptopOrDesktop ? 'block' : 'none');
+                if (processorContainer) processorContainer.style.display = isDead ? 'none' : (isLaptopOrDesktop ? 'block' : 'none');
+                if (graphicCardContainer) graphicCardContainer.style.display = isDead ? 'none' : (isLaptopOrDesktop ? 'block' : 'none');
+                if (displaySizeContainer) displaySizeContainer.style.display = isDead ? 'none' : (isMonitor ? 'block' : 'none');
+                if (purchaseDateContainer) purchaseDateContainer.style.display = isDead ? 'none' : 'block';
+
+                const costInput = document.getElementById('id_cost');
+                if (costInput) {
+                    if (isDead) {
+                        costInput.removeAttribute('required');
+                    } else {
+                        costInput.setAttribute('required', 'required');
+                    }
+                }
             });
 
             // Trigger on load in case of re-render with errors
             if (statusSelect.value === 'Other') {
                 otherStatusInput.style.display = 'block';
+            }
+            if (statusSelect.value) {
+                statusSelect.dispatchEvent(new Event('change'));
             }
         }
         
@@ -773,9 +812,11 @@
 
         function toggleRamStorage() {
             if (assetTypeSelect) {
+                const statusSelect = document.getElementById('id_status');
+                const isDead = statusSelect && statusSelect.value === 'Dead';
                 const typeVal = assetTypeSelect.value.toLowerCase();
-                const isLaptopOrDesktop = (typeVal === 'laptop' || typeVal === 'desktop');
-                const isMonitor = (typeVal === 'monitor');
+                const isLaptopOrDesktop = !isDead && (typeVal === 'laptop' || typeVal === 'desktop' || typeVal === 'other');
+                const isMonitor = !isDead && (typeVal === 'monitor' || typeVal === 'other');
                 if (ramContainer) ramContainer.style.display = isLaptopOrDesktop ? 'block' : 'none';
                 if (storageContainer) storageContainer.style.display = isLaptopOrDesktop ? 'block' : 'none';
                 if (processorContainer) processorContainer.style.display = isLaptopOrDesktop ? 'block' : 'none';

@@ -1,13 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from accounts.models import CustomUser
-from django.contrib.auth.views import PasswordResetView
-from django.contrib.auth import get_user_model  
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, get_user_model
+from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -40,7 +32,7 @@ def login_user(request):
 # =========================
 def logout_user(request):
     logout(request)
-    return redirect("/login/")
+    return redirect("login")
 
 
 # =========================
