@@ -3036,10 +3036,10 @@
             <form method="POST" action="{% url 'export_assets_csv' %}">
                 {% csrf_token %}
                 <div class="modal-body p-4">
-                    <p class="text-muted mb-4">Select the asset type you want to download as an Excel report.</p>
+                    <p class="text-muted mb-4">Select the asset type and status you want to download as an Excel report.</p>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Asset Type</label>
-                        <select name="asset_type" class="form-select form-select-lg shadow-sm">
+                        <select name="asset_type" id="exportAssetTypeSelect" class="form-select form-select-lg shadow-sm">
                             <option value="All">All Types</option>
                             <option value="Laptop">Laptop</option>
                             <option value="Desktop">Desktop</option>
@@ -3047,6 +3047,25 @@
                             <option value="IPPBX">IPPBX</option>
                             <option value="Printer">Printer</option>
                             <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <select name="status" id="exportStatusSelect" class="form-select form-select-lg shadow-sm">
+                            <option value="All">All Statuses</option>
+                            <option value="In Use">In Use</option>
+                            <option value="Available">Available</option>
+                            <option value="Dead">Dead</option>
+                            <option value="Other">Other (Custom Status)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 d-none" id="exportOtherStatusDiv">
+                        <label class="form-label fw-bold">Specific Status (Optional)</label>
+                        <select name="other_status" id="exportOtherStatusSelect" class="form-select form-select-lg shadow-sm">
+                            <option value="">All Custom Statuses</option>
+                            {% for s in all_other_statuses %}
+                            <option value="{{ s }}">{{ s }}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -3058,4 +3077,70 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.getElementById('exportStatusSelect');
+    const otherStatusDiv = document.getElementById('exportOtherStatusDiv');
+    const assetTypeSelect = document.getElementById('exportAssetTypeSelect');
+    const otherStatusSelect = document.getElementById('exportOtherStatusSelect');
+    
+    // Parse the JSON mapping of other statuses by asset type passed from the view
+    const otherStatusesByType = JSON.parse('{{ other_statuses_by_type_json|safe|escapejs }}' || '{}');
+    const allOtherStatuses = JSON.parse('{{ all_other_statuses_json|safe|escapejs }}' || '[]');
+
+    function updateOtherStatusDropdown() {
+        if (!otherStatusSelect) return;
+        
+        const selectedType = assetTypeSelect ? assetTypeSelect.value : 'All';
+        const currentValue = otherStatusSelect.value;
+        
+        // Clear current options
+        otherStatusSelect.innerHTML = '<option value="">All Custom Statuses</option>';
+        
+        // Determine which statuses to show
+        let statusesToShow = [];
+        if (selectedType === 'All' || !otherStatusesByType[selectedType]) {
+            // If 'All Types' selected, or no specific statuses found for this type, show all known custom statuses
+            statusesToShow = allOtherStatuses.length > 0 ? allOtherStatuses : Object.values(otherStatusesByType).flat();
+            // remove duplicates
+            statusesToShow = [...new Set(statusesToShow)].sort();
+        } else {
+            statusesToShow = otherStatusesByType[selectedType];
+        }
+        
+        // Populate options
+        statusesToShow.forEach(status => {
+            const option = document.createElement('option');
+            option.value = status;
+            option.textContent = status;
+            otherStatusSelect.appendChild(option);
+        });
+        
+        // Try to keep previously selected value if it still exists in the new list
+        if (currentValue && statusesToShow.includes(currentValue)) {
+            otherStatusSelect.value = currentValue;
+        }
+    }
+
+    if (statusSelect && otherStatusDiv) {
+        statusSelect.addEventListener('change', function() {
+            if (this.value === 'Other') {
+                otherStatusDiv.classList.remove('d-none');
+                updateOtherStatusDropdown();
+            } else {
+                otherStatusDiv.classList.add('d-none');
+            }
+        });
+    }
+    
+    if (assetTypeSelect) {
+        assetTypeSelect.addEventListener('change', function() {
+            if (statusSelect && statusSelect.value === 'Other') {
+                updateOtherStatusDropdown();
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -214,7 +214,7 @@ class Asset(models.Model):
 
         # Generate QR code for public view
         from django.conf import settings
-        qr_url = reverse('public_asset_detail', args=[self.id])
+        qr_url = reverse('asset_detail1', args=[self.id])
         base_url = getattr(settings, 'SITE_BASE_URL', None)
         if not base_url:
             base_url = f"http://{socket.gethostname()}:8000"

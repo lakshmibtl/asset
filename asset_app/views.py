@@ -976,13 +976,32 @@ def export_assets_csv(request):
     from django.urls import reverse
     if request.method == 'POST':
         asset_type = request.POST.get('asset_type', 'All')
+        status = request.POST.get('status', 'All')
+        other_status = request.POST.get('other_status', '').strip()
         
-        if asset_type == 'All':
-            assets = Asset.objects.all()
-            filename = "all_assets_export.xlsx"
+        assets = Asset.objects.all()
+        filename_parts = []
+        
+        if asset_type != 'All':
+            assets = assets.filter(asset_type__iexact=asset_type)
+            filename_parts.append(asset_type.lower())
         else:
-            assets = Asset.objects.filter(asset_type__iexact=asset_type)
-            filename = f"{asset_type.lower()}_assets_export.xlsx"
+            filename_parts.append('all')
+            
+        if status != 'All':
+            if status == 'Other':
+                if other_status:
+                    assets = assets.filter(status__iexact=other_status)
+                    filename_parts.append(other_status.lower().replace(' ', '_'))
+                else:
+                    # Exclude the standard ones to get all "Other"
+                    assets = assets.exclude(status__iexact='In Use').exclude(status__iexact='Available').exclude(status__iexact='Dead').exclude(status__iexact='Temporary Use').exclude(status__iexact='Temporary')
+                    filename_parts.append('other')
+            else:
+                assets = assets.filter(status__iexact=status)
+                filename_parts.append(status.lower().replace(' ', '_'))
+                
+        filename = f"{'_'.join(filename_parts)}_assets_export.xlsx"
         
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -1898,6 +1917,34 @@ def view_assets(request):
         for emp in employees
     ])
 
+    all_other_statuses_raw = Asset.objects.exclude(
+        status__iexact='In Use'
+    ).exclude(
+        status__iexact='Available'
+    ).exclude(
+        status__iexact='Dead'
+    ).exclude(
+        status__iexact='Temporary Use'
+    ).exclude(
+        status__iexact='Temporary'
+    ).exclude(
+        status__iexact='Assigned'
+    ).values_list('asset_type', 'status')
+    
+    all_other_statuses_set = set()
+    other_statuses_by_type = {}
+    for atype, status in all_other_statuses_raw:
+        if status and status.strip():
+            s = status.strip()
+            all_other_statuses_set.add(s)
+            if atype not in other_statuses_by_type:
+                other_statuses_by_type[atype] = set()
+            other_statuses_by_type[atype].add(s)
+
+    all_other_statuses = sorted(list(all_other_statuses_set))
+    all_other_statuses_json = json.dumps(all_other_statuses)
+    other_statuses_by_type_json = json.dumps({k: sorted(list(v)) for k, v in other_statuses_by_type.items()})
+
     unified_table = []
     for assign in assignments:
         unified_table.append({'asset': assign.asset, 'assignment': assign, 'assigned_to': assign.employee, 'status': assign.asset.status})
@@ -1929,6 +1976,9 @@ def view_assets(request):
         'type_dropdowns': type_dropdowns,
         'employee_requested': employee_requested,
         'pending_return_requests': pending_return_requests,
+        'all_other_statuses': all_other_statuses,
+        'all_other_statuses_json': all_other_statuses_json,
+        'other_statuses_by_type_json': other_statuses_by_type_json,
         'pending_return_asset_pks': pending_return_asset_pks,
     })
 
