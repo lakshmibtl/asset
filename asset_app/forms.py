@@ -168,25 +168,21 @@ class AssetForm(forms.ModelForm):
 
     purchase_date = forms.DateField(
         required=False,
-        input_formats=['%d/%m/%Y'],
         widget=forms.DateInput(
             attrs={
                 'class': 'form-control form-control-lg rounded-3 shadow-sm',
-                'placeholder': 'DD/MM/YYYY',
-            },
-            format='%d/%m/%Y',
+                'type': 'date'
+            }
         ),
     )
 
     warranty_end_date = forms.DateField(
         required=False,
-        input_formats=['%d/%m/%Y'],
         widget=forms.DateInput(
             attrs={
                 'class': 'form-control form-control-lg rounded-3 shadow-sm',
-                'placeholder': 'DD/MM/YYYY',
-            },
-            format='%d/%m/%Y',
+                'type': 'date'
+            }
         ),
     )
 

@@ -1019,12 +1019,17 @@ def export_assets_csv(request):
         ws.column_dimensions['R'].width = 20
         
         row_num = 2
+        import qrcode
+        server_ip = get_network_host(request)
+        
         for asset in assets:
             assigned_to = ''
             active_assignment = asset.assignment_set.filter(status__in=['In Use', 'Temporary', 'Temporary Use']).first()
             if active_assignment and active_assignment.employee:
                 assigned_to = f"{active_assignment.employee.name} ({active_assignment.employee.employee_id})"
                 
+            qr_url = f"http://{server_ip}{reverse('asset_detail1', args=[asset.pk])}"
+            
             row_data = [
                 asset.asset_id,
                 asset.asset_type,
@@ -1043,26 +1048,31 @@ def export_assets_csv(request):
                 asset.warranty,
                 asset.warranty_end_date.strftime('%d/%m/%Y') if asset.warranty_end_date else '',
                 assigned_to,
-                '' # Image will be added here
+                '' # Empty text so the URL doesn't show up visibly
             ]
             ws.append(row_data)
             ws.row_dimensions[row_num].height = 80
             
-            if asset.qr_code_base64:
-                try:
-                    base64_str = asset.qr_code_base64.split('base64,')[1] if "base64," in asset.qr_code_base64 else asset.qr_code_base64
-                    img_data = base64.b64decode(base64_str)
-                    
-                    img_buffer = BytesIO(img_data)
-                    # Give each image a unique name so openpyxl doesn't deduplicate them and use the same image for all rows!
-                    img_buffer.name = f"qr_{asset.asset_id.replace('/', '_')}_{asset.pk}.png"  
-                    
-                    img = Image(img_buffer)
-                    img.width = 100
-                    img.height = 100
-                    ws.add_image(img, f'R{row_num}')
-                except Exception as e:
-                    pass
+            url_cell = ws.cell(row=row_num, column=18)
+            url_cell.hyperlink = qr_url
+            # Not setting style="Hyperlink" so it doesn't look blue/underlined.
+            
+            try:
+                # Dynamically generate QR code with correct server IP
+                qr = qrcode.QRCode(version=2, box_size=10, border=4)
+                qr.add_data(qr_url)
+                qr.make(fit=True)
+                img_obj = qr.make_image(fill_color="black", back_color="white")
+                img_buffer = BytesIO()
+                img_obj.save(img_buffer, format="PNG")
+                img_buffer.name = f"qr_{asset.asset_id.replace('/', '_')}_{asset.pk}.png"  
+                
+                img = Image(img_buffer)
+                img.width = 100
+                img.height = 100
+                ws.add_image(img, f'R{row_num}')
+            except Exception as e:
+                pass
             
             row_num += 1
             

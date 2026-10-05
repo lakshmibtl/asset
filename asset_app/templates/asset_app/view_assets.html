@@ -1343,8 +1343,14 @@
                 <p class="text-muted small mb-0">Warehouse stock ready to be assigned.</p>
             </div>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 asset-row" id="availableAssets">
-            {% for a in unassigned_assets %}
+        <div id="availableAssets">
+            {% regroup unassigned_assets|dictsort:"asset_type" by asset_type as available_by_type %}
+            {% for type_group in available_by_type %}
+            <div class="col-12 mt-4 mb-3" data-type-header="{{ type_group.grouper|lower }}">
+                <h6 class="fw-bold text-secondary text-uppercase border-bottom pb-2 mb-0"><i class="bi bi-collection me-2"></i>{{ type_group.grouper }}</h6>
+            </div>
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 asset-row mb-4">
+            {% for a in type_group.list %}
             <div class="col animate-in asset-item" role="button" tabindex="0" data-type="{{ a.asset_type|lower }}"
                 data-status="{{ a.status|lower }}" data-name="{{ a.name|lower }}" data-model="{{ a.model|lower }}" data-empname="" data-empid=""
                 data-assetid="{{ a.asset_id|lower }}" data-sn="{{ a.series_number|lower|default:'' }}" data-href="{% url 'asset_detail' a.pk %}" style="--delay: 0.{{ forloop.counter }}s">
@@ -1411,12 +1417,12 @@
                         <div class="d-flex gap-2 mt-auto">
                             <a href="{% url 'asset_detail' a.pk %}"
                                 class="btn btn-outline-secondary btn-sm btn-action flex-grow-1" title="View Detail">
-                                <i class="bi bi-eye"></i>
+                                <i class="bi bi-eye"></i> View
                             </a>
                             {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'asset_admin' %}
                             <a href="{% url 'edit_asset' a.pk %}"
                                 class="btn btn-outline-secondary btn-sm btn-action flex-grow-1 edit-asset-trigger" title="Edit Asset">
-                                <i class="bi bi-pencil"></i>
+                                <i class="bi bi-pencil"></i> Edit
                             </a>
                             {% endif %}
                             <a href="{% url 'download_qr' a.pk %}"
@@ -1455,6 +1461,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            {% endfor %}
             </div>
             {% endfor %}
         </div>
@@ -1533,11 +1541,11 @@
 
                         <div class="d-flex gap-2 mt-auto">
                             <a href="{% url 'asset_detail' a.pk %}" class="btn btn-outline-secondary btn-sm btn-action flex-grow-1" title="View Detail">
-                                <i class="bi bi-eye"></i>
+                                <i class="bi bi-eye"></i> View
                             </a>
                             {% if request.user.is_staff or request.user.role == 'admin' or request.user.role == 'asset_admin' %}
                             <a href="{% url 'edit_asset' a.pk %}" class="btn btn-outline-secondary btn-sm btn-action flex-grow-1 edit-asset-trigger" title="Edit Asset">
-                                <i class="bi bi-pencil"></i>
+                                <i class="bi bi-pencil"></i> Edit
                             </a>
                             {% endif %}
                             <a href="{% url 'download_qr' a.pk %}" class="btn btn-outline-secondary btn-sm btn-action flex-grow-1" title="Download QR">
