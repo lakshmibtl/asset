@@ -1273,6 +1273,187 @@
     </script>
 
     {% block extra_body %}{% endblock %}
+
+    <!-- ============ SESSION TIMEOUT WARNING ============ -->
+    <div id="sessionTimeoutOverlay" style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.55);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+    ">
+        <div style="
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 36px 32px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+            animation: stSlideIn 0.35s cubic-bezier(.22,.61,.36,1);
+        ">
+            <div style="
+                width: 72px; height: 72px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+                display: flex; align-items: center; justify-content: center;
+                margin: 0 auto 20px;
+                border: 2px solid #f59e0b;
+            ">
+                <i class="bi bi-clock-history" style="font-size: 2rem; color: #d97706;"></i>
+            </div>
+            <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 10px;">Session Expiring Soon</h4>
+            <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 8px;">
+                You will be automatically logged out in
+            </p>
+            <div id="stCountdown" style="
+                font-size: 2.2rem;
+                font-weight: 800;
+                color: #d97706;
+                margin-bottom: 20px;
+                letter-spacing: 1px;
+            ">2:00</div>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 28px;">
+                Click below to stay logged in.
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button onclick="stKeepAlive()" style="
+                    background: linear-gradient(135deg, #07518A, #0d6efd);
+                    color: #fff;
+                    border: none;
+                    border-radius: 10px;
+                    padding: 12px 32px;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                    box-shadow: 0 8px 20px rgba(13,110,253,0.3);
+                    transition: transform 0.15s;
+                " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+                    <i class="bi bi-arrow-repeat me-2"></i>Stay Logged In
+                </button>
+                <button onclick="stLogoutNow()" style="
+                    background: transparent;
+                    color: #ef4444;
+                    border: 1.5px solid #ef4444;
+                    border-radius: 10px;
+                    padding: 12px 24px;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                    transition: background 0.15s;
+                " onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes stSlideIn {
+            from { opacity: 0; transform: scale(0.88) translateY(20px); }
+            to   { opacity: 1; transform: scale(1)   translateY(0);     }
+        }
+    </style>
+
+    <script>
+    (function () {
+        // ---- Session timeout settings (must match Django SESSION_COOKIE_AGE = 1800s) ----
+        var SESSION_TOTAL_MS   = 1800 * 1000;   // 30 minutes total session
+        var WARN_BEFORE_MS     = 120  * 1000;   // warn 2 minutes before expiry
+        var WARN_DURATION_MS   = 120  * 1000;   // countdown duration = 2 min
+
+        var overlay       = document.getElementById('sessionTimeoutOverlay');
+        var countdownEl   = document.getElementById('stCountdown');
+        var warnTimer     = null;   // fires to show the warning
+        var countdownInt  = null;   // 1-second tick
+        var logoutTimer   = null;   // fires to redirect to login
+        var secondsLeft   = 0;
+
+        function fmt(s) {
+            var m = Math.floor(s / 60);
+            var sec = s % 60;
+            return m + ':' + (sec < 10 ? '0' : '') + sec;
+        }
+
+        function showWarning() {
+            secondsLeft = Math.floor(WARN_DURATION_MS / 1000);
+            overlay.style.display = 'flex';
+            countdownEl.textContent = fmt(secondsLeft);
+
+            countdownInt = setInterval(function () {
+                secondsLeft--;
+                if (secondsLeft <= 0) {
+                    clearInterval(countdownInt);
+                    stLogoutNow();
+                } else {
+                    countdownEl.textContent = fmt(secondsLeft);
+                    // Change color urgency
+                    if (secondsLeft <= 30) {
+                        countdownEl.style.color = '#dc3545';
+                    } else if (secondsLeft <= 60) {
+                        countdownEl.style.color = '#f59e0b';
+                    }
+                }
+            }, 1000);
+
+            // Hard redirect after countdown expires
+            logoutTimer = setTimeout(function () {
+                stLogoutNow();
+            }, WARN_DURATION_MS);
+        }
+
+        function resetTimers() {
+            // Clear all
+            clearTimeout(warnTimer);
+            clearInterval(countdownInt);
+            clearTimeout(logoutTimer);
+            overlay.style.display = 'none';
+            countdownEl.style.color = '#d97706';
+
+            // Schedule the warning to appear before session expires
+            warnTimer = setTimeout(showWarning, SESSION_TOTAL_MS - WARN_BEFORE_MS);
+        }
+
+        // Public: keep alive by making a lightweight ping to the server
+        window.stKeepAlive = function () {
+            fetch(window.location.href, {
+                method: 'GET',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin'
+            }).catch(function () {});
+            resetTimers();
+        };
+
+        window.stLogoutNow = function () {
+            clearInterval(countdownInt);
+            clearTimeout(logoutTimer);
+            // Submit logout form if it exists, otherwise redirect to login
+            var logoutForm = document.getElementById('logout-form');
+            if (logoutForm) {
+                logoutForm.submit();
+            } else {
+                window.location.href = '/login/';
+            }
+        };
+
+        // Start the timer on page load
+        resetTimers();
+
+        // Reset timers on any user interaction (mouse, keyboard, touch)
+        ['click', 'mousemove', 'keydown', 'scroll', 'touchstart'].forEach(function (evt) {
+            document.addEventListener(evt, function () {
+                // Only reset if warning is NOT already showing
+                if (overlay.style.display === 'none') {
+                    resetTimers();
+                }
+            }, { passive: true });
+        });
+    })();
+    </script>
+
 </body>
 
 </html>
