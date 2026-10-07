@@ -1000,6 +1000,16 @@ def export_assets_csv(request):
             else:
                 assets = assets.filter(status__iexact=status)
                 filename_parts.append(status.lower().replace(' ', '_'))
+
+        # Filter by branch via active assignment employee branch
+        branch_filter = request.POST.get('branch', 'All').strip()
+        if branch_filter and branch_filter != 'All':
+            branch_asset_pks = Assignment.objects.filter(
+                employee__branch__iexact=branch_filter,
+                status__in=['In Use', 'Temporary', 'Temporary Use']
+            ).values_list('asset_id', flat=True)
+            assets = assets.filter(pk__in=branch_asset_pks)
+            filename_parts.append(branch_filter.lower().replace(' ', '_'))
                 
         filename = f"{'_'.join(filename_parts)}_assets_export.xlsx"
         
@@ -1955,6 +1965,12 @@ def view_assets(request):
     all_other_statuses_json = json.dumps(all_other_statuses)
     other_statuses_by_type_json = json.dumps({k: sorted(list(v)) for k, v in other_statuses_by_type.items()})
 
+    # Distinct branches for the Export modal dropdown
+    branch_list = sorted([
+        b for b in Employee.objects.values_list('branch', flat=True).distinct()
+        if b and b.strip()
+    ])
+
     unified_table = []
     for assign in assignments:
         unified_table.append({'asset': assign.asset, 'assignment': assign, 'assigned_to': assign.employee, 'status': assign.asset.status})
@@ -1990,6 +2006,7 @@ def view_assets(request):
         'all_other_statuses_json': all_other_statuses_json,
         'other_statuses_by_type_json': other_statuses_by_type_json,
         'pending_return_asset_pks': pending_return_asset_pks,
+        'branch_list': branch_list,
     })
 
 
