@@ -1020,13 +1020,13 @@ def export_assets_csv(request):
         headers = [
             'Asset ID', 'Asset Type', 'Manufacturer/Company', 'Model Name', 'Serial Number',
             'Vendor Name', 'Status', 'RAM', 'Storage', 'Processor', 'Graphic Card', 'Display Size',
-            'Purchase Date', 'Cost', 'Warranty', 'Warranty End Date', 'Assigned To', 'QR Code'
+            'Purchase Date', 'Cost', 'Warranty', 'Warranty End Date', 'Assigned To', 'Branch', 'QR Code'
         ]
         ws.append(headers)
         
-        for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q']:
+        for col in ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R']:
             ws.column_dimensions[col].width = 15
-        ws.column_dimensions['R'].width = 20
+        ws.column_dimensions['S'].width = 20
         
         row_num = 2
         import qrcode
@@ -1034,9 +1034,11 @@ def export_assets_csv(request):
         
         for asset in assets:
             assigned_to = ''
+            branch_name = ''
             active_assignment = asset.assignment_set.filter(status__in=['In Use', 'Temporary', 'Temporary Use']).first()
             if active_assignment and active_assignment.employee:
                 assigned_to = f"{active_assignment.employee.name} ({active_assignment.employee.employee_id})"
+                branch_name = active_assignment.employee.branch
                 
             qr_url = f"http://{server_ip}{reverse('asset_detail1', args=[asset.pk])}"
             
@@ -1058,12 +1060,13 @@ def export_assets_csv(request):
                 asset.warranty,
                 asset.warranty_end_date.strftime('%d/%m/%Y') if asset.warranty_end_date else '',
                 assigned_to,
+                branch_name,
                 '' # Empty text so the URL doesn't show up visibly
             ]
             ws.append(row_data)
             ws.row_dimensions[row_num].height = 80
             
-            url_cell = ws.cell(row=row_num, column=18)
+            url_cell = ws.cell(row=row_num, column=19)
             url_cell.hyperlink = qr_url
             # Not setting style="Hyperlink" so it doesn't look blue/underlined.
             
@@ -1080,7 +1083,7 @@ def export_assets_csv(request):
                 img = Image(img_buffer)
                 img.width = 100
                 img.height = 100
-                ws.add_image(img, f'R{row_num}')
+                ws.add_image(img, f'S{row_num}')
             except Exception as e:
                 pass
             
