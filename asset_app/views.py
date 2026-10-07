@@ -2557,8 +2557,13 @@ def view_tickets(request):
 
     # Limit assets user can select
     if 'asset' in form.fields:
-        if request.user.is_staff or getattr(request.user, 'role', '') == 'superadmin':
+        if request.user.is_staff or getattr(request.user, 'role', '') in ('superadmin', 'admin', 'asset_admin'):
             form.fields['asset'].queryset = Asset.objects.all()
+            # Show serial number in dropdown for admin/superadmin so they can identify assets
+            def _asset_label_with_sn(asset):
+                sn = asset.series_number or '-'
+                return f"{asset.asset_type} — {asset.asset_id}  [SN: {sn}]"
+            form.fields['asset'].label_from_instance = _asset_label_with_sn
         elif getattr(request.user, 'role', '') == 'manager':
             assigned_asset_ids = Assignment.objects.filter(
                 employee__department__iexact=request.user.department

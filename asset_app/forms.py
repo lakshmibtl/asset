@@ -412,8 +412,11 @@ class AssetRequestForm(forms.ModelForm):
 
     class Meta:
         model = AssetRequest
-        fields = ['asset_category', 'other_asset_category', 'asset_type', 'quantity', 'reason', 'required_date']
+        fields = ['employee', 'asset_category', 'other_asset_category', 'asset_type', 'quantity', 'reason', 'required_date']
         widgets = {
+            'employee': forms.Select(attrs={
+                'class': 'form-select',
+            }),
             'asset_type': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'e.g. Dell Laptop'
@@ -428,6 +431,11 @@ class AssetRequestForm(forms.ModelForm):
                 'placeholder': 'Reason for request'
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['employee'].required = False
+        self.fields['employee'].empty_label = "Select Employee (Optional)"
 
     def clean(self):
         cleaned_data = super().clean()

@@ -11,8 +11,7 @@ logger = logging.getLogger(__name__)
 _last_sync_time = None
 _sync_lock = threading.Lock()
 
-SYNC_INTERVAL = timedelta(hours=1)
-
+SYNC_INTERVAL = timedelta(minutes=1)
 
 def _needs_sync():
     global _last_sync_time
@@ -25,7 +24,7 @@ def _do_sync():
     global _last_sync_time
     url = "https://hrms.brihaspathi.in/api/locationtracking/employees"
     try:
-        response = requests.get(url, timeout=30, verify=False)
+        response = requests.get(url, timeout=10, verify=False)
         response.raise_for_status()
         data = response.json()
 
@@ -69,9 +68,8 @@ def _do_sync():
 
 def sync_employees_from_api():
     if _needs_sync():
-        t = threading.Thread(target=_do_sync, daemon=True)
-        t.start()
-    return True, "Sync started in background."
+        _do_sync()
+    return True, "Sync completed."
 
 
 def sync_employees_immediate():

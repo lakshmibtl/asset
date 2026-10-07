@@ -269,6 +269,7 @@ class AssetRequest(models.Model):
     asset_type = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField(default=1)
     requested_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    employee = models.ForeignKey('Employee', on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending_Manager')
     requested_at = models.DateTimeField(auto_now_add=True)
     reason = models.TextField(blank=True)

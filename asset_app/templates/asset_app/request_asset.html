@@ -152,6 +152,16 @@
                 <div class="p-4">
                     <form method="POST" action="">
                         {% csrf_token %}
+                        {% if request.user.role == 'superadmin' or request.user.role == 'admin' or request.user.role == 'hr' or request.user.role == 'manager' %}
+                        <div class="mb-3">
+                            <label class="f-label">Select Employee (HR / Admin Use)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                                {{ form.employee|add_class:"f-select border-start-0" }}
+                            </div>
+                        </div>
+                        {% endif %}
+
                         <div class="mb-3">
                             <label class="f-label">Asset Type <span class="text-danger">*</span></label>
                             <div class="input-group">
