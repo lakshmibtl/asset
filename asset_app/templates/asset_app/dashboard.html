@@ -92,33 +92,14 @@
 
     /* --- Welcome Banner --- */
     .user-welcome-banner {
-        background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-        border-radius: 16px;
-        color: #fff;
-        padding: 2rem 2.5rem;
+        background: transparent;
+        color: #0f172a;
+        padding: 1rem 0 2rem 0;
         position: relative;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.5rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-    }
-    .user-welcome-banner::before {
-        content: '';
-        position: absolute;
-        top: -60px; right: -60px;
-        width: 250px; height: 250px;
-        background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
-        border-radius: 50%;
-    }
-    .user-welcome-banner::after {
-        content: '';
-        position: absolute;
-        bottom: -80px; left: 5%;
-        width: 200px; height: 200px;
-        background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, transparent 70%);
-        border-radius: 50%;
     }
     .user-welcome-title {
         font-weight: 700;
@@ -344,14 +325,6 @@
         <div style="z-index:1;">
             <h1 class="user-welcome-title">Welcome back, {{ display_name|title }}! 👋</h1>
             <p class="user-welcome-subtitle">Here's a quick overview of your assigned hardware and recent activity.</p>
-        </div>
-        <div class="user-welcome-actions">
-            <a href="{% url 'procurement_list' %}" class="btn-user-primary">
-                <i class="bi bi-cart-plus"></i> Request Asset
-            </a>
-            <a href="{% url 'raise_ticket' %}" class="btn-user-secondary">
-                <i class="bi bi-headset"></i> Support
-            </a>
         </div>
     </div>
 
@@ -620,47 +593,32 @@
         <div class="col-12">
             <div class="user-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div class="user-card-title"><i class="bi bi-activity text-primary me-2"></i>Recent Activity</div>
+                    <div class="user-card-title"><i class="bi bi-ticket-detailed text-primary me-2"></i>Support Tickets</div>
                 </div>
                 <div class="mt-2">
-                    <!-- Activity items dynamically based on assignments and requests -->
-                    {% for assignment in emp_recent_assignments|slice:":3" %}
-                    <div class="u-activity-item">
-                        <div class="u-activity-icon" style="background:#dcfce7;color:#10b981;">
-                            <i class="bi bi-check-circle-fill"></i>
-                        </div>
-                        <div style="flex-grow:1;">
-                            <div class="d-flex justify-content-between">
-                                <div class="u-activity-title">Asset Assigned</div>
-                                <div class="u-activity-time">{{ assignment.assigned_date|date:"d M"|default:assignment.assigned_at|date:"d M" }}</div>
-                            </div>
-                            <div class="u-activity-desc">{{ assignment.asset.name|default:assignment.asset.asset_type }} ({{ assignment.asset.asset_id }}) assigned to you</div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% for req in emp_recent_requests|slice:":3" %}
+                    <!-- Activity items dynamically based on tickets -->
+                    {% for ticket in emp_recent_tickets|slice:":5" %}
                     <div class="u-activity-item">
                         <div class="u-activity-icon" style="
-                            {% if 'Approved' in req.status or 'Completed' in req.status %}background:#dcfce7;color:#10b981;
-                            {% elif 'Reject' in req.status %}background:#fee2e2;color:#ef4444;
+                            {% if ticket.status == 'Resolved' %}background:#dcfce7;color:#10b981;
+                            {% elif ticket.status == 'Closed' %}background:#f1f5f9;color:#64748b;
                             {% else %}background:#fef3c7;color:#d97706;{% endif %}">
-                            <i class="bi bi-file-earmark-text-fill"></i>
+                            <i class="bi bi-ticket-detailed"></i>
                         </div>
                         <div style="flex-grow:1;">
                             <div class="d-flex justify-content-between">
-                                <div class="u-activity-title">Request {{ req.status }}</div>
-                                <div class="u-activity-time">{{ req.request_date|date:"d M" }}</div>
+                                <div class="u-activity-title">Ticket {{ ticket.status }}</div>
+                                <div class="u-activity-time">{{ ticket.created_at|date:"d M" }}</div>
                             </div>
-                            <div class="u-activity-desc">REQ{{ req.id|stringformat:"04d" }} — {{ req.asset_type }}</div>
+                            <div class="u-activity-desc">TKT-{{ ticket.id|stringformat:"04d" }} — {{ ticket.subject|truncatechars:50 }}</div>
                         </div>
                     </div>
-                    {% endfor %}
-                    {% if not emp_recent_assignments and not emp_recent_requests %}
+                    {% empty %}
                     <div class="u-empty-state">
                         <i class="bi bi-clock-history"></i>
                         <span>No recent activity yet.</span>
                     </div>
-                    {% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>

@@ -53,9 +53,9 @@ CSRF_TRUSTED_ORIGINS = [
 AUTH_USER_MODEL = "accounts.CustomUser"
 
 
-LOGIN_URL = "/login/"
+LOGIN_URL = "/"
 LOGIN_REDIRECT_URL = "/asset/dashboard/"
-LOGOUT_REDIRECT_URL = "/login/"
+LOGOUT_REDIRECT_URL = "/"
 
 CSRF_FAILURE_VIEW = "asset_app.views.csrf_failure_handler"
 

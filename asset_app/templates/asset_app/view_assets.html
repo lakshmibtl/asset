@@ -771,6 +771,21 @@
         font-size: 0.75rem !important;
         padding: 0.4em 0.8em !important;
     }
+
+    .btn-my-assigned {
+        background: #6366f1 !important; /* Indigo color for contrast */
+        color: white !important;
+        border: none !important;
+        font-weight: 600 !important;
+    }
+    .btn-my-assigned:hover {
+        background: #4f46e5 !important;
+        color: white !important;
+    }
+    .btn-my-assigned.active {
+        background: var(--primary) !important;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3) !important;
+    }
 </style>
 
 <div class="container-fluid py-3 py-md-4 px-2 px-md-4">
@@ -778,15 +793,23 @@
     <!-- ================= STANDARD HEADER ================= -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3 animate-in"
         style="--delay: 0.05s;">
-        <div>
-
-            <h3 class="fw-bolder text-dark mb-1">
-                <i class="bi bi-box-seam-fill text-primary me-2"></i>Asset Inventory
-            </h3>
-            <p class="text-muted mb-0">Overview of assigned and available warehouse stock.</p>
+        <div class="d-flex align-items-center gap-3">
+            <div>
+                <h3 class="fw-bolder text-dark mb-1">
+                    <i class="bi bi-box-seam-fill text-primary me-2"></i>Asset Inventory
+                </h3>
+                <p class="text-muted mb-0">Overview of assigned and available warehouse stock.</p>
+            </div>
         </div>
-        {% if request.user.is_staff %}
-        <div class="mt-2 mt-md-0 d-flex gap-2">
+        
+        <div class="mt-2 mt-md-0 d-flex flex-wrap gap-2 align-items-center">
+            {% if request.user.is_staff or request.user.role == 'manager' or request.user.role == 'admin' or request.user.role == 'superadmin' %}
+            <button type="button" class="btn filter-btn text-nowrap rounded-pill px-4 shadow-sm btn-my-assigned" data-filter="my_assigned" style="height: 42px; display: flex; align-items: center;">
+                <i class="bi bi-person-check-fill me-2"></i> My Assigned Assets
+            </button>
+            {% endif %}
+            
+            {% if request.user.is_staff %}
             <button type="button" class="btn btn-success rounded-pill px-4 fw-semibold shadow-sm" data-bs-toggle="modal"
                 data-bs-target="#downloadExportModal">
                 <i class="bi bi-file-earmark-excel me-1"></i> Download
@@ -796,8 +819,8 @@
                 aria-controls="addAssetOffcanvas">
                 <i class="bi bi-plus-lg me-1"></i> Add New Asset
             </button>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 
     <!-- ASSET STATS -->
@@ -876,9 +899,9 @@
                 <!-- CATEGORY FILTER -->
                 <div class="overflow-x-auto w-100 w-md-auto pb-2 pb-md-0">
                     <div class="d-flex gap-2 flex-wrap" role="group" aria-label="Category filters">
-                        <button type="button" class="btn filter-btn active" data-filter="all">All</button>
+                        <button type="button" class="btn filter-btn active rounded-pill px-3" data-filter="all" style="height: 42px; display: flex; align-items: center;">All</button>
                         {% for stat in asset_stats %}
-                        <button type="button" class="btn filter-btn" data-filter="{{ stat.asset_type|lower }}">
+                        <button type="button" class="btn filter-btn rounded-pill px-3" data-filter="{{ stat.asset_type|lower }}" style="height: 42px; display: flex; align-items: center;">
                             {{ stat.asset_type }}
                             {% for dd in type_dropdowns %}{% if dd.type|lower == stat.asset_type|lower and dd.subtypes %}<i class="bi bi-chevron-down ms-1" style="font-size:.6rem;"></i>{% endif %}{% endfor %}
                         </button>
@@ -904,28 +927,30 @@
                 </div>
 
                 <!-- SEARCH -->
-                <div class="ms-md-auto w-100" style="max-width: 480px;">
-                    <div class="input-group bg-white shadow-sm rounded-pill overflow-hidden">
-                        <span class="input-group-text bg-white border-0 text-muted ps-3"><i
-                                class="bi bi-search"></i></span>
-                        {% if not is_employee %}
-                        <input type="text" id="assetSearch" class="form-control border-0 ps-0"
-                            placeholder="Search by Employee / Asset ID / SN / Type...">
-                        {% else %}
-                        <input type="text" id="assetSearch" class="form-control border-0 ps-0"
-                            placeholder="Search by Asset ID / SN / Type...">
-                        {% endif %}
-                    </div>
-                </div>
+                <div class="ms-md-auto d-flex flex-column flex-md-row gap-2 align-items-md-center justify-content-md-end w-100" style="max-width: 700px;">
 
-                <!-- VIEW TOGGLE -->
-                <div class="ms-md-2 mt-2 mt-md-0 d-flex gap-2">
-                    <button class="btn btn-outline-primary active view-toggle-btn"
-                        style="border-radius: 999px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"
-                        id="btnGrid" title="Grid View"><i class="bi bi-grid-fill"></i></button>
-                    <button class="btn btn-outline-secondary view-toggle-btn"
-                        style="border-radius: 999px; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.05);"
-                        id="btnList" title="List View"><i class="bi bi-list-ul"></i></button>
+                    
+                    <div class="d-flex bg-white shadow-sm rounded-pill align-items-center w-100 p-1" style="max-width: 600px;">
+                        <div class="input-group overflow-hidden border-0 bg-transparent flex-grow-1">
+                            <span class="input-group-text bg-transparent border-0 text-muted ps-3"><i
+                                    class="bi bi-search"></i></span>
+                            {% if not is_employee %}
+                            <input type="text" id="assetSearch" class="form-control border-0 bg-transparent ps-0 shadow-none"
+                                placeholder="Search by Employee / Asset ID / SN / Type...">
+                            {% else %}
+                            <input type="text" id="assetSearch" class="form-control border-0 bg-transparent ps-0 shadow-none"
+                                placeholder="Search by Asset ID / SN / Type...">
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-1 ms-2">
+                            <button class="btn btn-outline-primary active view-toggle-btn border-0"
+                                style="border-radius: 999px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"
+                                id="btnGrid" title="Grid View"><i class="bi bi-grid-fill"></i></button>
+                            <button class="btn btn-outline-secondary view-toggle-btn border-0"
+                                style="border-radius: 999px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;"
+                                id="btnList" title="List View"><i class="bi bi-list-ul"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2331,7 +2356,15 @@
                 const sn = (item.dataset.sn || "").toLowerCase();
                 const status = (item.dataset.status || "").toLowerCase();
 
-                const matchesFilter = (filterValue === "all") || (types.indexOf(filterValue) !== -1) || (names.indexOf(filterValue) !== -1);
+                let matchesFilter = false;
+                if (filterValue === "all") {
+                    matchesFilter = true;
+                } else if (filterValue === "my_assigned") {
+                    const currentUser = "{{ request.user.username|lower|escapejs }}";
+                    matchesFilter = (empId === currentUser) || (empName === currentUser);
+                } else {
+                    matchesFilter = (types.indexOf(filterValue) !== -1) || (names.indexOf(filterValue) !== -1);
+                }
                 const matchesQuery =
                     !query ||
                     empName.indexOf(query) !== -1 ||

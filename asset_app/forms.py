@@ -519,6 +519,8 @@ class TicketForm(forms.ModelForm):
             
         self.fields['department'].widget.choices = choices
         self.fields['department'].choices = choices
+        
+        self.fields['asset'].empty_label = "Select an Asset"
 
 
 # ---------------------------------------------------------

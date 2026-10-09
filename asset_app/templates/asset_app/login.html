@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -49,7 +50,7 @@
       background-position: center;
       overflow: hidden;
     }
-    
+
     .login-left-content {
       position: absolute;
       top: 60px;
@@ -119,7 +120,7 @@
       margin-bottom: 20px;
       position: relative;
     }
-    
+
     .form-group label {
       display: block;
       color: #64748b;
@@ -235,21 +236,25 @@
       .login-container {
         flex-direction: column;
       }
+
       .login-left {
         flex: none;
         height: 300px;
         background-size: cover;
       }
+
       .login-left-content {
         top: 30px;
         left: 30px;
       }
+
       .login-right {
         padding: 40px 30px;
       }
     }
   </style>
 </head>
+
 <body>
 
   <div class="login-container">
@@ -298,7 +303,7 @@
             <i class="fa-solid fa-circle-notch fa-spin" style="display: none; margin-left: 8px;" id="loginSpinner"></i>
           </button>
         </form>
-        
+
         <div class="bottom-text">
           Don't have an account? <a href="#">Contact Admin</a>
         </div>
@@ -328,4 +333,5 @@
   </script>
 
 </body>
+
 </html>

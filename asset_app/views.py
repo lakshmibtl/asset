@@ -2671,6 +2671,12 @@ def _send_whatsapp_notification(ticket):
     
     
     raised_by = _employee_display_name(ticket.created_by) if ticket.created_by else "System"
+    if ticket.created_by:
+        emp = Employee.objects.filter(employee_id__iexact=ticket.created_by.username).first()
+        if not emp:
+            emp = Employee.objects.filter(name__iexact=ticket.created_by.username).first()
+        if emp and emp.branch:
+            raised_by = f"{raised_by} ({emp.branch})"
     
     template_params = [
         f"TKT-{ticket.id:03d}",
@@ -2688,14 +2694,9 @@ def _send_whatsapp_notification(ticket):
             print(f"Failed to send WhatsApp message to {number}: {e}")
 
 def raise_ticket(request):
-    # Determine which assets user can see
-    if request.user.is_staff or getattr(request.user, 'role', '') == 'superadmin':
+    role = getattr(request.user, 'role', '')
+    if (request.user.is_staff or role == 'superadmin') and role != 'manager':
         user_assets = Asset.objects.all()
-    elif getattr(request.user, 'role', '') == 'manager':
-        assigned_asset_ids = Assignment.objects.filter(
-            employee__department__iexact=request.user.department
-        ).values_list('asset_id', flat=True)
-        user_assets = Asset.objects.filter(id__in=assigned_asset_ids)
     else:
         assigned_asset_ids = Assignment.objects.filter(
             Q(employee__employee_id__iexact=request.user.username) | Q(employee__name__iexact=request.user.username),
