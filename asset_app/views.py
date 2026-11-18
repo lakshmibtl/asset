@@ -214,10 +214,11 @@ def view_users(request):
     from .sync_employees import sync_employees_from_api
     sync_employees_from_api()
     users = User.objects.all().order_by('-id')
-    employees = Employee.objects.all().order_by('name')
-    emp_name_map = {e.employee_id: e.name for e in employees}
+    all_employees = Employee.objects.all()
+    emp_name_map = {e.employee_id: e.name for e in all_employees}
     for u in users:
         u.custom_display_name = u.first_name or emp_name_map.get(u.username) or u.username
+    employees = Employee.objects.filter(is_active=True).order_by('name')
     total_users_count = users.count()
     active_users_count = users.filter(is_active=True).count()
     inactive_users_count = users.filter(is_active=False).count()
@@ -1423,7 +1424,7 @@ def assign_asset(request):
     else:
         assets_query = Asset.objects.filter(status__iexact="Available").order_by('asset_id')
 
-    employees = Employee.objects.all().order_by('name')
+    employees = Employee.objects.filter(is_active=True).order_by('name')
     employees_json = json.dumps([
         {
             'id': emp.id,
@@ -1928,7 +1929,7 @@ def view_assets(request):
         ReturnRequest.objects.filter(employee__employee_id__iexact=request.user.username, status__in=['Pending', 'Manager_Approved']).values_list('asset_id', flat=True)
     )
 
-    employees = Employee.objects.all().order_by('name')
+    employees = Employee.objects.filter(is_active=True).order_by('name')
     employees_json = json.dumps([
         {
             'id': emp.id,

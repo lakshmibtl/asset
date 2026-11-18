@@ -41,6 +41,7 @@ def _do_sync():
             logger.warning("HRMS API: Expected a list")
             return
 
+        active_emp_ids = set()
         with transaction.atomic():
             for item in data:
                 if not isinstance(item, dict):
@@ -57,8 +58,13 @@ def _do_sync():
 
                 Employee.objects.update_or_create(
                     employee_id=emp_id,
-                    defaults={'name': name, 'department': department, 'branch': branch, 'email': email}
+                    defaults={'name': name, 'department': department, 'branch': branch, 'email': email, 'is_active': True}
                 )
+                active_emp_ids.add(emp_id)
+
+            if active_emp_ids:
+                # Mark employees no longer present in the HRMS API as inactive
+                Employee.objects.exclude(employee_id__in=active_emp_ids).update(is_active=False)
 
         _last_sync_time = timezone.now()
         logger.info("HRMS employee sync completed successfully")
